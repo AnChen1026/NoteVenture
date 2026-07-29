@@ -2,9 +2,12 @@ import secrets # 產生安全的隨機資料
 import string # 常用字元集合
 
 # 自動產生學生帳號
-def generate_student_username(teacher_id, serial_no):
-    return "T" + str(teacher_id) + "S" + str(serial_no).zfill(3) 
-    # .zfill() 在字串左邊補足0達指定長度
+def generate_student_username(teacher_id):
+    num = string.digits
+    user_name = f"T{str(teacher_id)}S"
+    for _ in range(6):
+        user_name += secrets.choice(num)
+    return user_name
 
 
 # 自動產生隨機臨時密碼
