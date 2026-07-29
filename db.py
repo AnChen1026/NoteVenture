@@ -1,7 +1,6 @@
 import pymysql
 from configparser import ConfigParser
 
-
 class SqlUtils:
     def __init__(self):
         self.config = ConfigParser()
@@ -19,7 +18,7 @@ class SqlUtils:
         )
 
     # 查詢單一資料
-    def query_one(self, sql, params=None):
+    def query_one(self, sql, params = None):
         conn = self.get_connection()
 
         try:
@@ -28,12 +27,12 @@ class SqlUtils:
                 result = cursor.fetchone()
 
             return result
-
+        
         finally:
             conn.close()
 
     # 查詢全部資料
-    def query_all(self, sql, params=None):
+    def query_all(self, sql, params = None):
         conn = self.get_connection()
 
         try:
@@ -46,21 +45,22 @@ class SqlUtils:
         finally:
             conn.close()
 
-    # 新增、刪除、修改
-    def execute(self, sql, params=None):
-        conn = self.get_connection()
+    # 新增、刪除、修改 INSERT、UPDATE、DELETE 
+    def execute(self, sql, params = None):
+            conn = self.get_connection()
+    
+            try:
+                with conn.cursor() as cursor:
+                    cursor.execute(sql, params)
 
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, params)
+                conn.commit()
+                return True
 
-            conn.commit()
-            return True
+            except Exception as e:
+                conn.rollback()
+                print('執行失敗', e)
+                return False
 
-        except Exception as e:
-            conn.rollback()
-            print("執行失敗", e)
-            return False
+            finally:
+                conn.close()
 
-        finally:
-            conn.close()
