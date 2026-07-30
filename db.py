@@ -52,14 +52,14 @@ class SqlUtils:
             try:
                 with conn.cursor() as cursor:
                     cursor.execute(sql, params)
-
+                    rowcount = cursor.rowcount
                 conn.commit()
-                return True
+                return rowcount
 
             except Exception as e:
                 conn.rollback()
                 print('執行失敗', e)
-                return False
+                return -1
 
             finally:
                 conn.close()

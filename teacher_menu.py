@@ -1,46 +1,33 @@
-# =========== 測試 ============
 from db import SqlUtils
-from utils.username_utils import generate_student_username, generate_temp_password
-from utils.password_utils import hash_password
+from utils.password_utils import check_password
+from services.teacher_service import change_teacher_password
+from services.student_service import show_student, create_student, reset_student_password
 
+# =========== 測試 ============
 db = SqlUtils()
-# def create_student(teacher_id=teacher['teacher_id'], username, password):
 
 
-def show_student(teacher):
-    sql = """
-    select student_id 序號, username 帳號, student_name 姓名, total_xp 經驗值, total_coin 金幣數 from student where teacher_id = %s;
-    """
-
-    result = db.query_all(sql, teacher['teacher_id'])
-    if result:
-        print('開啟學生列表')
-        return result
-    else:
-        return '沒有學生資料'
-
-def create_student(teacher, student_name):
-    user_name = generate_student_username(teacher['teacher_id'])
-    password = generate_temp_password()
-    password_hash = hash_password(password)
-    sql = """
-    INSERT INTO student (teacher_id, username, password_hash, student_name)
-    VALUES (%s, %s, %s, %s)
-    """
-
-    result = db.execute(sql, (teacher['teacher_id'], user_name, password_hash, student_name))
-    if result:
-        return user_name, password
-    return None
-
-def reset_student_password(student_name):
-    sql = """
-                UPDATE teacher
-                SET password_hash = %s
-                WHERE email = %s
-                """
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# ========= 老師介面 ===========
 
 def teacher_menu(teacher):
     while True:
@@ -53,7 +40,7 @@ def teacher_menu(teacher):
             '[5]商品管理\n'
             '[6]轉介學生\n'
             '[7]重設學生密碼\n'
-            '[8]設定\n'
+            '[8]設定(修改密碼)\n'
             '[0]登出\n'
             ':'
         )
@@ -77,22 +64,30 @@ def teacher_menu(teacher):
             print('任務管理')
 
         elif choice == '4':
-            print('查看學生上傳紀錄')
+            print('查看學生上傳紀錄尚未建立')
 
         elif choice == '5':
             print('商品管理')
 
         elif choice == '6':
-            print('轉介學生')
+            print('轉介學生功能尚未建立')
 
         elif choice == '7':
-            print('重設學生密碼')
-
+            student_username = input('請輸入學生帳號：')
+            result = reset_student_password(student_username)
+            print(result)
+            
         elif choice == '8':
-            print('設定')
+            old_password = input('請輸入密碼：')
+            is_correct = check_password(old_password, teacher['password_hash'])
+            if is_correct:
+                result = change_teacher_password(teacher, old_password)
+                print(result)
+            else:
+                print('密碼輸入錯誤')
 
         elif choice == '0':
-            print('謝謝')
+            print('已登出')
             break
 
         else:

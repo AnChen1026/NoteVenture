@@ -1,5 +1,7 @@
 from services.teacher_service import create_teacher, login_teacher
+from services.student_service import login_student
 from teacher_menu import teacher_menu
+from student_menu import student_menu
 
 
 
@@ -27,7 +29,11 @@ while True:
         
 
     elif choice == '2':
-        print('學生登入功能尚未開通')
+        username = input('請輸入帳號：')
+        password = input('請輸入密碼：')
+        student = login_student(username, password)
+        if student:
+            student_menu(student)
 
     elif choice == '3':
         while True:

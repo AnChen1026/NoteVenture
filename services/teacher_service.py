@@ -2,7 +2,10 @@ from db import SqlUtils
 from utils.password_utils import hash_password, check_password
 db = SqlUtils()
 
+
+# ================================================
 # 新增老師功能
+# ================================================
 def create_teacher(teacher_name, email, password):
     sql = """
     INSERT INTO teacher (teacher_name, email, password_hash)
@@ -16,11 +19,15 @@ def create_teacher(teacher_name, email, password):
     else:
         return '老師帳號建立失敗'
 
+
+# ================================================
+# 老師登入功能
+# ================================================
 def login_teacher(email, password):
     sql = """
     SELECT teacher_id, teacher_name, email, password_hash
     FROM teacher
-    WHERE email = %s
+    WHERE email = %s;
     """
     try:
         result = db.query_one(sql, (email,))
@@ -37,4 +44,33 @@ def login_teacher(email, password):
     except Exception as e:
         print("老師登入失敗：", e)
         return None
+
+
+# ================================================
+# 老師修改密碼
+# ================================================
+def change_teacher_password(teacher, old_password):
+    while True:
+        new_password = input('請輸入新密碼：')
+        confirm_password = input('請確認新密碼：')
+        if confirm_password != new_password:
+            print('密碼不一致')
+
+        elif confirm_password == old_password:
+            print('新密碼與原密碼相同')
+
+        elif confirm_password == new_password:
+            password_hash = hash_password(new_password)
+            sql = """
+            UPDATE teacher
+            SET password_hash = %s
+            WHERE teacher_id = %s;
+            """
+            rowcount = db.execute(sql, (password_hash, teacher['teacher_id']))
+            if rowcount > 0:
+                teacher['password_hash'] = password_hash
+                return '密碼修改成功'
+            
+            return '密碼修改失敗'
+
 
