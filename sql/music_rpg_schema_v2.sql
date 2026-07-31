@@ -74,6 +74,7 @@ CREATE TABLE practice_upload (
 -- ============================================
 CREATE TABLE quest_list (
     quest_id INT AUTO_INCREMENT PRIMARY KEY, # 任務流水號
+    teacher_id INT NOT NULL, # 建立任務者
     quest_name VARCHAR(100) NOT NULL, # 任務名稱
     quest_type ENUM(
         'DAILY',#每日任務
@@ -95,7 +96,8 @@ CREATE TABLE quest_list (
     reward_coin INT NOT NULL DEFAULT 0, # 完成任務獎勵貨幣
     is_repeatable BOOLEAN DEFAULT TRUE, # 是否可重複完成
     is_active BOOLEAN DEFAULT TRUE, # 任務是否啟用
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP # 建立時間
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, # 建立時間
+    FOREIGN KEY (teacher_id) REFERENCES teacher(teacher_id)
 );
 
 -- ============================================

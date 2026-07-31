@@ -20,8 +20,10 @@ while True:
         '：'
                    )
     if choice == '1':
-        email = input('請輸入email：')
-        password = input('請輸入密碼：')
+        email = 'test'
+        password = 'test'
+        # email = input('請輸入email：')
+        # password = input('請輸入密碼：')
         teacher = login_teacher(email, password)
         if teacher:
             teacher_menu(teacher)
