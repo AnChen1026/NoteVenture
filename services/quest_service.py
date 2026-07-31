@@ -10,8 +10,7 @@ def show_quest(teacher):
     """
     result = db.query_all(sql, (teacher['teacher_id'],))
     if result:
-        for q in result:
-            return result
+        return result
     return '無任務資料'
 
 def create_quest(teacher):
