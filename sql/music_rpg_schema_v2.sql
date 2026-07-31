@@ -198,3 +198,23 @@ INSERT INTO pet_stage (stage_name, xp_threshold, stage_order, image_url) VALUES
 ('稀有型態', 1500, 4, NULL);
 
 select * from teacher;
+
+INSERT INTO quest_list
+(
+    teacher_id,
+    quest_name,
+    quest_type,
+    condition_type,
+    condition_value,
+    reward_xp,
+    reward_coin,
+    is_repeatable
+)
+VALUES
+(1,'今日初次練習','DAILY','PRACTICE_COUNT',1,20,5,TRUE),
+(1,'今日練習三次','DAILY','PRACTICE_COUNT',3,50,10,TRUE),
+(1,'本週練習三天','WEEKLY','PRACTICE_DAYS',3,100,20,TRUE),
+(1,'本週挑戰三首曲目','WEEKLY','DISTINCT_SONGS',3,100,20,TRUE),
+(1,'持之以恆','HIDDEN','CONSECUTIVE_DAYS',7,200,50,FALSE),
+(1,'練習達人','HIDDEN','TOTAL_UPLOADS',30,300,100,FALSE),
+(1,'歡迎回來','HIDDEN','RETURN_AFTER_GAP',7,100,30,TRUE);
