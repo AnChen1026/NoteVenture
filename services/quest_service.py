@@ -15,7 +15,9 @@ def show_quest(teacher):
 
 def create_quest(teacher):
     while True:
-        quest_name = input('請輸入任務名稱:')
+        quest_name = input('請輸入任務名稱([0]返回):')
+        if quest_name == '0':
+            break
         while True:
             choice = input(
                 '請輸入任務類型\n'
