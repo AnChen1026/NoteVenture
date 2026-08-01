@@ -1,6 +1,7 @@
 from db import SqlUtils
 from utils.password_utils import check_password
 from services.student_service import change_student_password
+from services.quest_service import student_show_quest
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -44,8 +45,8 @@ def student_menu(student):
                 print('密碼輸入錯誤')
 
         elif choice == '3':
-            print('任務欄')
-
+            quest = student_show_quest(student)
+            print(quest)
         elif choice == '4':
             print('商店')
 

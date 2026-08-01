@@ -2,13 +2,25 @@ from db import SqlUtils
 db = SqlUtils()
 
 
-def show_quest(teacher):
+def teacher_show_quest(teacher):
     sql = """
     SELECT quest_name 任務名稱, quest_type 任務類型, condition_type 任務條件類型, condition_value 任務條件數值, reward_xp 獎勵經驗, reward_coin 獎勵金幣, is_repeatable 是否為重複任務, is_active 任務是否啟用
     FROM quest_list
     WHERE teacher_id = %s;
     """
     result = db.query_all(sql, (teacher['teacher_id'],))
+    if result:
+        return result
+    return '無任務資料'
+
+def student_show_quest(student):
+    sql = """
+    SELECT quest_name 任務名稱, quest_type 任務類型, condition_type 任務條件類型, condition_value 任務條件數值, reward_xp 獎勵經驗, reward_coin 獎勵金幣
+    FROM quest_list
+    WHERE teacher_id = %s
+    AND quest_type != 'HIDDEN';
+    """
+    result = db.query_all(sql, (student['teacher_id'],))
     if result:
         return result
     return '無任務資料'
@@ -146,6 +158,14 @@ def create_quest(teacher):
             else:
                 print('輸入錯誤')
 
+
+# def update_quest(teacher):
+#     result = teacher_show_quest(teacher)
+#     menu_dict = {}
+#     for quest in result:
+#         i = 1
+#         menu_dict[i] = quest['quest_name']
+#     choice = 
 
 
 

@@ -31,8 +31,10 @@ while True:
         
 
     elif choice == '2':
-        username = input('請輸入帳號：')
-        password = input('請輸入密碼：')
+        username = 'Test001'
+        password = 'test'
+        # username = input('請輸入帳號：')
+        # password = input('請輸入密碼：')
         student = login_student(username, password)
         if student:
             student_menu(student)
