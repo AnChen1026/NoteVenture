@@ -33,9 +33,9 @@ def create_quest(teacher):
         while True:
             choice = input(
                 '請輸入任務類型\n'
-                '[1]每日任務:DAILY\n'
-                '[2]每週任務:WEEKLY\n'
-                '[3]隱藏任務:HIDDEN\n'
+                '[1]每日任務\n'
+                '[2]每週任務\n'
+                '[3]隱藏任務\n'
                 '：'
             )
             if choice == '1':
