@@ -419,7 +419,64 @@ def delete_quest(teacher):
         else:
             print('輸入錯誤')
 
+# ======================================================
+# 啟用/停用任務
+# ======================================================
+def stop_quest(teacher):
+    result = teacher_show_quest(teacher)
+    if isinstance(result, str):
+        return result
+    menu_dict = {}
+    i = 1
+    for quest in result:
+        menu_dict[f'{i}'] = {
+            'quest_id': quest['任務編號'],
+            'quest_name': quest['任務名稱'],
+            'is_active': quest['任務是否啟用']
+        }
+        i += 1
+    while True:
+        print('===== 需要停用/啟用哪一項任務 =====')
+        for i in range(1,len(menu_dict)+1):
+            quest = menu_dict[str(i)]
+            if quest['is_active'] == 1:
+                status = '啟用中'
+            else:
+                status = '停用中'
+            print(f"[{i}] {quest['quest_name']} | {status}")
 
+        choice = input('[0]取消\n:')
+        if choice == '0':
+            return '已取消變更'
+        elif choice in menu_dict:
+            select_quest = menu_dict[choice]
+            change_quest = select_quest['quest_name']
+            quest_id = select_quest['quest_id']
+            if select_quest['is_active'] == 1:
+                status = '啟用中'
+            else:
+                status = '停用中'
+            while True:
+                print(f'任務 [{change_quest}] 現在是{status}狀態\n是否變更 ?')
+                choice = input('[1]是 [2]否')
+                if choice == '1':
+                    if select_quest['is_active'] == 1:
+                        change_active = 0
+                    else:
+                        change_active = 1
+                    sql = """
+                    UPDATE quest_list SET is_active = %s WHERE quest_id = %s
+                    """
+                    result = db.execute(sql, (change_active, quest_id,))
+                    if result > 0:
+                        return '已變更狀態'
+                    return '變更失敗'
+                elif choice == '2':
+                    break
+                else:
+                    print('輸入錯誤')
+        else:
+            print('輸入錯誤')
     
 
 # ======================================================
@@ -432,8 +489,9 @@ def quest_menu(teacher):
             '[1]查看任務\n'
             '[2]指派任務\n'
             '[3]新增任務\n'
-            '[4]刪除任務\n'
-            '[5]修改任務\n'
+            '[4]停用/啟用任務\n'
+            '[5]刪除任務\n'
+            '[6]修改任務\n'
             '[0]返回\n'
             ':'
         )
@@ -448,10 +506,14 @@ def quest_menu(teacher):
             print(result)
 
         elif choice == '4':
-            result = delete_quest(teacher)
+            result = stop_quest(teacher)
             print(result)
 
         elif choice == '5':
+            result = delete_quest(teacher)
+            print(result)
+
+        elif choice == '6':
             result = update_quest(teacher)
             print(result)
 
