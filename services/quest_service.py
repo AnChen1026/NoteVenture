@@ -377,6 +377,33 @@ def update_quest(teacher):
                 print('輸入錯誤')
 
 # ======================================================
+# 指派任務
+# ======================================================
+def assign_quest(teacher):
+    result = teacher_show_quest(teacher)
+    if isinstance(result, str):
+        return result
+    menu_dict = {}
+    i = 1
+    for quest in result:
+        menu_dict[f'{i}'] = {
+            'quest_id': quest['任務編號'],
+            'quest_name': quest['任務名稱'],
+            'is_active': quest['任務是否啟用']
+        }
+        i += 1
+
+
+
+
+
+
+
+
+
+
+
+# ======================================================
 # 刪除任務
 # ======================================================
 def delete_quest(teacher):
