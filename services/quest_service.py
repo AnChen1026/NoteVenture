@@ -374,6 +374,53 @@ def update_quest(teacher):
             else:
                 print('輸入錯誤')
 
+# ======================================================
+# 刪除任務
+# ======================================================
+def delete_quest(teacher):
+    result = teacher_show_quest(teacher)
+    if isinstance(result, str):
+        return result
+    menu_dict = {}
+    i = 1
+    for quest in result:
+        menu_dict[f'{i}'] = {
+            'quest_id': quest['任務編號'],
+            'quest_name': quest['任務名稱']
+        }
+        i += 1
+    while True:
+        print('===== 需要刪除哪一項任務 =====')
+        for i in range(1,len(menu_dict)+1):
+            print(f'[{i}] {menu_dict[str(i)]['quest_name']}')
+
+        choice = input('[0]取消\n:')
+        if choice == '0':
+            return '已取消刪除'
+        elif choice in menu_dict:
+            select_quest = menu_dict[choice]
+            change_quest = select_quest['quest_name']
+            quest_id = select_quest['quest_id']
+            while True:
+                print(f'確定要刪除任務:{change_quest} ?')
+                choice = input('[1]是 [2]否')
+                if choice == '1':
+                    sql = """
+                    DELETE FROM quest_list WHERE quest_id = %s
+                    """
+                    result = db.execute(sql, (quest_id,))
+                    if result > 0:
+                        return '已刪除任務'
+                    return '刪除失敗'
+                elif choice == '2':
+                    break
+                else:
+                    print('輸入錯誤')
+        else:
+            print('輸入錯誤')
+
+
+    
 
 # ======================================================
 # 任務介面
@@ -401,7 +448,8 @@ def quest_menu(teacher):
             print(result)
 
         elif choice == '4':
-            print('刪除任務尚未啟用')
+            result = delete_quest(teacher)
+            print(result)
 
         elif choice == '5':
             result = update_quest(teacher)
