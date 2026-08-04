@@ -12,7 +12,11 @@ def teacher_show_quest(teacher):
     """
     result = db.query_all(sql, (teacher['teacher_id'],))
     if result:
-        return result
+        for quest in result:
+            print()
+            for dtype in quest:
+                print(f"{dtype} : {quest[dtype]}")
+        return ""
     return '無任務資料'
 
 # ======================================================
@@ -210,8 +214,7 @@ def update_quest(teacher):
                     '4':'condition_value',
                     '5':'reward_xp',
                     '6':'reward_coin',
-                    '7':'is_repeatable',
-                    '8':'is_active'
+                    '7':'is_repeatable'
                 }
 
                 cancel_change_type = False
@@ -225,7 +228,6 @@ def update_quest(teacher):
                         '[5]獎勵經驗\n'
                         '[6]獎勵金幣\n'
                         '[7]是否為重複任務\n'
-                        '[8]任務是否啟用\n'
                         '[0]返回\n'
                         ':'
                     )
@@ -350,7 +352,7 @@ def update_quest(teacher):
                 elif change_type == 'reward_xp' or change_type == 'reward_coin':
                     change_content = int(input('新數值:'))
                     
-                elif change_type == 'is_repeatable' or change_type == 'is_active':
+                elif change_type == 'is_repeatable':
                     while True:
                         choice = input('[1]是 [2]否:')
                         if choice == '1':
