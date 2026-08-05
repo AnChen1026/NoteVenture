@@ -1,4 +1,4 @@
-# Melody Quest｜Database Schema
+# NoteAdventure｜Database Schema
 
 ## 1. 資料庫設定
 

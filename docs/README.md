@@ -1,10 +1,10 @@
-# Melody Quest
+# NoteAdventure
 
 音樂練習 RPG 管理系統。
 
 ## 專案介紹
 
-Melody Quest 是一套提供一對一音樂老師使用的學生練習管理系統。
+NoteAdventure 是一套提供一對一音樂老師使用的學生練習管理系統。
 
 老師可以建立學生帳號、設計與指派任務；學生透過上傳練習錄音累積任務進度、XP 與金幣，並讓寵物成長。
 
@@ -35,15 +35,17 @@ Melody Quest 是一套提供一對一音樂老師使用的學生練習管理系�
 ## 專案結構
 
 ```text
-NoteVenture/
+NoteAdventure/
 ├── app.py
 ├── main.py
 ├── db.py
 ├── config.ini
 ├── requirements.txt
-├── MVP.md
-├── PROJECT_CONTEXT.md
-├── DATABASE_SCHEMA.md
+├── docs/
+│   ├── NoteAdventure_MVP.md
+│   ├── NoteAdventure_PROJECT_CONTEXT.md
+│   ├── DATABASE_SCHEMA.md
+│   └── README.md
 ├── services/
 ├── utils/
 ├── sql/
@@ -58,7 +60,7 @@ NoteVenture/
 
 ```bash
 git clone <repository-url>
-cd NoteVenture
+cd NoteAdventure
 ```
 
 ### 2. 建立虛擬環境
@@ -140,8 +142,8 @@ flask run
 
 ## 文件
 
-- [MVP](./MVP.md)
-- [Project Context](./PROJECT_CONTEXT.md)
+- [MVP](./NoteAdventure_MVP.md)
+- [Project Context](./NoteAdventure_PROJECT_CONTEXT.md)
 - [Database Schema](./DATABASE_SCHEMA.md)
 
 ## 開發原則
@@ -150,7 +152,7 @@ flask run
 2. 完成功能後建立 Git commit。
 3. 修改資料表時同步更新 Schema。
 4. 不任意重構已完成且正常運作的程式。
-5. AI Agent 開發前先閱讀 `PROJECT_CONTEXT.md`。
+5. AI Agent 開發前先閱讀 `NoteAdventure_PROJECT_CONTEXT.md`。
 6. 核心流程需自行測試與理解。
 
 ## 目前進度

@@ -1,11 +1,11 @@
-# Note Adventure｜PROJECT_CONTEXT
+# NoteAdventure｜PROJECT_CONTEXT
 
 > 本文件提供 Cursor Agent 與其他 AI 工具專案上下文。開發前必須先閱讀本文件。
 > 
 
 ## 1. 專案目的
 
-> Note Adventure 是一套提供一對一音樂老師管理學生練習的 RPG 遊戲化系統；老師建立學生與任務，學生透過練習錄音累積任務進度、XP 與金幣，並讓寵物成長。
+> NoteAdventure 是一套提供一對一音樂老師管理學生練習的 RPG 遊戲化系統；老師建立學生與任務，學生透過練習錄音累積任務進度、XP 與金幣，並讓寵物成長。
 > 
 
 ## 2. 技術堆疊
@@ -44,8 +44,8 @@ NoteAdventure/
 ├── student_menu.py
 │
 ├── docs/
-│   ├── MVP.md
-│   ├── PROJECT_CONTEXT.md
+│   ├── NoteAdventure_MVP.md
+│   ├── NoteAdventure_PROJECT_CONTEXT.md
 │   ├── DATABASE_SCHEMA.md
 │   └── README.md
 │
@@ -218,7 +218,7 @@ DISTINCT_SONGS
 1. 每次只完成一個小功能。
 2. 不修改無關檔案。
 3. 不重寫已正常運作的功能。
-4. 修改前先讀本文件、`MVP.md`、`DATABASE_SCHEMA.md`。
+4. 修改前先讀本文件、`NoteAdventure_MVP.md`、`DATABASE_SCHEMA.md`。
 5. 修改資料表時同步更新 SQL 與文件。
 6. SQL 值使用 `%s` 綁定。
 7. 動態欄位只能來自固定白名單。
@@ -235,8 +235,8 @@ DISTINCT_SONGS
 ## 11. Agent 工作流程
 
 ```
-1. 讀取 PROJECT_CONTEXT.md
-2. 讀取 MVP.md
+1. 讀取 NoteAdventure_PROJECT_CONTEXT.md
+2. 讀取 NoteAdventure_MVP.md
 3. 讀取 DATABASE_SCHEMA.md
 4. 檢查現有程式
 5. 只完成本次指定功能
