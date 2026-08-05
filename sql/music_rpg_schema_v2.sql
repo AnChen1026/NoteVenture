@@ -107,6 +107,8 @@ CREATE TABLE student_quest (
     student_quest_id INT AUTO_INCREMENT PRIMARY KEY, # 學生任務紀錄流水號
     student_id INT NOT NULL, # 綁定學生 ID
     quest_id INT NOT NULL, # 綁定任務 ID
+    assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP, # 指派時間
+    expires_at DATETIME NULL, # 到期時間，指派日起算七天，隱藏任務為 NULL
     period_key VARCHAR(20) NOT NULL, # 任務期間，例如 2026-07-13 / 2026-W29 / ONCE
     progress_value INT NOT NULL DEFAULT 0, # 目前完成進度
     completed BOOLEAN DEFAULT FALSE, # 是否完成
