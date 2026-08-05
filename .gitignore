@@ -1,0 +1,16 @@
+# Python 虛擬環境
+.venv/
+
+# Python 快取
+__pycache__/
+*.pyc
+
+# 資料庫設定與金鑰
+config.ini
+.env
+.env.*
+*.pem
+*.key
+
+# 上傳檔案
+uploads/
