@@ -233,7 +233,7 @@ sequenceDiagram
     Teacher->>UI: 查看待兌換實體商品
     UI->>API: GET /api/purchases/pending
     API->>Service: get_pending_purchases()
-    Service->>DB: 查詢 PENDING_REDEEM 紀錄
+    Service->>DB: 查詢 PURCHASED 紀錄
     DB-->>Service: 回傳待兌換清單
     Service-->>API: 回傳購買紀錄
     API-->>UI: 顯示待兌換商品
