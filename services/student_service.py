@@ -47,7 +47,8 @@ def reset_student_password(username):
     password_hash = hash_password(password)
     sql = """
     UPDATE student
-    SET password_hash = %s
+    SET password_hash = %s,
+        password_changed = FALSE
     WHERE username = %s;
     """
     rowcount = db.execute(sql, (password_hash, username))
