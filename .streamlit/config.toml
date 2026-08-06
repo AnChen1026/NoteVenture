@@ -1,0 +1,30 @@
+[theme]
+base = "light"
+
+# 沿用舊版 app.py 的配色
+primaryColor = "#ff5a52"
+backgroundColor = "#f7f7f8"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#374151"
+borderColor = "#d1d5db"
+linkColor = "#ff5a52"
+linkUnderline = false
+
+# 標題較粗，與舊版 h1 h2 h3 的 font-weight 800 一致
+headingFontWeights = [800, 800, 800, 700, 700, 700]
+
+# 圓角 12px，與舊版輸入框與按鈕一致
+baseRadius = "12px"
+buttonRadius = "12px"
+showWidgetBorder = true
+showSidebarBorder = true
+
+# 表格外框與表頭
+dataframeBorderColor = "#d1d5db"
+dataframeHeaderBackgroundColor = "#f3f4f6"
+
+[theme.sidebar]
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f3f4f6"
+textColor = "#374151"
+borderColor = "#d1d5db"
