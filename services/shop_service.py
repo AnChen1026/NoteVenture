@@ -129,6 +129,106 @@ def create_shop_item(teacher):
 
 
 # ======================================================
+# 學生查看老師上架的商品
+# ======================================================
+def student_show_shop_item(student):
+    # 只顯示自己老師上架、還有庫存的商品
+    sql = """
+    SELECT item_id, item_name, item_type, price, stock, description
+    FROM shop_item
+    WHERE teacher_id = %s
+    AND is_active = TRUE
+    AND (stock IS NULL OR stock > 0)
+    ORDER BY item_id;
+    """
+    result = db.query_all(sql, (student['teacher_id'],))
+    if result:
+        return result
+    return '目前沒有可購買的商品'
+
+
+# ======================================================
+# 學生購買商品
+# ======================================================
+def purchase_item(student, item_id):
+    # 只能買自己老師上架的商品
+    sql = """
+    SELECT item_id, item_name, item_type, price, stock
+    FROM shop_item
+    WHERE item_id = %s
+    AND teacher_id = %s
+    AND is_active = TRUE;
+    """
+    item = db.query_one(sql, (item_id, student['teacher_id']))
+    if not item:
+        return '查無此商品'
+    if item['stock'] is not None and item['stock'] <= 0:
+        return '商品已售完'
+
+    # 金幣以資料庫目前數值為準
+    sql = """
+    SELECT total_coin
+    FROM student
+    WHERE student_id = %s;
+    """
+    total_coin = db.query_one(sql, (student['student_id'],))['total_coin']
+    if total_coin < item['price']:
+        return f"金幣不足，還需要 {item['price'] - total_coin} 金幣"
+
+    # 虛擬商品購買後直接持有，實體商品要等老師兌換
+    if item['item_type'] == 'VIRTUAL':
+        status = 'OWNED'
+    else:
+        status = 'PURCHASED'
+
+    coin_sql = """
+    UPDATE student
+    SET total_coin = total_coin - %s
+    WHERE student_id = %s
+    AND total_coin >= %s;
+    """
+    transaction_sql = """
+    INSERT INTO coin_transaction (
+    student_id,
+    source_type,
+    amount
+    )
+    VALUES (%s, 'SHOP_PURCHASE', %s)
+    """
+    purchase_sql = """
+    INSERT INTO purchase_record (
+    student_id,
+    item_id,
+    price,
+    status
+    )
+    VALUES (%s, %s, %s, %s)
+    """
+    sql_list = [
+        (coin_sql, (item['price'], student['student_id'], item['price'])),
+        (transaction_sql, (student['student_id'], -item['price'])),
+        (purchase_sql, (student['student_id'], item['item_id'], item['price'], status))
+    ]
+
+    # 不限量商品不需要扣庫存
+    if item['stock'] is not None:
+        stock_sql = """
+        UPDATE shop_item
+        SET stock = stock - 1
+        WHERE item_id = %s
+        AND stock > 0;
+        """
+        sql_list.append((stock_sql, (item['item_id'],)))
+
+    # 扣金幣、金幣異動、購買紀錄與庫存寫在同一個 transaction
+    if db.execute_transaction(sql_list):
+        if status == 'PURCHASED':
+            return f"購買成功 {item['item_name']}，請找老師兌換"
+        return f"購買成功 {item['item_name']}"
+    return '購買失敗'
+
+
+# ======================================================
 # 商品管理介面
 # ======================================================
 def shop_menu(teacher):
@@ -175,5 +275,54 @@ def shop_menu(teacher):
             print('返回')
             break
 
+        else:
+            print('輸入錯誤')
+
+
+# ======================================================
+# 學生商店介面
+# ======================================================
+def student_shop_menu(student):
+    while True:
+        result = student_show_shop_item(student)
+        if isinstance(result, str):
+            return result
+
+        # 金幣與庫存每次都重新查詢，購買後才會顯示最新數字
+        sql = """
+        SELECT total_coin
+        FROM student
+        WHERE student_id = %s;
+        """
+        total_coin = db.query_one(sql, (student['student_id'],))['total_coin']
+
+        item_dict = {}
+        i = 1
+        for item in result:
+            item_dict[f'{i}'] = item
+            i += 1
+
+        print(f'\n======== 商店 (目前金幣 {total_coin}) ========')
+        for i in range(1, len(item_dict) + 1):
+            item = item_dict[str(i)]
+            if item['stock'] is None:
+                stock_text = '不限量'
+            else:
+                stock_text = f"{item['stock']} 件"
+
+            print()
+            print(f"[{i}] {item['item_name']}")
+            print(f"類型：{item_type_text[item['item_type']]}")
+            print(f"價格：{item['price']} 金幣")
+            print(f"庫存：{stock_text}")
+            if item['description']:
+                print(f"說明：{item['description']}")
+
+        choice = input('\n請選擇要購買的商品([0]返回)：')
+        if choice == '0':
+            return '返回'
+        elif choice in item_dict:
+            result = purchase_item(student, item_dict[choice]['item_id'])
+            print(result)
         else:
             print('輸入錯誤')

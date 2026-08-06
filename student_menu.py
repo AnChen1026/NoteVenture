@@ -4,6 +4,7 @@ from services.student_service import change_student_password
 from services.quest_service import student_show_quest
 from services.practice_service import upload_practice
 from services.pet_service import show_pet
+from services.shop_service import student_shop_menu
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -101,7 +102,8 @@ def student_menu(student):
                     print(f"狀態：{quest_status_text[quest['quest_status']]}")
                     print(f"獎勵：經驗 {quest['reward_xp']} / 金幣 {quest['reward_coin']}")
         elif choice == '4':
-            print('商店')
+            result = student_shop_menu(student)
+            print(result)
 
         elif choice == '5':
             result = upload_practice(student)
