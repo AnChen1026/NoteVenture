@@ -2,6 +2,7 @@ from db import SqlUtils
 from utils.password_utils import check_password
 from services.student_service import change_student_password
 from services.quest_service import student_show_quest
+from services.practice_service import upload_practice
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -90,7 +91,8 @@ def student_menu(student):
             print('商店')
 
         elif choice == '5':
-            print('上傳練習')
+            result = upload_practice(student)
+            print(result)
 
         elif choice == '6':
             print('查看近期展演資訊')
