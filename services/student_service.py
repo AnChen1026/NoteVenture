@@ -22,6 +22,18 @@ def show_student(teacher):
 
 
 # ================================================
+# 查詢單一學生資料
+# ================================================
+def get_student(student_id):
+    sql = """
+    SELECT *
+    FROM student
+    WHERE student_id = %s;
+    """
+    return db.query_one(sql, (student_id,))
+
+
+# ================================================
 # 新增學生並取得帳號密碼
 # ================================================
 def create_student(teacher, student_name):

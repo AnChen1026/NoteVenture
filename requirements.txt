@@ -1,2 +1,3 @@
 PyMySQL==1.2.0
 bcrypt==5.0.0
+streamlit==1.61.1
