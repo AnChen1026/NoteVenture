@@ -1,6 +1,11 @@
 from flask import Flask
 from api.health import health_bp
 from api.auth import auth_bp
+from api.students import students_bp
+from api.quests import quests_bp
+from api.practice import practice_bp
+from api.shop import shop_bp
+from api.pet import pet_bp
 
 
 # ======================================================
@@ -17,6 +22,11 @@ def create_app():
     # 註冊 API 藍圖（Blueprint）
     app.register_blueprint(health_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(students_bp)
+    app.register_blueprint(quests_bp)
+    app.register_blueprint(practice_bp)
+    app.register_blueprint(shop_bp)
+    app.register_blueprint(pet_bp)
 
     return app
 
