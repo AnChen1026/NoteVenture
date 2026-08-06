@@ -577,14 +577,16 @@ elif page == '商品清單':
 elif page == '新增商品':
     with centered_card():
         st.subheader('新增商品')
+        # checkbox 放在 form 外，才能立刻重跑並顯示／隱藏庫存欄位
+        unlimited = st.checkbox('不限量庫存', value=True, key='shop_unlimited_stock')
+        stock = None
+        if not unlimited:
+            stock = st.number_input('庫存數量', min_value=0, step=1, value=1, key='shop_stock_value')
+
         with st.form('create_shop_item'):
             item_name = st.text_input('商品名稱')
             item_type_label = st.selectbox('商品類型', list(item_type_options.keys()))
             price = st.number_input('價格（金幣）', min_value=0, step=1, value=10)
-            unlimited = st.checkbox('不限量庫存', value=True)
-            stock = None
-            if not unlimited:
-                stock = st.number_input('庫存數量', min_value=0, step=1, value=1)
             description = st.text_area('商品說明（可留空）')
             submitted = st.form_submit_button('建立商品')
         if submitted:
