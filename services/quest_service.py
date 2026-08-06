@@ -21,12 +21,20 @@ def teacher_show_quest(teacher):
 # ======================================================
 def student_show_quest(student):
     sql = """
-    SELECT quest_name 任務名稱, quest_type 任務類型, condition_type 任務條件類型, condition_value 任務條件數值, reward_xp 獎勵經驗, reward_coin 獎勵金幣
-    FROM quest_list
-    WHERE teacher_id = %s
-    AND quest_type != 'HIDDEN';
+    SELECT q.quest_name, q.quest_type, q.condition_type, q.condition_value,
+           q.reward_xp, q.reward_coin, sq.progress_value, sq.expires_at,
+           CASE
+               WHEN sq.completed = TRUE THEN 'COMPLETED'
+               WHEN sq.expires_at IS NULL OR sq.expires_at > NOW() THEN 'ACTIVE'
+               ELSE 'EXPIRED'
+           END AS quest_status
+    FROM student_quest sq
+    JOIN quest_list q ON q.quest_id = sq.quest_id
+    WHERE sq.student_id = %s
+    AND (q.quest_type != 'HIDDEN' OR sq.completed = TRUE)
+    ORDER BY sq.completed, sq.expires_at;
     """
-    result = db.query_all(sql, (student['teacher_id'],))
+    result = db.query_all(sql, (student['student_id'],))
     if result:
         return result
     return '無任務資料'
