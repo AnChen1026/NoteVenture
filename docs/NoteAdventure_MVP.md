@@ -298,11 +298,22 @@ DISTINCT_SONGS
 
 #### 4.3 任務期間
 
-MVP 任務以指派時間起算七天，除了沒有時限的隱藏任務。
+任務期限自指派時間起算，依任務類型不同，隱藏任務沒有時限。
+
+| 任務類型 | 期限 | `period_key` |
+| --- | --- | --- |
+| 每日任務 `DAILY` | 一天 | 指派日期，例如 `2026-08-06` |
+| 每週任務 `WEEKLY` | 七天 | ISO 週，例如 `2026-W32` |
+| 隱藏任務 `HIDDEN` | 無期限，`expires_at` 為 NULL | `ONCE` |
 
 例如：
 
 ```
+每日任務
+指派時間：2026-08-04 13:00
+截止時間：2026-08-05 13:00
+
+每週任務
 指派時間：2026-08-04 13:00
 截止時間：2026-08-11 13:00
 ```
@@ -310,8 +321,17 @@ MVP 任務以指派時間起算七天，除了沒有時限的隱藏任務。
 計算方式：
 
 ```python
+# DAILY
+expires_at = assigned_at + timedelta(days=1)
+
+# WEEKLY
 expires_at = assigned_at + timedelta(days=7)
+
+# HIDDEN
+expires_at = None
 ```
+
+`period_key` 只用於判斷同一期間是否重複指派，不需顯示給學生；學生介面顯示 `expires_at` 即可。
 
 相同任務重新指派時，應新增新的 `student_quest` 紀錄，不得覆蓋上一期資料。
 

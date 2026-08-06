@@ -450,14 +450,15 @@ def assign_quest(teacher):
                 expires_at = None
                 expires_at_text = '無期限'
                 period_key = 'ONCE'
+            elif select_quest['quest_type'] == 'DAILY':
+                expires_at = assigned_at + timedelta(days=1)
+                expires_at_text = expires_at.strftime('%Y-%m-%d %H:%M')
+                period_key = assigned_at.strftime('%Y-%m-%d')
             else:
                 expires_at = assigned_at + timedelta(days=7)
                 expires_at_text = expires_at.strftime('%Y-%m-%d %H:%M')
-                if select_quest['quest_type'] == 'DAILY':
-                    period_key = assigned_at.strftime('%Y-%m-%d')
-                else:
-                    iso = assigned_at.isocalendar()
-                    period_key = f'{iso.year}-W{iso.week:02d}'
+                iso = assigned_at.isocalendar()
+                period_key = f'{iso.year}-W{iso.week:02d}'
 
             # 同一期間不可重複指派
             sql = """
