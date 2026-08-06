@@ -1,4 +1,5 @@
 from db import SqlUtils
+from services.pet_service import update_pet_stage
 
 db = SqlUtils()
 
@@ -71,6 +72,8 @@ def give_quest_reward(student_quest_id):
 
     # 四張表寫在同一個 transaction，失敗全部回復
     if db.execute_transaction(sql_list):
+        # 經驗值變動後更新寵物階段
+        update_pet_stage(quest['student_id'])
         return {
             'quest_name': quest['quest_name'],
             'reward_xp': quest['reward_xp'],
