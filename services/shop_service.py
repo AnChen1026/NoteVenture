@@ -229,6 +229,90 @@ def purchase_item(student, item_id):
 
 
 # ======================================================
+# 老師查看待兌換的實體商品
+# ======================================================
+def teacher_show_pending_purchase(teacher):
+    # PURCHASED 表示已購買但還沒拿到實體商品
+    sql = """
+    SELECT p.purchase_id, s.student_name, i.item_name, p.price, p.created_at
+    FROM purchase_record p
+    JOIN student s ON s.student_id = p.student_id
+    JOIN shop_item i ON i.item_id = p.item_id
+    WHERE s.teacher_id = %s
+    AND p.status = 'PURCHASED'
+    ORDER BY p.created_at;
+    """
+    result = db.query_all(sql, (teacher['teacher_id'],))
+    if result:
+        return result
+    return '沒有待兌換的商品'
+
+
+# ======================================================
+# 老師標記實體商品已兌換
+# ======================================================
+def redeem_purchase(teacher, purchase_id):
+    # 只能處理自己學生、且還沒兌換的紀錄
+    sql = """
+    SELECT p.purchase_id, s.student_name, i.item_name
+    FROM purchase_record p
+    JOIN student s ON s.student_id = p.student_id
+    JOIN shop_item i ON i.item_id = p.item_id
+    WHERE p.purchase_id = %s
+    AND s.teacher_id = %s
+    AND p.status = 'PURCHASED';
+    """
+    purchase = db.query_one(sql, (purchase_id, teacher['teacher_id']))
+    if not purchase:
+        return '查無待兌換紀錄'
+
+    sql = """
+    UPDATE purchase_record
+    SET status = 'REDEEMED'
+    WHERE purchase_id = %s
+    AND status = 'PURCHASED';
+    """
+    rowcount = db.execute(sql, (purchase_id,))
+    if rowcount > 0:
+        return f"{purchase['student_name']} 的 {purchase['item_name']} 已完成兌換"
+    return '兌換失敗'
+
+
+# ======================================================
+# 待兌換商品介面
+# ======================================================
+def pending_purchase_menu(teacher):
+    while True:
+        result = teacher_show_pending_purchase(teacher)
+        if isinstance(result, str):
+            return result
+
+        purchase_dict = {}
+        i = 1
+        for purchase in result:
+            purchase_dict[f'{i}'] = purchase
+            i += 1
+
+        print('\n======== 待兌換商品 ========')
+        for i in range(1, len(purchase_dict) + 1):
+            purchase = purchase_dict[str(i)]
+            print()
+            print(f"[{i}] {purchase['student_name']}")
+            print(f"商品：{purchase['item_name']}")
+            print(f"花費：{purchase['price']} 金幣")
+            print(f"購買時間：{purchase['created_at'].strftime('%Y-%m-%d %H:%M')}")
+
+        choice = input('\n請選擇要標記完成兌換的紀錄([0]返回)：')
+        if choice == '0':
+            return '返回'
+        elif choice in purchase_dict:
+            result = redeem_purchase(teacher, purchase_dict[choice]['purchase_id'])
+            print(result)
+        else:
+            print('輸入錯誤')
+
+
+# ======================================================
 # 商品管理介面
 # ======================================================
 def shop_menu(teacher):
@@ -237,6 +321,7 @@ def shop_menu(teacher):
             '\n======== 商品管理 ========\n'
             '[1]查看商品\n'
             '[2]新增商品\n'
+            '[3]待兌換商品\n'
             '[0]返回\n'
             ':'
         )
@@ -269,6 +354,10 @@ def shop_menu(teacher):
 
         elif choice == '2':
             result = create_shop_item(teacher)
+            print(result)
+
+        elif choice == '3':
+            result = pending_purchase_menu(teacher)
             print(result)
 
         elif choice == '0':
