@@ -3,6 +3,7 @@ from utils.password_utils import check_password
 from services.teacher_service import change_teacher_password
 from services.student_service import show_student, create_student, reset_student_password
 from services.quest_service import quest_menu
+from services.practice_service import practice_upload_menu
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -56,7 +57,8 @@ def teacher_menu(teacher):
             quest_menu(teacher)
 
         elif choice == '4':
-            print('查看學生上傳紀錄尚未建立')
+            result = practice_upload_menu(teacher)
+            print(result)
 
         elif choice == '5':
             print('商品管理')
