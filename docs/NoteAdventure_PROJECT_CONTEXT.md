@@ -168,32 +168,41 @@ DISTINCT_SONGS
 - `query_one()`
 - `query_all()`
 - `execute()`
+- `execute_transaction()`
 - bcrypt hash／verify
 - 老師註冊與登入
 - 老師選單
 - 建立與查看學生
 - 重設學生密碼
 - 修改老師密碼
+- 學生首次登入改密碼
 - 任務查看、建立、修改、刪除
 - 任務啟用／停用
 - 任務指派
 - 任務期限
 - `period_key`
+- 學生查看被指派任務
+- 練習錄音上傳
+- 老師查看學生上傳紀錄
+- 任務進度計算（`PRACTICE_COUNT`、`DISTINCT_SONGS`）
+- 任務完成與 XP／金幣發放（transaction）
+- 防止重複發獎
+- 寵物階段更新與查看
+- 老師建立與查看商品
+- 學生查看商店與購買商品
+- 老師處理實體商品兌換
 
 ### 進行中
 
-- 學生查看被指派任務
+- 期中展示流程演練
 
 ### 尚未完成
 
-- 學生首次登入改密碼
 - Flask API
 - Streamlit 串 Flask API
-- 練習上傳
-- 任務進度判斷
-- XP／金幣 transaction
-- 寵物進化
-- 商城
+- 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
+- 商品修改、刪除與上下架
+- 學生查看自己的購買紀錄
 - Dashboard
 - 自動化測試
 
@@ -248,14 +257,12 @@ DISTINCT_SONGS
 ## 12. 下一步
 
 ```
-完成學生查看被指派的任務
+完成期中展示流程演練
 ```
 
 完成條件：
 
-- `student_show_quest()` 改為 JOIN `student_quest` 與 `quest_list`
-- 只顯示學生自己的任務
-- 顯示任務名稱、條件、進度與到期時間
-- 依 `completed` 與 `expires_at` 顯示已完成／進行中／已過期
-- 隱藏任務完成前不顯示
-- 查無任務時顯示提示
+- 依 `NoteAdventure_MVP.md` 5.4 的展示腳本從老師註冊跑到學生購買
+- 每個步驟都有中文提示，查無資料時不報錯
+- 準備展示用的測試老師、學生、任務、商品與音檔
+- 記錄流程中發現的問題與待修項目
