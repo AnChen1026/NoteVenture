@@ -147,13 +147,13 @@ def upload_practice(student):
             print('錄音秒數請輸入數字')
             continue
 
-        audio_url = save_audio_file(student, source_path)
-        result = create_practice_upload(student, audio_url, song_name, int(audio_duration))
+        audio_url = save_audio_file(student, source_path) # 儲存音檔並回傳存放路徑
+        result = create_practice_upload(student, audio_url, song_name, int(audio_duration)) # 建立練習錄音紀錄至資料庫
         if result == '練習上傳成功':
             # 上傳成功後更新任務進度，達標的任務發放獎勵
-            progress_list = update_quest_progress(student)
+            progress_list = update_quest_progress(student) # 更新任務進度
             for quest in progress_list:
                 print(f"{quest['quest_name']}：{quest['progress_value']} / {quest['condition_value']}")
-            for reward in give_quest_rewards(progress_list):
+            for reward in give_quest_rewards(progress_list):# 發放達標任務的獎勵
                 print(f"任務完成 {reward['quest_name']}，獲得 {reward['reward_xp']} 經驗值、{reward['reward_coin']} 金幣")
         return result

@@ -35,13 +35,24 @@
 
 ```
 NoteAdventure/
-├── app.py
-├── main.py
+├── app.py                 # Flask Application Factory 入口
+├── streamlit_app.py       # Streamlit 網頁 UI（HTTP 呼叫 Flask）
+├── main.py                # Console 程式入口
 ├── db.py
 ├── config.ini
 ├── requirements.txt
 ├── teacher_menu.py
 ├── student_menu.py
+│
+├── api/                   # Flask Blueprint（路由與 session）
+│   ├── auth.py
+│   ├── students.py
+│   ├── quests.py
+│   ├── practice.py
+│   ├── shop.py
+│   ├── pet.py
+│   ├── health.py
+│   └── guards.py
 │
 ├── docs/
 │   ├── NoteAdventure_MVP.md
@@ -69,6 +80,9 @@ NoteAdventure/
 ├── uploads/
 │   └── audio/
 │
+├── .streamlit/
+│   └── config.toml
+│
 └── .cursor/
     └── rules/
 
@@ -79,12 +93,15 @@ NoteAdventure/
 - `main.py`：Console 程式入口，負責登入選單與角色流程。
 - `teacher_menu.py`：老師 Console 選單與輸入輸出流程。
 - `student_menu.py`：學生 Console 選單與輸入輸出流程。
-- `app.py`：預留作為未來 Streamlit 網頁入口，目前尚未完成。
-- `services/`：負責商業邏輯與資料庫操作。
+- `app.py`：Flask 應用程式工廠，註冊各 API Blueprint。
+- `api/`：Flask 路由層；負責 HTTP、session、參數驗證，並呼叫 `services/`（少數需互動輸入的流程在 API 內寫同等 SQL）。
+- `streamlit_app.py`：Streamlit 前端；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
+- `services/`：負責商業邏輯與資料庫操作（Console 與 API 共用）。
 - `db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
 - `utils/`：負責密碼處理、學生帳號與臨時密碼產生等共用工具。
 
 選單檔案只負責接收輸入、顯示結果與呼叫 Service，不應直接放大量 SQL。
+網頁開發時需同時啟動 Flask（預設 `:5000`）與 Streamlit。
 
 ## 5. 資料庫
 
@@ -191,6 +208,9 @@ DISTINCT_SONGS
 - 老師建立與查看商品
 - 學生查看商店與購買商品
 - 老師處理實體商品兌換
+- Flask Application Factory 與核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
+- Streamlit 網頁 UI 串接 Flask（老師：學生／任務／上傳紀錄／商品／兌換；學生：任務／上傳練習／商店／寵物）
+- Streamlit「新增商品」不限量庫存勾選可即時顯示／隱藏庫存欄位
 
 ### 進行中
 
@@ -198,10 +218,8 @@ DISTINCT_SONGS
 
 ### 尚未完成
 
-- Flask API
-- Streamlit 串 Flask API
+- 網頁端：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
 - 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
-- 商品修改、刪除與上下架
 - 學生查看自己的購買紀錄
 - Dashboard
 - 自動化測試
@@ -258,11 +276,13 @@ DISTINCT_SONGS
 
 ```
 完成期中展示流程演練
+（可選）補齊網頁端尚未涵蓋的任務／商品管理功能
 ```
 
 完成條件：
 
-- 依 `NoteAdventure_MVP.md` 5.4 的展示腳本從老師註冊跑到學生購買
+- 依 `NoteAdventure_MVP.md` 期中展示流程，從老師登入跑到學生購買與老師查看上傳紀錄
+- 同時啟動 Flask（`flask --app app run`）與 Streamlit（`streamlit run streamlit_app.py`）
 - 每個步驟都有中文提示，查無資料時不報錯
 - 準備展示用的測試老師、學生、任務、商品與音檔
 - 記錄流程中發現的問題與待修項目

@@ -176,6 +176,8 @@ flask run
 - 任務進度計算與 XP／金幣發放
 - 寵物階段更新與顯示
 - 商品建立、學生購買與實體商品兌換
+- Flask 核心 API
+- Streamlit 串接 Flask（核心操作頁面）
 - MySQL Schema
 - Git 版本控制
 
@@ -185,8 +187,8 @@ flask run
 
 下一步：
 
-- Flask API
-- Streamlit 串接
+- 期中 Demo 完整跑通
+- 網頁端補齊任務／商品進階管理（可選）
 - Dashboard
 
 ## 專題定位
