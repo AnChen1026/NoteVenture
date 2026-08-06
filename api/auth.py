@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify, session
 from db import SqlUtils
+from utils.password_utils import hash_password, check_password
 from services.teacher_service import login_teacher
 from services.student_service import login_student
+from api.guards import get_login_teacher, get_login_student
 
 auth_bp = Blueprint('auth', __name__)
 db = SqlUtils()
@@ -130,6 +132,97 @@ def api_me():
         })
 
     return jsonify({'message': '尚未登入'}), 401
+
+
+# ======================================================
+# 老師修改密碼
+# ======================================================
+@auth_bp.post('/api/teachers/change-password')
+def api_teacher_change_password():
+    teacher, error = get_login_teacher()
+    if error:
+        return error
+
+    data = request.get_json(silent=True) or {}
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    confirm_password = data.get('confirm_password', '')
+
+    if old_password == '' or new_password == '' or confirm_password == '':
+        return jsonify({'message': '請完整輸入舊密碼與新密碼'}), 400
+
+    row = db.query_one(
+        """
+        SELECT password_hash
+        FROM teacher
+        WHERE teacher_id = %s;
+        """,
+        (teacher['teacher_id'],)
+    )
+    if not check_password(old_password, row['password_hash']):
+        return jsonify({'message': '舊密碼錯誤'}), 401
+    if new_password != confirm_password:
+        return jsonify({'message': '兩次新密碼不一致'}), 400
+    if new_password == old_password:
+        return jsonify({'message': '新密碼不可與舊密碼相同'}), 400
+
+    rowcount = db.execute(
+        """
+        UPDATE teacher
+        SET password_hash = %s
+        WHERE teacher_id = %s;
+        """,
+        (hash_password(new_password), teacher['teacher_id'])
+    )
+    if rowcount > 0:
+        return jsonify({'message': '密碼修改成功'})
+    return jsonify({'message': '密碼修改失敗'}), 500
+
+
+# ======================================================
+# 學生修改密碼
+# ======================================================
+@auth_bp.post('/api/students/change-password')
+def api_student_change_password():
+    student, error = get_login_student()
+    if error:
+        return error
+
+    data = request.get_json(silent=True) or {}
+    old_password = data.get('old_password', '')
+    new_password = data.get('new_password', '')
+    confirm_password = data.get('confirm_password', '')
+
+    if old_password == '' or new_password == '' or confirm_password == '':
+        return jsonify({'message': '請完整輸入舊密碼與新密碼'}), 400
+
+    row = db.query_one(
+        """
+        SELECT password_hash
+        FROM student
+        WHERE student_id = %s;
+        """,
+        (student['student_id'],)
+    )
+    if not check_password(old_password, row['password_hash']):
+        return jsonify({'message': '舊密碼錯誤'}), 401
+    if new_password != confirm_password:
+        return jsonify({'message': '兩次新密碼不一致'}), 400
+    if new_password == old_password:
+        return jsonify({'message': '新密碼不可與舊密碼相同'}), 400
+
+    rowcount = db.execute(
+        """
+        UPDATE student
+        SET password_hash = %s,
+            password_changed = TRUE
+        WHERE student_id = %s;
+        """,
+        (hash_password(new_password), student['student_id'])
+    )
+    if rowcount > 0:
+        return jsonify({'message': '密碼修改成功'})
+    return jsonify({'message': '密碼修改失敗'}), 500
 
 
 # ======================================================
