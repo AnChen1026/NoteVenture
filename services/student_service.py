@@ -100,12 +100,14 @@ def change_student_password(student, old_password):
             password_hash = hash_password(new_password)
             sql = """
             UPDATE student
-            SET password_hash = %s
+            SET password_hash = %s,
+                password_changed = TRUE
             WHERE student_id = %s;
             """
             rowcount = db.execute(sql, (password_hash, student['student_id']))
             if rowcount > 0:
                 student['password_hash'] = password_hash
+                student['password_changed'] = 1
                 return '密碼修改成功'
             
             return '密碼修改失敗'

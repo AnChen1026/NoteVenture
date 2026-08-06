@@ -1,5 +1,5 @@
 from services.teacher_service import create_teacher, login_teacher
-from services.student_service import login_student
+from services.student_service import login_student, change_student_password
 from teacher_menu import teacher_menu
 from student_menu import student_menu
 
@@ -37,6 +37,10 @@ while True:
         # password = input('請輸入密碼：')
         student = login_student(username, password)
         if student:
+            if not student['password_changed']:
+                print('首次登入請先修改密碼')
+                result = change_student_password(student, password)
+                print(result)
             student_menu(student)
 
     elif choice == '3':
