@@ -114,16 +114,16 @@ Console：
 python main.py
 ```
 
-Streamlit：
+Flask API（先啟動，預設 port 5000）：
 
 ```bash
-streamlit run app.py
+flask --app app run --port 5000
 ```
 
-Flask API：
+Streamlit（另開一個終端機）：
 
 ```bash
-flask run
+streamlit run streamlit_app.py
 ```
 
 ## MVP 功能
