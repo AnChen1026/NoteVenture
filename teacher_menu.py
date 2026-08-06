@@ -4,6 +4,7 @@ from services.teacher_service import change_teacher_password
 from services.student_service import show_student, create_student, reset_student_password
 from services.quest_service import quest_menu
 from services.practice_service import practice_upload_menu
+from services.shop_service import shop_menu
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -62,7 +63,7 @@ def teacher_menu(teacher):
             print(result)
 
         elif choice == '5':
-            print('商品管理')
+            shop_menu(teacher)
 
         elif choice == '6':
             print('轉介學生功能尚未建立')
