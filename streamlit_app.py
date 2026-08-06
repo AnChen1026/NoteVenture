@@ -1,5 +1,6 @@
 import os
 import tempfile
+import wave
 from html import escape
 
 import streamlit as st
@@ -45,6 +46,30 @@ quest_status_text = {
     'EXPIRED': '已過期'
 }
 
+boolean_text = {
+    0: '否',
+    1: '是',
+    False: '否',
+    True: '是'
+}
+
+quest_active_text = {
+    0: '已停用',
+    1: '啟用中',
+    False: '已停用',
+    True: '啟用中'
+}
+
+shop_active_text = {
+    0: '已下架',
+    1: '上架中',
+    False: '已下架',
+    True: '上架中'
+}
+
+# 標題放在卡片內的頁面，避免外層大標題與置中卡片對不齊
+FORM_PAGES = {'建立學生', '上傳練習'}
+
 st.session_state.setdefault('user', None)
 st.session_state.setdefault('role', None)
 st.session_state.setdefault('flash', None)
@@ -62,7 +87,7 @@ def apply_custom_style():
         }
 
         .block-container {
-            max-width: 1080px;
+            max-width: 1200px;
             padding-top: 2rem;
             padding-bottom: 2rem;
         }
@@ -70,6 +95,13 @@ def apply_custom_style():
         h1, h2, h3 {
             color: #1f2937;
             font-weight: 800;
+        }
+
+        /* 登入標題避免斷行 */
+        .login-brand h1 {
+            white-space: nowrap;
+            font-size: 2.2rem;
+            margin-bottom: 0.2rem;
         }
 
         p, label, div {
@@ -167,7 +199,7 @@ def apply_custom_style():
 # ======================================================
 # 置中卡片（沿用舊版版面）
 # ======================================================
-def centered_card(width_ratio=(1.35, 1.3, 1.35)):
+def centered_card(width_ratio=(1, 2.2, 1)):
     left, center, right = st.columns(width_ratio)
     return center.container(border=True)
 
@@ -187,6 +219,83 @@ def show_notice(message):
     )
 
 
+# ======================================================
+# 任務清單轉成中文顯示用資料
+# ======================================================
+def format_quest_rows(quest_rows):
+    display_rows = []
+    for quest in quest_rows:
+        display_rows.append({
+            '任務編號': quest['任務編號'],
+            '任務名稱': quest['任務名稱'],
+            '任務類型': quest_type_text.get(quest['任務類型'], quest['任務類型']),
+            '任務條件': condition_type_text.get(quest['任務條件類型'], quest['任務條件類型']),
+            '條件數值': quest['任務條件數值'],
+            '獎勵經驗': quest['獎勵經驗'],
+            '獎勵金幣': quest['獎勵金幣'],
+            '可重複': boolean_text.get(quest['是否為重複任務'], quest['是否為重複任務']),
+            '啟用狀態': quest_active_text.get(quest['任務是否啟用'], quest['任務是否啟用'])
+        })
+    return display_rows
+
+
+# ======================================================
+# 上傳紀錄轉成中文顯示用資料
+# ======================================================
+def format_upload_rows(upload_rows):
+    display_rows = []
+    for upload in upload_rows:
+        display_rows.append({
+            '學生': upload['student_name'],
+            '曲目': upload['song_name'],
+            '秒數': upload['audio_duration'],
+            '檔案路徑': upload['audio_url'],
+            '上傳時間': upload['created_at'].strftime('%Y-%m-%d %H:%M')
+        })
+    return display_rows
+
+
+# ======================================================
+# 商品清單轉成中文顯示用資料
+# ======================================================
+def format_shop_rows(item_rows):
+    display_rows = []
+    for item in item_rows:
+        if item['stock'] is None:
+            stock_text = '不限量'
+        else:
+            stock_text = item['stock']
+
+        if item['description']:
+            description_text = item['description']
+        else:
+            description_text = '無'
+
+        display_rows.append({
+            '商品編號': item['item_id'],
+            '商品名稱': item['item_name'],
+            '商品類型': item_type_text.get(item['item_type'], item['item_type']),
+            '價格': item['price'],
+            '庫存': stock_text,
+            '說明': description_text,
+            '狀態': shop_active_text.get(item['is_active'], item['is_active'])
+        })
+    return display_rows
+
+
+# ======================================================
+# 從錄音檔計算秒數（st.audio_input 回傳 wav）
+# ======================================================
+def get_audio_duration(audio_file):
+    audio_file.seek(0)
+    with wave.open(audio_file, 'rb') as wav_file:
+        frames = wav_file.getnframes()
+        rate = wav_file.getframerate()
+        duration = int(frames / rate)
+    audio_file.seek(0)
+    return duration
+
+
 apply_custom_style()
 
 
@@ -195,14 +304,16 @@ apply_custom_style()
 # ======================================================
 if st.session_state.user is None:
     with centered_card():
+        st.markdown('<div class="login-brand">', unsafe_allow_html=True)
         st.title('NoteAdventure')
+        st.markdown('</div>', unsafe_allow_html=True)
         st.caption('音樂練習 RPG 管理系統')
 
         teacher_tab, student_tab = st.tabs(['老師登入', '學生登入'])
 
         with teacher_tab:
             with st.form('teacher_login'):
-                email = st.text_input('Email')
+                email = st.text_input('電子信箱')
                 teacher_password = st.text_input('密碼', type='password')
                 teacher_login = st.form_submit_button('登入')
             if teacher_login:
@@ -212,7 +323,7 @@ if st.session_state.user is None:
                     st.session_state.role = 'teacher'
                     st.rerun()
                 else:
-                    st.error('Email 或密碼錯誤')
+                    st.error('電子信箱或密碼錯誤')
 
         with student_tab:
             with st.form('student_login'):
@@ -260,7 +371,9 @@ with st.sidebar:
         st.session_state.role = None
         st.rerun()
 
-st.title(page)
+# 表單頁標題改放卡片內，避免左對齊標題與置中卡片對不齊
+if page not in FORM_PAGES:
+    st.title(page)
 
 # 顯示上一個操作的結果
 if st.session_state.flash:
@@ -284,6 +397,8 @@ if page == '學生列表':
 # ======================================================
 elif page == '建立學生':
     with centered_card():
+        st.subheader('建立學生')
+        st.caption('建立後系統會自動產生學生帳號與臨時密碼。')
         with st.form('create_student'):
             student_name = st.text_input('學生姓名')
             submitted = st.form_submit_button('建立')
@@ -309,7 +424,7 @@ elif page == '任務清單':
     if isinstance(result, str):
         st.info(result)
     else:
-        st.dataframe(result, width='stretch')
+        st.dataframe(format_quest_rows(result), width='stretch')
     st.caption('建立、修改與指派任務目前只能在 Console 版操作')
 
 
@@ -331,7 +446,7 @@ elif page == '上傳紀錄':
     if isinstance(result, str):
         st.info(result)
     else:
-        st.dataframe(result, width='stretch')
+        st.dataframe(format_upload_rows(result), width='stretch')
 
 
 # ======================================================
@@ -342,7 +457,7 @@ elif page == '商品清單':
     if isinstance(result, str):
         st.info(result)
     else:
-        st.dataframe(result, width='stretch')
+        st.dataframe(format_shop_rows(result), width='stretch')
     st.caption('新增商品目前只能在 Console 版操作')
 
 
@@ -371,15 +486,24 @@ elif page == '我的寵物':
     if isinstance(result, str):
         st.info(result)
     else:
-        pet_column, xp_column, next_column = st.columns(3)
+        pet_column, coin_column = st.columns(2)
         pet_column.metric('寵物階段', result['stage_name'])
-        xp_column.metric('累積經驗值', result['total_xp'])
-        if result['next_stage_name'] is None:
-            next_column.metric('下一階段', '已達最終階段')
-        else:
-            next_column.metric(f"距離{result['next_stage_name']}", f"{result['xp_to_next']} 經驗值")
+        coin_column.metric('目前金幣', user['total_coin'])
 
-    st.metric('目前金幣', user['total_coin'])
+        st.subheader('經驗值進度')
+        if result['next_stage_name'] is None:
+            st.progress(1.0, text=f"累積經驗 {result['total_xp']}｜已達最終階段")
+        else:
+            # 用下一階段門檻當分母，顯示目前走到哪裡
+            next_threshold = result['total_xp'] + result['xp_to_next']
+            progress_ratio = result['total_xp'] / next_threshold
+            st.progress(
+                min(progress_ratio, 1.0),
+                text=(
+                    f"累積經驗 {result['total_xp']} / {next_threshold}"
+                    f"｜距離{result['next_stage_name']}還需 {result['xp_to_next']}"
+                )
+            )
 
 
 # ======================================================
@@ -414,42 +538,50 @@ elif page == '我的任務':
 # ======================================================
 elif page == '上傳練習':
     with centered_card():
-        with st.form('upload_practice'):
-            song_name = st.text_input('曲目名稱')
-            audio_file = st.file_uploader('練習錄音', type=['mp3', 'wav', 'm4a'])
-            audio_duration = st.number_input('錄音秒數', min_value=1, step=1)
-            submitted = st.form_submit_button('上傳')
+        st.subheader('上傳練習')
+        st.caption('請輸入曲目名稱並錄音，錄完後可先試聽，確認無誤再上傳。')
 
-        if submitted:
-            if song_name == '':
-                st.warning('曲目名稱不可空白')
-            elif audio_file is None:
-                st.warning('請選擇音檔')
-            else:
-                # save_audio_file() 需要檔案路徑，先把上傳的內容寫成暫存檔
-                file_ext = os.path.splitext(audio_file.name)[1]
-                with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as temp_file:
-                    temp_file.write(audio_file.getbuffer())
-                    temp_path = temp_file.name
+        song_name = st.text_input('曲目名稱')
+        # 不用 form，錄音後會立即重新整理並顯示試聽
+        audio_file = st.audio_input('練習錄音')
 
-                audio_url = save_audio_file(user, temp_path)
-                os.remove(temp_path)
+        if audio_file is None:
+            st.info('請先完成錄音')
+        else:
+            audio_duration = get_audio_duration(audio_file)
+            st.write(f'錄音長度：{audio_duration} 秒')
+            st.audio(audio_file)
+            st.caption('請先試聽確認，再按下「確認上傳」。')
 
-                result = create_practice_upload(user, audio_url, song_name, int(audio_duration))
-                if result == '練習上傳成功':
-                    show_notice(result)
-                    progress_list = update_quest_progress(user)
-                    for quest in progress_list:
-                        st.write(f"{quest['quest_name']}：{quest['progress_value']} / {quest['condition_value']}")
-                    for reward in give_quest_rewards(progress_list):
-                        show_notice(
-                            f"任務完成 {reward['quest_name']}，"
-                            f"獲得 {reward['reward_xp']} 經驗值、{reward['reward_coin']} 金幣"
-                        )
-                    # 經驗值與金幣可能已變動，重新讀取學生資料
-                    st.session_state.user = get_student(user['student_id'])
+            if st.button('確認上傳'):
+                if song_name == '':
+                    st.warning('曲目名稱不可空白')
+                elif audio_duration <= 0:
+                    st.warning('錄音時間太短，請重新錄製')
                 else:
-                    st.error(result)
+                    # save_audio_file() 需要檔案路徑，先把錄音寫成暫存 wav
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
+                        temp_file.write(audio_file.getbuffer())
+                        temp_path = temp_file.name
+
+                    audio_url = save_audio_file(user, temp_path)
+                    os.remove(temp_path)
+
+                    result = create_practice_upload(user, audio_url, song_name, audio_duration)
+                    if result == '練習上傳成功':
+                        show_notice(result)
+                        progress_list = update_quest_progress(user)
+                        for quest in progress_list:
+                            st.write(f"{quest['quest_name']}：{quest['progress_value']} / {quest['condition_value']}")
+                        for reward in give_quest_rewards(progress_list):
+                            show_notice(
+                                f"任務完成 {reward['quest_name']}，"
+                                f"獲得 {reward['reward_xp']} 經驗值、{reward['reward_coin']} 金幣"
+                            )
+                        # 經驗值與金幣可能已變動，重新讀取學生資料
+                        st.session_state.user = get_student(user['student_id'])
+                    else:
+                        st.error(result)
 
 
 # ======================================================
