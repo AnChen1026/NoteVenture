@@ -64,3 +64,23 @@ class SqlUtils:
             finally:
                 conn.close()
 
+    # 多句 SQL 在同一個 transaction，全部成功才 commit
+    # sql_list 格式：[(sql, params), (sql, params)]
+    def execute_transaction(self, sql_list):
+        conn = self.get_connection()
+
+        try:
+            with conn.cursor() as cursor:
+                for sql, params in sql_list:
+                    cursor.execute(sql, params)
+            conn.commit()
+            return True
+
+        except Exception as e:
+            conn.rollback()
+            print('執行失敗', e)
+            return False
+
+        finally:
+            conn.close()
+

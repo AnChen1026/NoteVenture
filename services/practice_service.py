@@ -2,6 +2,8 @@ import os # 檢查檔案是否存在
 import shutil # 複製檔案
 from datetime import datetime
 from db import SqlUtils
+from services.quest_service import update_quest_progress
+from services.reward_service import give_quest_rewards
 
 db = SqlUtils()
 
@@ -41,7 +43,7 @@ def create_practice_upload(student, audio_url, song_name, audio_duration):
 
 
 # ======================================================
-# 老師查看學生上傳紀錄
+# 顯示指定學生或全部學生的上傳紀錄
 # ======================================================
 def teacher_show_practice_upload(teacher, student_id=None):
     sql = """
@@ -63,7 +65,7 @@ def teacher_show_practice_upload(teacher, student_id=None):
 
 
 # ======================================================
-# 學生上傳紀錄選單
+# 老師選擇查看指定學生或全部學生的上傳紀錄
 # ======================================================
 def practice_upload_menu(teacher):
     # 只取老師自己的學生
@@ -87,7 +89,7 @@ def practice_upload_menu(teacher):
         print('\n===== 要查看哪一位學生的上傳紀錄 =====')
         for i in range(1,len(student_dict)+1):
             student = student_dict[str(i)]
-            print(f"[{i}] {student['student_name']} | {student['username']}")
+            print(f"[{i}] {student['student_name']}")
         print(f'[{all_choice}] 全部學生')
 
         choice = input('[0]返回\n:')
@@ -146,4 +148,12 @@ def upload_practice(student):
             continue
 
         audio_url = save_audio_file(student, source_path)
-        return create_practice_upload(student, audio_url, song_name, int(audio_duration))
+        result = create_practice_upload(student, audio_url, song_name, int(audio_duration))
+        if result == '練習上傳成功':
+            # 上傳成功後更新任務進度，達標的任務發放獎勵
+            progress_list = update_quest_progress(student)
+            for quest in progress_list:
+                print(f"{quest['quest_name']}：{quest['progress_value']} / {quest['condition_value']}")
+            for reward in give_quest_rewards(progress_list):
+                print(f"任務完成 {reward['quest_name']}，獲得 {reward['reward_xp']} 經驗值、{reward['reward_coin']} 金幣")
+        return result
