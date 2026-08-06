@@ -1,4 +1,5 @@
 from db import SqlUtils
+from datetime import datetime, timedelta
 db = SqlUtils()
 
 # ======================================================
@@ -12,11 +13,7 @@ def teacher_show_quest(teacher):
     """
     result = db.query_all(sql, (teacher['teacher_id'],))
     if result:
-        for quest in result:
-            print()
-            for dtype in quest:
-                print(f"{dtype} : {quest[dtype]}")
-        return ""
+        return result
     return '無任務資料'
 
 # ======================================================
@@ -380,18 +377,147 @@ def update_quest(teacher):
 # 指派任務
 # ======================================================
 def assign_quest(teacher):
-    result = teacher_show_quest(teacher)
-    if isinstance(result, str):
-        return result
-    menu_dict = {}
+    quest_type_text = {
+        'DAILY': '每日任務',
+        'WEEKLY': '每週任務',
+        'HIDDEN': '隱藏任務'
+    }
+
+    # 只取老師自己且啟用中的任務
+    sql = """
+    SELECT quest_id, quest_name, quest_type, reward_xp, reward_coin
+    FROM quest_list
+    WHERE teacher_id = %s
+    AND is_active = TRUE;
+    """
+    quest_result = db.query_all(sql, (teacher['teacher_id'],))
+    if not quest_result:
+        return '沒有可指派的任務'
+
+    quest_dict = {}
     i = 1
-    for quest in result:
-        menu_dict[f'{i}'] = {
-            'quest_id': quest['任務編號'],
-            'quest_name': quest['任務名稱'],
-            'is_active': quest['任務是否啟用']
-        }
+    for quest in quest_result:
+        quest_dict[f'{i}'] = quest
         i += 1
+
+    # 只取老師自己的學生
+    sql = """
+    SELECT student_id, username, student_name
+    FROM student
+    WHERE teacher_id = %s;
+    """
+    student_result = db.query_all(sql, (teacher['teacher_id'],))
+    if not student_result:
+        return '沒有學生資料'
+
+    student_dict = {}
+    i = 1
+    for student in student_result:
+        student_dict[f'{i}'] = student
+        i += 1
+
+    while True:
+        print('===== 要指派哪一項任務 =====')
+        for i in range(1,len(quest_dict)+1):
+            quest = quest_dict[str(i)]
+            print(f"[{i}] {quest['quest_name']} | {quest_type_text[quest['quest_type']]} | 經驗 {quest['reward_xp']} | 金幣 {quest['reward_coin']}")
+
+        choice = input('[0]取消\n:')
+        if choice == '0':
+            return '已取消指派'
+        elif choice not in quest_dict:
+            print('輸入錯誤')
+            continue
+        select_quest = quest_dict[choice]
+
+        while True:
+            print('===== 要指派給哪一位學生 =====')
+            for i in range(1,len(student_dict)+1):
+                student = student_dict[str(i)]
+                print(f"[{i}] {student['student_name']} | {student['username']}")
+
+            choice = input('[0]返回\n:')
+            if choice == '0':
+                break
+            elif choice not in student_dict:
+                print('輸入錯誤')
+                continue
+            select_student = student_dict[choice]
+
+            # 計算指派時間、到期時間與任務期間
+            assigned_at = datetime.now()
+            if select_quest['quest_type'] == 'HIDDEN':
+                expires_at = None
+                expires_at_text = '無期限'
+                period_key = 'ONCE'
+            else:
+                expires_at = assigned_at + timedelta(days=7)
+                expires_at_text = expires_at.strftime('%Y-%m-%d %H:%M')
+                if select_quest['quest_type'] == 'DAILY':
+                    period_key = assigned_at.strftime('%Y-%m-%d')
+                else:
+                    iso = assigned_at.isocalendar()
+                    period_key = f'{iso.year}-W{iso.week:02d}'
+
+            # 同一期間不可重複指派
+            sql = """
+            SELECT student_quest_id
+            FROM student_quest
+            WHERE student_id = %s
+            AND quest_id = %s
+            AND period_key = %s;
+            """
+            exist = db.query_one(
+                sql,
+                (
+                    select_student['student_id'],
+                    select_quest['quest_id'],
+                    period_key
+                )
+            )
+            if exist:
+                print(f"學生 {select_student['student_name']} 在期間 {period_key} 已被指派任務 {select_quest['quest_name']}")
+                continue
+
+            print(
+            '\n===== 指派內容確認 =====\n'
+            f"任務名稱：{select_quest['quest_name']}\n"
+            f"任務類型：{quest_type_text[select_quest['quest_type']]}\n"
+            f"指派學生：{select_student['student_name']}\n"
+            f"指派時間：{assigned_at.strftime('%Y-%m-%d %H:%M')}\n"
+            f'到期時間：{expires_at_text}\n'
+            f'任務期間：{period_key}\n'
+            )
+            while True:
+                choice = input('是否指派\n[1]是 [2]否：')
+                if choice == '1':
+                    sql = """
+                    INSERT INTO student_quest (
+                    student_id,
+                    quest_id,
+                    assigned_at,
+                    expires_at,
+                    period_key
+                    )
+                    VALUES (%s, %s, %s, %s, %s)
+                    """
+                    result = db.execute(
+                        sql,
+                        (
+                            select_student['student_id'],
+                            select_quest['quest_id'],
+                            assigned_at,
+                            expires_at,
+                            period_key
+                        )
+                    )
+                    if result > 0:
+                        return '任務指派成功'
+                    return '任務指派失敗'
+                elif choice == '2':
+                    break
+                else:
+                    print('輸入錯誤')
 
 
 
@@ -528,7 +654,8 @@ def quest_menu(teacher):
             quest = teacher_show_quest(teacher)
             print(quest)
         elif choice == '2':
-            print('指派任務尚未啟用')
+            result = assign_quest(teacher)
+            print(result)
         
         elif choice == '3':
             result = create_quest(teacher)
