@@ -3,21 +3,10 @@ from utils.password_utils import check_password
 from services.student_service import change_student_password
 from services.quest_service import student_show_quest
 from services.practice_service import upload_practice
-from services.shop_service import student_shop_menu
+from services.shop_service import student_shop_menu, student_show_inventory
 from services.dashboard_service import show_student_dashboard
 # =========== 測試 ============
 db = SqlUtils()
-
-
-
-
-
-
-
-
-
-
-
 
 
 # ========= 顯示用中文對照 ===========
@@ -43,6 +32,17 @@ quest_status_text = {
     'EXPIRED': '已過期'
 }
 
+item_type_text = {
+    'VIRTUAL': '虛擬商品',
+    'PHYSICAL': '實體商品'
+}
+
+purchase_status_text = {
+    'OWNED': '已擁有',
+    'PURCHASED': '待兌換',
+    'REDEEMED': '已兌換'
+}
+
 
 # ======================================================
 # 學生介面
@@ -57,8 +57,9 @@ def student_menu(student):
             '[2]設定(修改密碼)\n'
             '[3]任務欄\n'
             '[4]商店\n'
-            '[5]上傳練習\n'
-            '[6]查看近期展演資訊\n'
+            '[5]我的背包\n'
+            '[6]上傳練習\n'
+            '[7]查看近期展演資訊\n'
             '[0]登出\n'
             ':'
         )
@@ -98,10 +99,26 @@ def student_menu(student):
             print(result)
 
         elif choice == '5':
+            result = student_show_inventory(student)
+            if isinstance(result, str):
+                print(result)
+            else:
+                print('\n======== 我的背包 ========')
+                for item in result:
+                    print()
+                    print(f"{item['item_name']}")
+                    print(f"類型：{item_type_text.get(item['item_type'], item['item_type'])}")
+                    print(f"花費：{item['price']} 金幣")
+                    print(f"狀態：{purchase_status_text.get(item['status'], item['status'])}")
+                    print(f"購買時間：{item['created_at'].strftime('%Y-%m-%d %H:%M')}")
+                    if item['description']:
+                        print(f"說明：{item['description']}")
+
+        elif choice == '6':
             result = upload_practice(student)
             print(result)
 
-        elif choice == '6':
+        elif choice == '7':
             print('查看近期展演資訊')
 
         elif choice == '0':
@@ -110,4 +127,3 @@ def student_menu(student):
 
         else:
             print('輸入錯誤')
-                    

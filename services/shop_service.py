@@ -236,6 +236,30 @@ def purchase_item(student, item_id):
 
 
 # ======================================================
+# 學生查看我的背包（購買／持有紀錄）
+# ======================================================
+def student_show_inventory(student):
+    sql = """
+    SELECT
+        p.purchase_id,
+        i.item_name,
+        i.item_type,
+        i.description,
+        p.price,
+        p.status,
+        p.created_at
+    FROM purchase_record p
+    JOIN shop_item i ON i.item_id = p.item_id
+    WHERE p.student_id = %s
+    ORDER BY p.created_at DESC;
+    """
+    result = db.query_all(sql, (student['student_id'],))
+    if result:
+        return result
+    return '背包是空的'
+
+
+# ======================================================
 # 老師查看待兌換的實體商品
 # ======================================================
 def teacher_show_pending_purchase(teacher):

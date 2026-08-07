@@ -385,7 +385,7 @@ with st.sidebar:
         st.subheader(f"{user['student_name']} 同學")
         page = st.radio(
             '功能',
-            ['首頁', '我的寵物', '我的任務', '上傳練習', '商店', '修改密碼'],
+            ['首頁', '我的寵物', '我的任務', '上傳練習', '商店', '我的背包', '修改密碼'],
             label_visibility='collapsed'
         )
 
@@ -988,3 +988,31 @@ elif page == '商店':
                     else:
                         st.session_state.flash = buy_data
                     st.rerun()
+
+
+# ======================================================
+# 學生：我的背包
+# ======================================================
+elif page == '我的背包':
+    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/purchases")
+    if not ok:
+        st.error(data)
+    elif not data.get('data'):
+        st.info(data.get('message', '背包是空的'))
+    else:
+        purchase_status_text = {
+            'OWNED': '已擁有',
+            'PURCHASED': '待兌換',
+            'REDEEMED': '已兌換'
+        }
+        for item in data['data']:
+            with st.container(border=True):
+                st.markdown(f"**{item['item_name']}**")
+                st.caption(
+                    f"{item_type_text.get(item['item_type'], item['item_type'])}　"
+                    f"{purchase_status_text.get(item['status'], item['status'])}　"
+                    f"花費 {item['price']} 金幣　"
+                    f"購買時間 {format_datetime_text(item['created_at'])}"
+                )
+                if item.get('description'):
+                    st.caption(item['description'])
