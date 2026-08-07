@@ -583,7 +583,7 @@ elif page == '指派任務':
                 st.info('沒有學生資料')
             else:
                 quest_labels = {
-                    f"{q['任務名稱']}（#{q['任務編號']}）": q['任務編號']
+                    f"{q['任務名稱']}": q['任務編號']
                     for q in quest_rows
                 }
                 student_labels = {
@@ -949,6 +949,7 @@ elif page == '商店':
                         'POST', f"/api/shop-items/{item['item_id']}/purchase"
                     )
                     if buy_ok:
+                        # message 在庫存歸零時會附帶「商品已自動下架」說明
                         st.session_state.flash = buy_data.get('message', '購買成功')
                         refresh_login_user()
                     else:

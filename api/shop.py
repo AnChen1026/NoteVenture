@@ -113,9 +113,11 @@ def api_purchase_item(item_id):
     result = purchase_item(student, item_id)
     if result.startswith('購買成功'):
         refreshed = get_student(student['student_id'])
+        auto_deactivated = '商品已自動下架' in result
         return jsonify({
             'message': result,
-            'total_coin': refreshed['total_coin'] if refreshed else None
+            'total_coin': refreshed['total_coin'] if refreshed else None,
+            'auto_deactivated': auto_deactivated
         })
     if '金幣不足' in result:
         return jsonify({'message': result}), 400

@@ -210,11 +210,12 @@ def purchase_item(student, item_id):
         (purchase_sql, (student['student_id'], item['item_id'], item['price'], status))
     ]
 
-    # 不限量商品不需要扣庫存
+    # 不限量商品不需要扣庫存；有限庫存扣到 0 時自動下架
     if item['stock'] is not None:
         stock_sql = """
         UPDATE shop_item
-        SET stock = stock - 1
+        SET stock = stock - 1,
+            is_active = CASE WHEN stock <= 1 THEN FALSE ELSE is_active END
         WHERE item_id = %s
         AND stock > 0;
         """
@@ -222,9 +223,15 @@ def purchase_item(student, item_id):
 
     # 扣金幣、金幣異動、購買紀錄與庫存寫在同一個 transaction
     if db.execute_transaction(sql_list):
+        # stock 為購買前數量；買前是 1 代表這次買完後歸零並已下架
+        auto_deactivated = item['stock'] is not None and item['stock'] <= 1
         if status == 'PURCHASED':
-            return f"購買成功 {item['item_name']}，請找老師兌換"
-        return f"購買成功 {item['item_name']}"
+            message = f"購買成功 {item['item_name']}，請找老師兌換"
+        else:
+            message = f"購買成功 {item['item_name']}"
+        if auto_deactivated:
+            message += '（庫存已售完，商品已自動下架）'
+        return message
     return '購買失敗'
 
 
