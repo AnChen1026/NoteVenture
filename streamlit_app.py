@@ -159,6 +159,37 @@ def apply_custom_style():
             background: #fff7f7; border: 1px solid #ffd6d3; border-left: 4px solid #ff5a52;
             border-radius: 12px; padding: 0.85rem 1rem; color: #374151; margin: 0.7rem 0; font-weight: 500;
         }
+        .backpack-card {
+            aspect-ratio: 1 / 1;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 0.7rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .backpack-card.empty {
+            background: #f3f4f6;
+            border-style: dashed;
+        }
+        .backpack-name {
+            color: #1f2937;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.35rem;
+            word-break: break-word;
+        }
+        .backpack-desc {
+            color: #6b7280;
+            font-size: 0.8rem;
+            word-break: break-word;
+        }
         </style>
         """,
         unsafe_allow_html=True
@@ -1000,19 +1031,36 @@ elif page == '我的背包':
     elif not data.get('data'):
         st.info(data.get('message', '背包是空的'))
     else:
-        purchase_status_text = {
-            'OWNED': '已擁有',
-            'PURCHASED': '待兌換',
-            'REDEEMED': '已兌換'
-        }
-        for item in data['data']:
-            with st.container(border=True):
-                st.markdown(f"**{item['item_name']}**")
-                st.caption(
-                    f"{item_type_text.get(item['item_type'], item['item_type'])}　"
-                    f"{purchase_status_text.get(item['status'], item['status'])}　"
-                    f"花費 {item['price']} 金幣　"
-                    f"購買時間 {format_datetime_text(item['created_at'])}"
-                )
-                if item.get('description'):
-                    st.caption(item['description'])
+        # 5 欄 × 6 列正方形格子；超過 30 件只顯示最近 30 件
+        backpack_cols = 5
+        backpack_rows = 6
+        slot_count = backpack_cols * backpack_rows
+        items = list(data['data'][:slot_count])
+        while len(items) < slot_count:
+            items.append(None)
+
+        for row_index in range(backpack_rows):
+            columns = st.columns(backpack_cols)
+            for col_index in range(backpack_cols):
+                item = items[row_index * backpack_cols + col_index]
+                with columns[col_index]:
+                    if item is None:
+                        st.markdown(
+                            '<div class="backpack-card empty"></div>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        name = escape(str(item.get('item_name') or ''))
+                        description = escape(str(item.get('description') or '').strip())
+                        desc_html = (
+                            f'<div class="backpack-desc">{description}</div>'
+                            if description
+                            else ''
+                        )
+                        st.markdown(
+                            f'<div class="backpack-card">'
+                            f'<div class="backpack-name">{name}</div>'
+                            f'{desc_html}'
+                            f'</div>',
+                            unsafe_allow_html=True
+                        )
