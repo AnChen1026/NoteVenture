@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>主頁｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_home.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生主頁地圖">
+    <img
+      class="stage__bg"
+      src="/assets/material/home.png"
+      alt="Melody Town 學生主頁"
+      draggable="false"
+    >
+
+    <!-- 左上：琴房 → 上傳錄音 -->
+    <a class="hotspot hotspot--practice" href="/student/practice" title="琴房｜上傳練習" aria-label="琴房，前往上傳練習"></a>
+
+    <!-- 左下：寵物 -->
+    <a class="hotspot hotspot--pet" href="/student/pet" title="寵物" aria-label="寵物"></a>
+
+    <!-- 中間：商店 -->
+    <a class="hotspot hotspot--shop" href="/student/shop" title="商店" aria-label="商店"></a>
+
+    <!-- 右下：任務欄 -->
+    <a class="hotspot hotspot--quests" href="/student/quests" title="任務欄" aria-label="任務清單"></a>
+
+    <!-- 右上教室：先不開放 -->
+
+    <!-- 最右下：背包 -->
+    <a class="hotspot hotspot--backpack" href="/student/backpack" title="背包" aria-label="背包"></a>
+
+    <!-- 設定：修改密碼 -->
+    <a class="hotspot hotspot--settings" href="/student/settings" title="設定｜修改密碼" aria-label="設定，修改密碼"></a>
+
+    <p id="welcome" class="welcome" aria-live="polite"></p>
+  </main>
+
+  <script src="/static/web/student_home.js"></script>
+</body>
+</html>

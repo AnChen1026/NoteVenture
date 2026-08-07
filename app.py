@@ -31,11 +31,63 @@ def create_app():
     app.register_blueprint(dashboard_bp)
 
     # --------------------------------------------------
-    # 學生 HTML 登入頁（v2 前端預覽，素材來自 material/）
+    # 學生 HTML 前端（v2，素材來自 material/）
     # --------------------------------------------------
     @app.get('/student/login')
     def student_login_page():
         return render_template('student_login.html')
+
+    @app.get('/student/home')
+    def student_home_page():
+        return render_template('student_home.html')
+
+    @app.get('/student/practice')
+    def student_practice_page():
+        return render_template(
+            'student_placeholder.html',
+            title='琴房｜上傳練習',
+            message='上傳錄音頁面建置中，之後會接上練習上傳功能。'
+        )
+
+    @app.get('/student/pet')
+    def student_pet_page():
+        return render_template(
+            'student_placeholder.html',
+            title='寵物',
+            message='寵物頁面建置中，之後會顯示寵物階段與狀態。'
+        )
+
+    @app.get('/student/shop')
+    def student_shop_page():
+        return render_template(
+            'student_placeholder.html',
+            title='商店',
+            message='商店頁面建置中，之後可瀏覽與購買商品。'
+        )
+
+    @app.get('/student/quests')
+    def student_quests_page():
+        return render_template(
+            'student_placeholder.html',
+            title='任務欄',
+            message='任務清單頁面建置中，之後會顯示被指派的任務。'
+        )
+
+    @app.get('/student/backpack')
+    def student_backpack_page():
+        return render_template(
+            'student_placeholder.html',
+            title='背包',
+            message='背包頁面建置中，之後會顯示已購買／持有的物品。'
+        )
+
+    @app.get('/student/settings')
+    def student_settings_page():
+        return render_template(
+            'student_placeholder.html',
+            title='設定｜修改密碼',
+            message='修改密碼頁面建置中。'
+        )
 
     @app.get('/assets/material/<path:filename>')
     def material_asset(filename):
