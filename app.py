@@ -59,11 +59,7 @@ def create_app():
 
     @app.get('/student/shop')
     def student_shop_page():
-        return render_template(
-            'student_placeholder.html',
-            title='商店',
-            message='商店頁面建置中，之後可瀏覽與購買商品。'
-        )
+        return render_template('student_shop.html')
 
     @app.get('/student/quests')
     def student_quests_page():

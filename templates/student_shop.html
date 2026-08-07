@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商店｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_shop.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生商店">
+    <img
+      class="stage__bg"
+      src="/assets/material/shop.png"
+      alt="Melody Town 商店"
+      draggable="false"
+    >
+
+    <section class="shop-panel" aria-label="商品清單">
+      <div class="coin-bar">
+        <span class="coin-bar__label">持有金幣</span>
+        <span id="coin-value" class="coin-bar__value">—</span>
+      </div>
+
+      <div id="item-list" class="item-list" role="list"></div>
+      <p id="shop-empty" class="shop-empty" hidden>目前沒有可購買的商品</p>
+      <p id="shop-message" class="shop-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <a
+      class="map-btn"
+      href="/student/home"
+      title="返回主頁"
+      aria-label="MAP，返回主頁"
+    ></a>
+  </main>
+
+  <script src="/static/web/student_shop.js"></script>
+</body>
+</html>
