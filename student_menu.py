@@ -3,8 +3,8 @@ from utils.password_utils import check_password
 from services.student_service import change_student_password
 from services.quest_service import student_show_quest
 from services.practice_service import upload_practice
-from services.pet_service import show_pet
 from services.shop_service import student_shop_menu
+from services.dashboard_service import show_student_dashboard
 # =========== 測試 ============
 db = SqlUtils()
 
@@ -48,6 +48,8 @@ quest_status_text = {
 # 學生介面
 # ======================================================
 def student_menu(student):
+    result = show_student_dashboard(student)
+    print(result)
     while True:
         choice = input(
             f'\n======== {student["student_name"]}學生選單 ========\n'
@@ -61,18 +63,8 @@ def student_menu(student):
             ':'
         )
         if choice == '1':
-            result = show_pet(student)
-            if isinstance(result, str):
-                print(result)
-            else:
-                print('\n======== 我的寵物 ========')
-                print(f"寵物階段：{result['stage_name']}")
-                print(f"經驗值：{result['total_xp']}")
-                if result['next_stage_name'] is None:
-                    print('已達最終階段')
-                else:
-                    print(f"下一階段：{result['next_stage_name']}")
-                    print(f"還需經驗值：{result['xp_to_next']}")
+            result = show_student_dashboard(student)
+            print(result)
 
         elif choice == '2':
             old_password = input('請輸入密碼：')

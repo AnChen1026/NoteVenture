@@ -339,7 +339,7 @@ with st.sidebar:
         page = st.radio(
             '功能',
             [
-                '總覽',
+                '儀錶板',
                 '學生列表', '建立學生', '重設學生密碼',
                 '任務清單', '新增任務', '指派任務',
                 '上傳紀錄',
@@ -352,7 +352,7 @@ with st.sidebar:
         st.subheader(f"{user['student_name']} 同學")
         page = st.radio(
             '功能',
-            ['我的寵物', '我的任務', '上傳練習', '商店', '修改密碼'],
+            ['主頁', '我的寵物', '我的任務', '上傳練習', '商店', '修改密碼'],
             label_visibility='collapsed'
         )
 
@@ -373,9 +373,9 @@ if st.session_state.flash:
 
 
 # ======================================================
-# 老師：總覽 Dashboard
+# 老師：儀錶板 Dashboard
 # ======================================================
-if page == '總覽':
+if page == '儀錶板':
     ok, data, _ = call_api('GET', '/api/dashboard')
     if not ok:
         st.error(data)
@@ -400,8 +400,8 @@ if page == '總覽':
         else:
             st.info('尚無學生')
 
-        st.subheader('進行中任務（最近 10 筆）')
-        assignments = dashboard.get('active_assignments') or []
+        st.subheader('進行中任務（最近 5 筆）')
+        assignments = (dashboard.get('active_assignments') or [])[:5]
         if assignments:
             rows = []
             for item in assignments:
@@ -415,8 +415,8 @@ if page == '總覽':
         else:
             st.info('目前沒有進行中的任務指派')
 
-        st.subheader('最近上傳（最近 10 筆）')
-        uploads = dashboard.get('recent_uploads') or []
+        st.subheader('最近上傳（最近 5 筆）')
+        uploads = (dashboard.get('recent_uploads') or [])[:5]
         if uploads:
             rows = []
             for item in uploads:
@@ -430,8 +430,8 @@ if page == '總覽':
         else:
             st.info('尚無上傳紀錄')
 
-        st.subheader('待兌換商品（最近 10 筆）')
-        redeems = dashboard.get('pending_redeems') or []
+        st.subheader('待兌換商品（最近 5 筆）')
+        redeems = (dashboard.get('pending_redeems') or [])[:5]
         if redeems:
             rows = []
             for item in redeems:
@@ -717,6 +717,105 @@ elif page == '待兌換商品':
 # ======================================================
 elif page == '修改密碼':
     render_change_password_form(is_teacher=(role == 'teacher'))
+
+
+# ======================================================
+# 學生：主頁 Dashboard
+# ======================================================
+elif page == '主頁':
+    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/dashboard")
+    if not ok:
+        st.error(data)
+    else:
+        dashboard = data.get('data') or {}
+        summary = dashboard.get('summary') or {}
+        pet = dashboard.get('pet')
+
+        # 主頁數字以資料庫為準，同步到 session
+        if 'total_xp' in summary:
+            user['total_xp'] = summary['total_xp']
+        if 'total_coin' in summary:
+            user['total_coin'] = summary['total_coin']
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric('經驗值', summary.get('total_xp', 0))
+        c2.metric('金幣', summary.get('total_coin', 0))
+        c3.metric('進行中任務', summary.get('active_assignment_count', 0))
+
+        c4, c5, c6 = st.columns(3)
+        c4.metric('已過期任務', summary.get('expired_assignment_count', 0))
+        c5.metric('近 7 天上傳', summary.get('upload_count_7d', 0))
+        c6.metric('待領取實體商品', summary.get('pending_purchase_count', 0))
+
+        st.subheader('我的寵物')
+        if not pet:
+            st.info('無寵物資料')
+        else:
+            pet_column, next_column = st.columns(2)
+            pet_column.metric('寵物階段', pet.get('stage_name', '-'))
+            if pet.get('next_stage_name') is None:
+                next_column.metric('下一階段', '已達最終階段')
+                st.progress(1.0, text=f"累積經驗 {pet.get('total_xp', 0)}｜已達最終階段")
+            else:
+                next_column.metric('下一階段', pet.get('next_stage_name'))
+                next_threshold = pet['total_xp'] + pet['xp_to_next']
+                progress_ratio = pet['total_xp'] / next_threshold if next_threshold else 1.0
+                st.progress(
+                    min(progress_ratio, 1.0),
+                    text=(
+                        f"累積經驗 {pet['total_xp']} / {next_threshold}"
+                        f"｜距離{pet['next_stage_name']}還需 {pet['xp_to_next']}"
+                    )
+                )
+
+        st.subheader('進行中任務（最近 10 筆）')
+        assignments = dashboard.get('active_assignments') or []
+        if assignments:
+            rows = []
+            for item in assignments:
+                rows.append({
+                    '任務': item.get('任務'),
+                    '類型': quest_type_text.get(item.get('任務類型'), item.get('任務類型')),
+                    '進度': f"{item.get('目前進度', 0)} / {item.get('目標', 0)}",
+                    '截止時間': format_datetime_text(item.get('截止時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('目前沒有進行中的任務')
+
+        st.subheader('最近上傳（最近 10 筆）')
+        uploads = dashboard.get('recent_uploads') or []
+        if uploads:
+            rows = []
+            for item in uploads:
+                rows.append({
+                    '曲目': item.get('曲目'),
+                    '秒數': item.get('秒數'),
+                    '上傳時間': format_datetime_text(item.get('上傳時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('尚無上傳紀錄')
+
+        st.subheader('最近購買（最近 10 筆）')
+        purchases = dashboard.get('recent_purchases') or []
+        if purchases:
+            purchase_status_text = {
+                'OWNED': '已擁有',
+                'PURCHASED': '待兌換',
+                'REDEEMED': '已兌換'
+            }
+            rows = []
+            for item in purchases:
+                rows.append({
+                    '商品': item.get('商品'),
+                    '價格': item.get('價格'),
+                    '狀態': purchase_status_text.get(item.get('狀態'), item.get('狀態')),
+                    '購買時間': format_datetime_text(item.get('購買時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('尚無購買紀錄')
 
 
 # ======================================================

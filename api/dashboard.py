@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
-from api.guards import get_login_teacher, json_safe
-from services.dashboard_service import get_teacher_dashboard
+from api.guards import get_login_teacher, get_login_student, json_safe
+from services.dashboard_service import get_teacher_dashboard, get_student_dashboard
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -15,4 +15,21 @@ def api_teacher_dashboard():
         return error
 
     data = get_teacher_dashboard(teacher)
+    return jsonify({'data': json_safe(data)})
+
+
+# ======================================================
+# 學生主頁 Dashboard
+# ======================================================
+@dashboard_bp.get('/api/students/<int:student_id>/dashboard')
+def api_student_dashboard(student_id):
+    student, error = get_login_student()
+    if error:
+        return error
+    if student['student_id'] != student_id:
+        return jsonify({'message': '只能查看自己的主頁'}), 403
+
+    data = get_student_dashboard(student)
+    if not data:
+        return jsonify({'message': '找不到學生資料'}), 404
     return jsonify({'data': json_safe(data)})
