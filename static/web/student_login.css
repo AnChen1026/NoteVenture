@@ -1,0 +1,151 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 以 1920x1080 比例呈現整張素材 */
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.stage__bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+.login-form {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+}
+
+/* 透明輸入框：貼近左側圖示，對準米色格子內 */
+.field {
+  position: absolute;
+  left: 44.5%;
+  width: 14.0%;
+  height: 4.6%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #3b2a1a;
+  caret-color: #3b2a1a;
+  font-size: clamp(14px, 1.5vw, 26px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.field--username {
+  top: 44.0%;
+}
+
+.field--password {
+  top: 54.0%;
+}
+
+.field:hover,
+.field:focus,
+.field:focus-visible {
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+/* 避免瀏覽器自動填入時出現黃底／反白感 */
+.field:-webkit-autofill,
+.field:-webkit-autofill:hover,
+.field:-webkit-autofill:focus {
+  -webkit-text-fill-color: #3b2a1a;
+  transition: background-color 99999s ease-out;
+  box-shadow: 0 0 0 1000px transparent inset;
+}
+
+/* 透明熱區：對準底部豎琴圓鈕（無 hover 反白） */
+.harp-btn {
+  position: absolute;
+  left: 45.2%;
+  top: 65.3%;
+  width: 9.6%;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.harp-btn:hover,
+.harp-btn:focus,
+.harp-btn:focus-visible,
+.harp-btn:active {
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  transform: none;
+}
+
+.message {
+  position: absolute;
+  left: 50%;
+  bottom: 3.5%;
+  transform: translateX(-50%);
+  margin: 0;
+  min-width: 40%;
+  max-width: 80%;
+  text-align: center;
+  color: #fff8e7;
+  font-size: clamp(13px, 1.4vw, 22px);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+.message.is-error {
+  color: #ffd0d0;
+}
+
+.message.is-ok {
+  color: #e7ffe8;
+}

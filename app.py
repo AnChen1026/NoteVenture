@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, send_from_directory
 from api.health import health_bp
 from api.auth import auth_bp
 from api.students import students_bp
@@ -29,6 +29,17 @@ def create_app():
     app.register_blueprint(shop_bp)
     app.register_blueprint(pet_bp)
     app.register_blueprint(dashboard_bp)
+
+    # --------------------------------------------------
+    # 學生 HTML 登入頁（v2 前端預覽，素材來自 material/）
+    # --------------------------------------------------
+    @app.get('/student/login')
+    def student_login_page():
+        return render_template('student_login.html')
+
+    @app.get('/assets/material/<path:filename>')
+    def material_asset(filename):
+        return send_from_directory('material', filename)
 
     return app
 

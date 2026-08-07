@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>學生登入｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_login.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生登入畫面">
+    <img
+      class="stage__bg"
+      src="/assets/material/4.png"
+      alt="Melody Town 學生登入背景"
+      draggable="false"
+    >
+
+    <form id="login-form" class="login-form" autocomplete="on">
+      <label class="sr-only" for="username">帳號</label>
+      <input
+        id="username"
+        class="field field--username"
+        name="username"
+        type="text"
+        maxlength="50"
+        placeholder=""
+        required
+      >
+
+      <label class="sr-only" for="password">密碼</label>
+      <input
+        id="password"
+        class="field field--password"
+        name="password"
+        type="password"
+        maxlength="100"
+        placeholder=""
+        required
+      >
+
+      <button
+        id="login-btn"
+        class="harp-btn"
+        type="submit"
+        title="登入"
+        aria-label="登入"
+      ></button>
+    </form>
+
+    <p id="message" class="message" role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="/static/web/student_login.js"></script>
+</body>
+</html>
