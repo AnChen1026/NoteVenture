@@ -1,0 +1,203 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.stage__bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 中間羊皮紙任務欄上的半透明懸浮區 */
+.quest-panel {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  top: 23%;
+  width: 64%;
+  height: 58%;
+  padding: 1.6% 2%;
+  border-radius: 12px;
+  background: rgba(255, 248, 235, 0.1);
+  border: 1px solid rgba(120, 80, 30, 0.28);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5%;
+  overflow: hidden;
+}
+
+.quest-panel__title {
+  margin: 0;
+  flex-shrink: 0;
+  text-align: center;
+  color: #3b2a1a;
+  font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: 0.12em;
+}
+
+.quest-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quest-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.quest-list::-webkit-scrollbar-thumb {
+  background: rgba(90, 60, 25, 0.45);
+  border-radius: 999px;
+}
+
+.quest-list::-webkit-scrollbar-track {
+  background: rgba(90, 60, 25, 0.12);
+  border-radius: 999px;
+}
+
+.quest-card {
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(90, 60, 25, 0.28);
+  overflow: hidden;
+}
+
+.quest-card.is-open {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.quest-summary {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.6fr 0.8fr 0.9fr 0.8fr;
+  gap: 6px;
+  align-items: center;
+  padding: 0.7em 0.75em;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: #3b2a1a;
+  font: inherit;
+}
+
+.quest-summary:hover {
+  background: rgba(255, 230, 180, 0.35);
+}
+
+.quest-summary__name {
+  font-weight: 700;
+  font-size: clamp(12px, 1.25vw, 16px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quest-summary__meta {
+  font-size: clamp(11px, 1.1vw, 14px);
+  color: #5a4330;
+  text-align: center;
+}
+
+.quest-detail {
+  display: none;
+  padding: 0 0.85em 0.85em;
+  border-top: 1px dashed rgba(90, 60, 25, 0.25);
+  color: #3b2a1a;
+}
+
+.quest-card.is-open .quest-detail {
+  display: block;
+}
+
+.quest-detail p {
+  margin: 0.55em 0;
+  font-size: clamp(12px, 1.15vw, 15px);
+  line-height: 1.5;
+}
+
+.progress {
+  margin-top: 0.55em;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(90, 60, 25, 0.15);
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #c9a227, #8b6914);
+}
+
+.quest-empty,
+.quest-message {
+  margin: 0;
+  font-size: clamp(12px, 1.15vw, 15px);
+  color: #3b2a1a;
+  text-align: center;
+}
+
+/* 右下角 MAP 回主頁 */
+.map-btn {
+  position: absolute;
+  left: 88.8%;
+  top: 80%;
+  width: 7.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* .map-btn:hover, */
+.map-btn:focus,
+.map-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 220, 120, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+  outline: none;
+}
+
+.map-btn:active {
+  background: rgba(255, 255, 255, 0.4);
+}

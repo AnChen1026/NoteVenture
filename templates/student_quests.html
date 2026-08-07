@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>任務欄｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_quests.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生任務欄">
+    <img
+      class="stage__bg"
+      src="/assets/material/quest.png"
+      alt="Melody Town 任務欄"
+      draggable="false"
+    >
+
+    <section class="quest-panel" aria-label="任務清單">
+      <h1 class="quest-panel__title">任務欄</h1>
+      <div id="quest-list" class="quest-list" role="list"></div>
+      <p id="quest-empty" class="quest-empty" hidden>目前沒有任務</p>
+      <p id="quest-message" class="quest-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <a
+      class="map-btn"
+      href="/student/home"
+      title="返回主頁"
+      aria-label="MAP，返回主頁"
+    ></a>
+  </main>
+
+  <script src="/static/web/student_quests.js"></script>
+</body>
+</html>

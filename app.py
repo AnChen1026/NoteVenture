@@ -63,11 +63,7 @@ def create_app():
 
     @app.get('/student/quests')
     def student_quests_page():
-        return render_template(
-            'student_placeholder.html',
-            title='任務欄',
-            message='任務清單頁面建置中，之後會顯示被指派的任務。'
-        )
+        return render_template('student_quests.html')
 
     @app.get('/student/backpack')
     def student_backpack_page():
