@@ -31,7 +31,7 @@ def teacher_menu(teacher):
     while True:
         choice = input(
             f'\n======== {teacher["teacher_name"]}老師選單 ========\n'
-            '[1]主頁\n'
+            '[1]首頁\n'
             '[2]查看學生列表\n'
             '[3]建立學生帳號\n'
             '[4]任務管理\n'

@@ -339,7 +339,7 @@ with st.sidebar:
         page = st.radio(
             '功能',
             [
-                '儀錶板',
+                '首頁',
                 '學生列表', '建立學生', '重設學生密碼',
                 '任務清單', '新增任務', '指派任務',
                 '上傳紀錄',
@@ -352,7 +352,7 @@ with st.sidebar:
         st.subheader(f"{user['student_name']} 同學")
         page = st.radio(
             '功能',
-            ['主頁', '我的寵物', '我的任務', '上傳練習', '商店', '修改密碼'],
+            ['首頁', '我的寵物', '我的任務', '上傳練習', '商店', '修改密碼'],
             label_visibility='collapsed'
         )
 
@@ -373,9 +373,9 @@ if st.session_state.flash:
 
 
 # ======================================================
-# 老師：儀錶板 Dashboard
+# 老師：首頁 Dashboard
 # ======================================================
-if page == '儀錶板':
+if role == 'teacher' and page == '首頁':
     ok, data, _ = call_api('GET', '/api/dashboard')
     if not ok:
         st.error(data)
@@ -385,11 +385,11 @@ if page == '儀錶板':
 
         c1, c2, c3 = st.columns(3)
         c1.metric('學生人數', summary.get('student_count', 0))
-        c2.metric('啟用中任務模板', summary.get('active_quest_count', 0))
-        c3.metric('進行中指派', summary.get('active_assignment_count', 0))
+        c2.metric('啟用中任務', summary.get('active_quest_count', 0))
+        c3.metric('進行中任務', summary.get('active_assignment_count', 0))
 
         c4, c5, c6 = st.columns(3)
-        c4.metric('已過期指派', summary.get('expired_assignment_count', 0))
+        c4.metric('已過期任務', summary.get('expired_assignment_count', 0))
         c5.metric('近 7 天上傳', summary.get('upload_count_7d', 0))
         c6.metric('待兌換商品', summary.get('pending_redeem_count', 0))
 
@@ -413,7 +413,7 @@ if page == '儀錶板':
                 })
             st.dataframe(rows, width='stretch')
         else:
-            st.info('目前沒有進行中的任務指派')
+            st.info('目前沒有進行中的任務')
 
         st.subheader('最近上傳（最近 5 筆）')
         uploads = (dashboard.get('recent_uploads') or [])[:5]
@@ -720,9 +720,9 @@ elif page == '修改密碼':
 
 
 # ======================================================
-# 學生：主頁 Dashboard
+# 學生：首頁 Dashboard
 # ======================================================
-elif page == '主頁':
+elif role == 'student' and page == '首頁':
     ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/dashboard")
     if not ok:
         st.error(data)
@@ -731,7 +731,7 @@ elif page == '主頁':
         summary = dashboard.get('summary') or {}
         pet = dashboard.get('pet')
 
-        # 主頁數字以資料庫為準，同步到 session
+        # 首頁數字以資料庫為準，同步到 session
         if 'total_xp' in summary:
             user['total_xp'] = summary['total_xp']
         if 'total_coin' in summary:
@@ -768,8 +768,8 @@ elif page == '主頁':
                     )
                 )
 
-        st.subheader('進行中任務（最近 10 筆）')
-        assignments = dashboard.get('active_assignments') or []
+        st.subheader('進行中任務（最近 5 筆）')
+        assignments = (dashboard.get('active_assignments') or [])[:5]
         if assignments:
             rows = []
             for item in assignments:
@@ -783,8 +783,8 @@ elif page == '主頁':
         else:
             st.info('目前沒有進行中的任務')
 
-        st.subheader('最近上傳（最近 10 筆）')
-        uploads = dashboard.get('recent_uploads') or []
+        st.subheader('最近上傳（最近 5 筆）')
+        uploads = (dashboard.get('recent_uploads') or [])[:5]
         if uploads:
             rows = []
             for item in uploads:
@@ -797,8 +797,8 @@ elif page == '主頁':
         else:
             st.info('尚無上傳紀錄')
 
-        st.subheader('最近購買（最近 10 筆）')
-        purchases = dashboard.get('recent_purchases') or []
+        st.subheader('最近購買（最近 5 筆）')
+        purchases = (dashboard.get('recent_purchases') or [])[:5]
         if purchases:
             purchase_status_text = {
                 'OWNED': '已擁有',

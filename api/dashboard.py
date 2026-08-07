@@ -6,7 +6,7 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 
 # ======================================================
-# 老師 Dashboard 總覽
+# 老師首頁 Dashboard
 # ======================================================
 @dashboard_bp.get('/api/dashboard')
 def api_teacher_dashboard():
@@ -19,7 +19,7 @@ def api_teacher_dashboard():
 
 
 # ======================================================
-# 學生主頁 Dashboard
+# 學生首頁 Dashboard
 # ======================================================
 @dashboard_bp.get('/api/students/<int:student_id>/dashboard')
 def api_student_dashboard(student_id):
@@ -27,7 +27,7 @@ def api_student_dashboard(student_id):
     if error:
         return error
     if student['student_id'] != student_id:
-        return jsonify({'message': '只能查看自己的主頁'}), 403
+        return jsonify({'message': '只能查看自己的首頁'}), 403
 
     data = get_student_dashboard(student)
     if not data:

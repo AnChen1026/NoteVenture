@@ -53,7 +53,7 @@ def student_menu(student):
     while True:
         choice = input(
             f'\n======== {student["student_name"]}學生選單 ========\n'
-            '[1]主頁\n'
+            '[1]首頁\n'
             '[2]設定(修改密碼)\n'
             '[3]任務欄\n'
             '[4]商店\n'

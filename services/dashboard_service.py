@@ -353,17 +353,17 @@ def _print_rows(title, rows, empty_message, parmas=10):
 
 
 # ======================================================
-# 老師主頁面（Console 顯示）
+# 老師首頁（Console 顯示）
 # ======================================================
 def show_teacher_dashboard(teacher):
     data = get_teacher_dashboard(teacher)
     summary = data['summary']
 
-    print('\n======== 老師總覽 ========')
+    print('\n======== 老師首頁 ========')
     print(f"學生人數：{summary['student_count']}")
-    print(f"啟用中任務模板：{summary['active_quest_count']}")
-    print(f"進行中指派：{summary['active_assignment_count']}")
-    print(f"已過期指派：{summary['expired_assignment_count']}")
+    print(f"啟用中任務：{summary['active_quest_count']}")
+    print(f"進行中任務：{summary['active_assignment_count']}")
+    print(f"已過期任務：{summary['expired_assignment_count']}")
     print(f"近 7 天上傳：{summary['upload_count_7d']}")
     print(f"待兌換商品：{summary['pending_redeem_count']}")
 
@@ -371,7 +371,7 @@ def show_teacher_dashboard(teacher):
 
     print('\n--- 進行中任務（最近 5 筆） ---')
     if not data['active_assignments']:
-        print('目前沒有進行中的任務指派')
+        print('目前沒有進行中的任務')
     else:
         i = 1
         for item in data['active_assignments']:
@@ -387,11 +387,11 @@ def show_teacher_dashboard(teacher):
 
     _print_rows('最近上傳（最近 5 筆）', data['recent_uploads'], '尚無上傳紀錄', 5)
     _print_rows('待兌換商品（最近 5 筆）', data['pending_redeems'], '目前沒有待兌換商品', 5)
-    return '總覽顯示完成'
+    return '首頁顯示完成'
 
 
 # ======================================================
-# 學生主頁（Console 顯示）
+# 學生首頁（Console 顯示）
 # ======================================================
 def show_student_dashboard(student):
     data = get_student_dashboard(student)
@@ -399,7 +399,7 @@ def show_student_dashboard(student):
         return '找不到學生資料'
 
     summary = data['summary']
-    print('\n======== 學生主頁 ========')
+    print('\n======== 學生首頁 ========')
     print(f"姓名：{summary['student_name']}")
     print(f"經驗值：{summary['total_xp']}")
     print(f"金幣：{summary['total_coin']}")
@@ -439,4 +439,4 @@ def show_student_dashboard(student):
 
     _print_rows('最近上傳（最近 5 筆）', data['recent_uploads'], '尚無上傳紀錄', 5)
     _print_rows('最近購買（最近 5 筆）', data['recent_purchases'], '尚無購買紀錄', 5)
-    return '主頁顯示完成'
+    return '首頁顯示完成'
