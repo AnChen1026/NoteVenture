@@ -25,7 +25,10 @@
 flask --app app run --port 5000
 streamlit run streamlit_app.py
 
-# 擷取畫面
+# 擷取畫面（帳密用環境變數，不要寫進程式）
+# PowerShell 範例：
+# $env:NOTEADVENTURE_TEACHER_PASSWORD="你的老師密碼"
+# $env:NOTEADVENTURE_STUDENT_PASSWORD="你的學生密碼"
 python docs/midterm_ppt/capture_screens.py
 
 # 產生 PPT
