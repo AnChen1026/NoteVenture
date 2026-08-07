@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from db import SqlUtils
 from utils.password_utils import hash_password, check_password
-from services.teacher_service import login_teacher
+from services.teacher_service import login_teacher, create_teacher
 from services.student_service import login_student
 from api.guards import get_login_teacher, get_login_student
 
@@ -33,6 +33,39 @@ def student_public(student):
         'total_xp': student['total_xp'],
         'total_coin': student['total_coin']
     }
+
+
+# ======================================================
+# 老師註冊
+# ======================================================
+@auth_bp.post('/api/teachers/register')
+def api_teacher_register():
+    data = request.get_json(silent=True) or {}
+    teacher_name = str(data.get('teacher_name', '')).strip()
+    email = str(data.get('email', '')).strip()
+    password = data.get('password', '')
+    confirm_password = data.get('confirm_password', '')
+
+    if teacher_name == '' or email == '' or password == '' or confirm_password == '':
+        return jsonify({'message': '請完整填寫姓名、電子信箱與密碼'}), 400
+    if password != confirm_password:
+        return jsonify({'message': '兩次密碼不一致'}), 400
+
+    existing = db.query_one(
+        """
+        SELECT teacher_id
+        FROM teacher
+        WHERE email = %s;
+        """,
+        (email,)
+    )
+    if existing:
+        return jsonify({'message': '此電子信箱已註冊'}), 409
+
+    result = create_teacher(teacher_name, email, password)
+    if result == '老師帳號建立成功':
+        return jsonify({'message': result}), 201
+    return jsonify({'message': result}), 500
 
 
 # ======================================================

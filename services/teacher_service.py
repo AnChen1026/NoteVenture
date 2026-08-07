@@ -14,7 +14,7 @@ def create_teacher(teacher_name, email, password):
     password_hash = hash_password(password)
     result = db.execute(sql, (teacher_name, email, password_hash))
 
-    if result:
+    if result > 0:
         return '老師帳號建立成功'
     else:
         return '老師帳號建立失敗'

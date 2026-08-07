@@ -271,7 +271,7 @@ if st.session_state.user is None:
         st.markdown('</div>', unsafe_allow_html=True)
         st.caption('音樂練習 RPG 管理系統（Streamlit → Flask API）')
 
-        teacher_tab, student_tab = st.tabs(['老師登入', '學生登入'])
+        teacher_tab, register_tab, student_tab = st.tabs(['老師登入', '老師註冊', '學生登入'])
 
         with teacher_tab:
             with st.form('teacher_login'):
@@ -289,6 +289,39 @@ if st.session_state.user is None:
                     st.rerun()
                 else:
                     st.error(data)
+
+        with register_tab:
+            st.caption('註冊成功後，請回到「老師登入」使用電子信箱登入。')
+            with st.form('teacher_register'):
+                teacher_name = st.text_input('老師姓名')
+                register_email = st.text_input('電子信箱', key='register_email')
+                register_password = st.text_input('密碼', type='password', key='register_password')
+                confirm_password = st.text_input('確認密碼', type='password')
+                teacher_register = st.form_submit_button('註冊')
+            if teacher_register:
+                if (
+                    teacher_name.strip() == ''
+                    or register_email.strip() == ''
+                    or register_password == ''
+                    or confirm_password == ''
+                ):
+                    st.warning('請完整填寫姓名、電子信箱與密碼')
+                elif register_password != confirm_password:
+                    st.warning('兩次密碼不一致')
+                else:
+                    ok, data, _ = call_api(
+                        'POST', '/api/teachers/register',
+                        json={
+                            'teacher_name': teacher_name.strip(),
+                            'email': register_email.strip(),
+                            'password': register_password,
+                            'confirm_password': confirm_password
+                        }
+                    )
+                    if ok:
+                        show_notice(data.get('message', '老師帳號建立成功'))
+                    else:
+                        st.error(data)
 
         with student_tab:
             with st.form('student_login'):
