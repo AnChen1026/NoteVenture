@@ -339,6 +339,7 @@ with st.sidebar:
         page = st.radio(
             '功能',
             [
+                '總覽',
                 '學生列表', '建立學生', '重設學生密碼',
                 '任務清單', '新增任務', '指派任務',
                 '上傳紀錄',
@@ -372,9 +373,83 @@ if st.session_state.flash:
 
 
 # ======================================================
+# 老師：總覽 Dashboard
+# ======================================================
+if page == '總覽':
+    ok, data, _ = call_api('GET', '/api/dashboard')
+    if not ok:
+        st.error(data)
+    else:
+        dashboard = data.get('data') or {}
+        summary = dashboard.get('summary') or {}
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric('學生人數', summary.get('student_count', 0))
+        c2.metric('啟用中任務模板', summary.get('active_quest_count', 0))
+        c3.metric('進行中指派', summary.get('active_assignment_count', 0))
+
+        c4, c5, c6 = st.columns(3)
+        c4.metric('已過期指派', summary.get('expired_assignment_count', 0))
+        c5.metric('近 7 天上傳', summary.get('upload_count_7d', 0))
+        c6.metric('待兌換商品', summary.get('pending_redeem_count', 0))
+
+        st.subheader('學生概況')
+        students = dashboard.get('students') or []
+        if students:
+            st.dataframe(students, width='stretch')
+        else:
+            st.info('尚無學生')
+
+        st.subheader('進行中任務（最近 10 筆）')
+        assignments = dashboard.get('active_assignments') or []
+        if assignments:
+            rows = []
+            for item in assignments:
+                rows.append({
+                    '學生': item.get('學生'),
+                    '任務': item.get('任務'),
+                    '進度': f"{item.get('目前進度', 0)} / {item.get('目標', 0)}",
+                    '截止時間': format_datetime_text(item.get('截止時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('目前沒有進行中的任務指派')
+
+        st.subheader('最近上傳（最近 10 筆）')
+        uploads = dashboard.get('recent_uploads') or []
+        if uploads:
+            rows = []
+            for item in uploads:
+                rows.append({
+                    '學生': item.get('學生'),
+                    '曲目': item.get('曲目'),
+                    '秒數': item.get('秒數'),
+                    '上傳時間': format_datetime_text(item.get('上傳時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('尚無上傳紀錄')
+
+        st.subheader('待兌換商品（最近 10 筆）')
+        redeems = dashboard.get('pending_redeems') or []
+        if redeems:
+            rows = []
+            for item in redeems:
+                rows.append({
+                    '學生': item.get('學生'),
+                    '商品': item.get('商品'),
+                    '價格': item.get('價格'),
+                    '購買時間': format_datetime_text(item.get('購買時間'))
+                })
+            st.dataframe(rows, width='stretch')
+        else:
+            st.info('目前沒有待兌換商品')
+
+
+# ======================================================
 # 老師：學生列表
 # ======================================================
-if page == '學生列表':
+elif page == '學生列表':
     ok, data, _ = call_api('GET', '/api/students')
     if not ok:
         st.error(data)

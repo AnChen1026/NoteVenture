@@ -6,6 +6,7 @@ from api.quests import quests_bp
 from api.practice import practice_bp
 from api.shop import shop_bp
 from api.pet import pet_bp
+from api.dashboard import dashboard_bp
 
 
 # ======================================================
@@ -27,6 +28,7 @@ def create_app():
     app.register_blueprint(practice_bp)
     app.register_blueprint(shop_bp)
     app.register_blueprint(pet_bp)
+    app.register_blueprint(dashboard_bp)
 
     return app
 
