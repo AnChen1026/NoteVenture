@@ -101,17 +101,3 @@ body {
   top: 76.2%;
   width: 6%;
 }
-
-.welcome {
-  position: absolute;
-  left: 50%;
-  top: 12.5%;
-  transform: translateX(-50%);
-  margin: 0;
-  max-width: 50%;
-  text-align: center;
-  color: #fff8e7;
-  font-size: clamp(12px, 1.2vw, 20px);
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
-  pointer-events: none;
-}
