@@ -51,11 +51,7 @@ def create_app():
 
     @app.get('/student/pet')
     def student_pet_page():
-        return render_template(
-            'student_placeholder.html',
-            title='寵物',
-            message='寵物頁面建置中，之後會顯示寵物階段與狀態。'
-        )
+        return render_template('student_pet.html')
 
     @app.get('/student/shop')
     def student_shop_page():

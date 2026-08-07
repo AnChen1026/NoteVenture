@@ -66,6 +66,7 @@ def show_pet(student):
     result = {
         'total_xp': pet['total_xp'],
         'stage_name': pet['stage_name'],
+        'stage_order': pet['stage_order'],
         'next_stage_name': None,
         'xp_to_next': None
     }

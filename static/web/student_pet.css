@@ -1,0 +1,77 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.stage__bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 寵物立繪：底部對準中央紅色圓椅 */
+.pet-sprite {
+  position: absolute;
+  left: 51.6%;
+  top: 73%;
+  transform: translate(-50%, -92%);
+  width: auto;
+  height: 30%;
+  max-width: 30%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+}
+
+/* 右下角 MAP 回主頁 */
+.map-btn {
+  position: absolute;
+  left: 89%;
+  top: 79.5%;
+  width: 8%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* .map-btn:hover, */
+.map-btn:focus,
+.map-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 220, 120, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+  outline: none;
+}
+
+.map-btn:active {
+  background: rgba(255, 255, 255, 0.4);
+}
