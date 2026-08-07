@@ -34,19 +34,32 @@ body {
   pointer-events: none;
 }
 
-/* 寵物立繪：底部對準中央紅色圓椅 */
+/* 寵物立繪共用 */
 .pet-sprite {
   position: absolute;
-  left: 51.6%;
-  top: 73%;
-  transform: translate(-50%, -92%);
   width: auto;
-  height: 30%;
-  max-width: 30%;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+}
+
+/* 階段 1：對準紅色圓椅（可單獨調整） */
+.pet-sprite--stage1 {
+  left: 51.6%;
+  top: 73%;
+  transform: translate(-50%, -92%);
+  height: 30%;
+  max-width: 30%;
+}
+
+/* 階段 2～4：另一組位置（可單獨調整） */
+.pet-sprite--stage2to4 {
+  left: 50%;
+  top: 70%;
+  transform: translate(-50%, -50%);
+  height: 40%;
+  max-width: 26%;
 }
 
 /* 右下角 MAP 回主頁 */

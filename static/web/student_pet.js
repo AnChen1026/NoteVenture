@@ -8,8 +8,12 @@
 
     if (clamped === 1) {
       bgEl.src = '/assets/material/pet_stage1.png';
+      spriteEl.classList.remove('pet-sprite--stage2to4');
+      spriteEl.classList.add('pet-sprite--stage1');
     } else {
       bgEl.src = '/assets/material/pet_stage2-4.png';
+      spriteEl.classList.remove('pet-sprite--stage1');
+      spriteEl.classList.add('pet-sprite--stage2to4');
     }
 
     spriteEl.src = '/assets/material/pet/pet_id_no' + clamped + '.png';
