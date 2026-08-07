@@ -43,11 +43,7 @@ def create_app():
 
     @app.get('/student/practice')
     def student_practice_page():
-        return render_template(
-            'student_placeholder.html',
-            title='琴房｜上傳練習',
-            message='上傳錄音頁面建置中，之後會接上練習上傳功能。'
-        )
+        return render_template('student_practice.html')
 
     @app.get('/student/pet')
     def student_pet_page():

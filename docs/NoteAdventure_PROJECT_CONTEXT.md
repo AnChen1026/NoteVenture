@@ -13,8 +13,9 @@
 ### 必須使用
 
 - Python 3.12
-- Flask
-- Streamlit
+- Flask（API + 學生 HTML 頁面）
+- Streamlit（老師端網頁）
+- HTML／CSS／JS（學生端素材 UI，由 Flask 提供）
 - MySQL
 - PyMySQL
 - bcrypt
@@ -35,14 +36,42 @@
 
 ```
 NoteAdventure/
-├── app.py                 # Flask Application Factory 入口
-├── streamlit_app.py       # Streamlit 網頁 UI（HTTP 呼叫 Flask）
+├── app.py                 # Flask Application Factory（API + 學生頁路由）
+├── streamlit_app.py       # 老師端 Streamlit UI（HTTP 呼叫 Flask）
 ├── main.py                # Console 程式入口
 ├── db.py
 ├── config.ini
 ├── requirements.txt
 ├── teacher_menu.py
 ├── student_menu.py
+│
+├── templates/             # 學生 HTML 頁面
+│   ├── student_login.html
+│   ├── student_home.html
+│   ├── student_shop.html
+│   ├── student_quests.html
+│   ├── student_pet.html
+│   ├── student_practice.html
+│   └── student_placeholder.html
+│
+├── static/web/            # 學生前端 CSS／JS
+│   ├── student_login.css / .js
+│   ├── student_home.css / .js
+│   ├── student_shop.css / .js
+│   ├── student_quests.css / .js
+│   ├── student_pet.css / .js
+│   └── student_practice.css / .js
+│
+├── material/              # 學生端美術素材（背景、立繪等）
+│   ├── login.png
+│   ├── home.png
+│   ├── shop.png
+│   ├── quest.png
+│   ├── pet_stage1.png
+│   ├── pet_stage2-4.png
+│   ├── practice.png
+│   ├── pet/
+│   └── other/
 │
 ├── api/                   # Flask Blueprint（路由與 session）
 │   ├── auth.py
@@ -93,15 +122,21 @@ NoteAdventure/
 - `main.py`：Console 程式入口，負責登入選單與角色流程。
 - `teacher_menu.py`：老師 Console 選單與輸入輸出流程。
 - `student_menu.py`：學生 Console 選單與輸入輸出流程。
-- `app.py`：Flask 應用程式工廠，註冊各 API Blueprint。
+- `app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供學生 HTML 頁路由。
 - `api/`：Flask 路由層；負責 HTTP、session、參數驗證，並呼叫 `services/`（少數需互動輸入的流程在 API 內寫同等 SQL）。
-- `streamlit_app.py`：Streamlit 前端；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
+- `streamlit_app.py`：**老師端** Streamlit 前端；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
+- `templates/` + `static/web/`：**學生端** HTML／CSS／JS 前端；以 `fetch` 呼叫 Flask API，不直接操作資料庫。
+- `material/`：學生端美術素材（背景圖、寵物立繪等）。
 - `services/`：負責商業邏輯與資料庫操作（Console 與 API 共用）。
 - `db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
 - `utils/`：負責密碼處理、學生帳號與臨時密碼產生等共用工具。
 
 選單檔案只負責接收輸入、顯示結果與呼叫 Service，不應直接放大量 SQL。
-網頁開發時需同時啟動 Flask（預設 `:5000`）與 Streamlit。
+
+期中前端拆分：
+- 後端：一定要啟動 Flask（預設 `:5000`）。
+- 老師：另開 Streamlit（`streamlit run streamlit_app.py`）。
+- 學生：瀏覽器開啟 `http://127.0.0.1:5000/student/login`。
 
 ## 5. 資料庫
 
@@ -209,35 +244,42 @@ DISTINCT_SONGS
 - 學生查看商店與購買商品
 - 老師處理實體商品兌換
 - Flask Application Factory 與核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
-- Streamlit 網頁 UI 串接 Flask（老師：學生／任務／上傳紀錄／商品／兌換；學生：任務／上傳練習／商店／寵物）
+- Streamlit **老師端** UI 串接 Flask（學生／任務／上傳紀錄／商品／兌換）
 - Streamlit「新增商品」不限量庫存勾選可即時顯示／隱藏庫存欄位
+- 學生 HTML 前端：登入、主頁地圖、商店、任務欄、寵物、琴房錄音上傳（素材對位 UI）
 
 ### 進行中
 
 - 期中展示流程演練
+- 學生 HTML 其餘頁面（背包、設定改密碼）
 
 ### 尚未完成
 
-- 網頁端：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
+- 網頁端老師：註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
+- 學生 HTML：背包、設定改密碼、教室
 - 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
 - 學生查看自己的購買紀錄
 - Dashboard
 - 自動化測試
 
+備註：Streamlit 內既有學生頁可作備援，期中展示以學生 HTML 為主。
+
 ## 9. 核心流程
 
 ```
-老師登入
+老師登入（Streamlit）
 → 建立學生
 → 建立任務
 → 指派任務
-→ 學生登入
+→ 學生登入（HTML /student/login）
+→ 主頁地圖導覽
 → 查看任務
 → 上傳練習
 → 更新任務進度
 → 任務完成
 → 發放 XP 與金幣
 → 更新寵物階段
+→ 商店購買
 ```
 
 ## 10. 開發規則
@@ -275,14 +317,16 @@ DISTINCT_SONGS
 ## 12. 下一步
 
 ```
-完成期中展示流程演練
-（可選）補齊網頁端尚未涵蓋的任務／商品管理功能
+補齊學生 HTML：背包／設定改密碼
+完成期中展示流程演練（老師 Streamlit + 學生 HTML）
+（可選）補齊老師端尚未涵蓋的任務／商品管理功能
 ```
 
 完成條件：
 
-- 依 `NoteAdventure_MVP.md` 期中展示流程，從老師登入跑到學生購買與老師查看上傳紀錄
-- 同時啟動 Flask（`flask --app app run`）與 Streamlit（`streamlit run streamlit_app.py`）
+- 依 `NoteAdventure_MVP.md` 期中展示流程，從老師 Streamlit 跑到學生 HTML 購買，再回老師查看上傳紀錄
+- 啟動 Flask（`flask --app app run --port 5000`）與 Streamlit（`streamlit run streamlit_app.py`）
+- 學生端使用 `http://127.0.0.1:5000/student/login`（琴房上傳走 `/student/practice`）
 - 每個步驟都有中文提示，查無資料時不報錯
 - 準備展示用的測試老師、學生、任務、商品與音檔
 - 記錄流程中發現的問題與待修項目

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>琴房｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_practice.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生琴房">
+    <img
+      class="stage__bg"
+      src="/assets/material/practice.png"
+      alt="Melody Town 琴房"
+      draggable="false"
+    >
+
+    <section class="practice-panel" aria-label="練習錄音">
+      <h1 class="practice-panel__title">琴房</h1>
+
+      <label class="field" for="song-name">
+        <span class="field__label">曲目名稱</span>
+        <input
+          id="song-name"
+          class="field__input"
+          type="text"
+          maxlength="100"
+          placeholder="請輸入曲名"
+          autocomplete="off"
+        >
+      </label>
+
+      <div class="record-row">
+        <button id="record-btn" type="button" class="action-btn action-btn--record">
+          開始錄音
+        </button>
+        <span id="record-timer" class="record-timer" aria-live="polite">00:00</span>
+      </div>
+
+      <div id="preview-box" class="preview-box" hidden>
+        <p class="preview-box__label">試聽確認</p>
+        <audio id="preview-audio" class="preview-audio" controls></audio>
+        <p id="duration-text" class="duration-text"></p>
+      </div>
+
+      <div class="btn-row">
+        <button id="rerecord-btn" type="button" class="action-btn action-btn--secondary" hidden>
+          重新錄音
+        </button>
+        <button id="upload-btn" type="button" class="action-btn action-btn--upload" hidden disabled>
+          確認上傳
+        </button>
+      </div>
+
+      <p id="practice-message" class="practice-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <a
+      class="map-btn"
+      href="/student/home"
+      title="返回主頁"
+      aria-label="MAP，返回主頁"
+    ></a>
+  </main>
+
+  <script src="/static/web/student_practice.js"></script>
+</body>
+</html>

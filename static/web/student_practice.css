@@ -1,0 +1,259 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
+* {
+  box-sizing: border-box;
+}
+
+/* 頁面底色、字型、最小高度 */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* 舞台置中（垂直＋水平） */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 主舞台：16:9 比例、陰影外框 */
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 背景圖 practice.png：鋪滿舞台、不可點選 */
+.stage__bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 左側約三分之二懸浮框：位置、大小、透明度 0.1、圓角與模糊 */
+.practice-panel {
+  position: absolute;
+  left: 20%;
+  top: 15%;
+  width: 62%;
+  height: 72%;
+  padding: 2% 2.4%;
+  border-radius: 14px;
+  background: rgba(255, 248, 235, 0.1);
+  border: 1px solid rgba(120, 80, 30, 0.28);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 2.2%;
+  overflow: auto;
+}
+
+/* 「琴房」標題文字樣式 */
+.practice-panel__title {
+  margin: 0;
+  flex-shrink: 0;
+  text-align: center;
+  color: #fff3dd;
+  font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* 曲名欄位外層：直向排列標籤與輸入框 */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  flex-shrink: 0;
+}
+
+/* 「曲目名稱」標籤文字 */
+.field__label {
+  color: #fff3dd;
+  font-size: clamp(12px, 1.2vw, 15px);
+  font-weight: 700;
+}
+
+/* 曲名輸入框外觀 */
+.field__input {
+  width: 100%;
+  border: 1px solid rgba(90, 60, 25, 0.4);
+  border-radius: 10px;
+  padding: 0.65em 0.85em;
+  background: rgba(255, 255, 255, 0.72);
+  color: #3b2a1a;
+  font: inherit;
+  font-size: clamp(13px, 1.3vw, 16px);
+}
+
+/* 曲名輸入框聚焦時的邊框／光暈 */
+.field__input:focus {
+  outline: none;
+  border-color: rgba(180, 130, 40, 0.85);
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.28);
+}
+
+/* 錄音按鈕＋計時器那一列的排版 */
+.record-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* 錄音計時文字（00:00） */
+.record-timer {
+  min-width: 4.5em;
+  color: #3b2a1a;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(14px, 1.4vw, 18px);
+}
+
+/* 錄音進行中：計時器改為金色提示 */
+.record-timer.is-recording {
+  color: #ae752a;
+}
+
+/* 所有操作按鈕的共用外觀（圓角膠囊） */
+.action-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.55em 1.35em;
+  font: inherit;
+  font-weight: 700;
+  font-size: clamp(13px, 1.25vw, 16px);
+  cursor: pointer;
+}
+
+/* 「開始錄音」按鈕顏色 */
+.action-btn--record {
+  background: #ae752a;
+  color: #fff8f0;
+}
+
+/* 「停止錄音」時略加深，方便分辨狀態 */
+.action-btn--record.is-recording {
+  background: #8a5c20;
+}
+
+/* 「重新錄音」次要按鈕樣式 */
+.action-btn--secondary {
+  background: rgba(255, 255, 255, 0.78);
+  color: #3b2a1a;
+  border: 1px solid rgba(90, 60, 25, 0.35);
+}
+
+/* 「確認上傳」按鈕樣式 */
+.action-btn--upload {
+  background: linear-gradient(180deg, #e0b040, #b8860b);
+  color: #2a1c0c;
+}
+
+/* 按鈕滑過時微亮（停用時不套用） */
+.action-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+/* 按鈕停用：半透明、不可點 */
+.action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* 試聽區塊外框與背景 */
+.preview-box {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.8em 1em;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(90, 60, 25, 0.28);
+}
+
+/* 「試聽確認」小標題 */
+.preview-box__label {
+  margin: 0;
+  color: #3b2a1a;
+  font-weight: 700;
+  font-size: clamp(12px, 1.2vw, 15px);
+}
+
+/* 瀏覽器內建音訊播放器寬度 */
+.preview-audio {
+  width: 100%;
+}
+
+/* 「錄音長度：○ 秒」說明文字 */
+.duration-text {
+  margin: 0;
+  color: #5a4330;
+  font-size: clamp(12px, 1.15vw, 14px);
+}
+
+/* 重新錄音／上傳按鈕那一列的間距 */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* 底部狀態訊息（上傳成功／失敗等） */
+.practice-message {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: clamp(12px, 1.15vw, 15px);
+  color: #fff3dd;
+  text-align: center;
+  min-height: 1.4em;
+}
+
+/* 成功／錯誤訊息文字色（與一般訊息同色） */
+.practice-message.is-error,
+.practice-message.is-ok {
+  color: #fff3dd;
+}
+
+/* 右下角 MAP 熱區：對準素材圖樣位置與大小 */
+.map-btn {
+  position: absolute;
+  left: 87.5%;
+  top: 78%;
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* MAP 鍵盤聚焦時的高亮框 */
+.map-btn:focus,
+.map-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 220, 120, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+  outline: none;
+}
+
+/* MAP 按下時的短暫加深 */
+.map-btn:active {
+  background: rgba(255, 255, 255, 0.4);
+}

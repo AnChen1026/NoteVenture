@@ -1,7 +1,9 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
 * {
   box-sizing: border-box;
 }
 
+/* 頁面底色、字型、最小高度 */
 html,
 body {
   margin: 0;
@@ -10,6 +12,7 @@ body {
   font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
+/* 舞台置中（垂直＋水平） */
 body {
   display: flex;
   justify-content: center;
@@ -17,6 +20,7 @@ body {
   min-height: 100vh;
 }
 
+/* 主舞台：16:9 比例、陰影外框 */
 .stage {
   position: relative;
   width: min(100vw, calc(100vh * 16 / 9));
@@ -25,6 +29,7 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* 背景圖 home.png：鋪滿舞台、不可點選 */
 .stage__bg {
   display: block;
   width: 100%;
@@ -34,7 +39,7 @@ body {
   pointer-events: none;
 }
 
-/* 熱區：一律圓形、全透明（無 hover 反白） */
+/* 地圖熱區共用：圓形、全透明（無 hover 反白） */
 .hotspot {
   position: absolute;
   display: block;
@@ -50,6 +55,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 熱區互動：保持透明、不要外框 */
 .hotspot:hover,
 .hotspot:focus,
 .hotspot:focus-visible,
@@ -60,42 +66,42 @@ body {
   box-shadow: none;
 }
 
-/* 左上：琴房 */
+/* 左上熱區：琴房（位置／大小） */
 .hotspot--practice {
   left: 17%;
   top: 20%;
   width: 14%;
 }
 
-/* 左下：寵物 */
+/* 左下熱區：寵物（位置／大小） */
 .hotspot--pet {
   left: 24.5%;
   top: 50%;
   width: 13.5%;
 }
 
-/* 中間：商店 */
+/* 中間熱區：商店（位置／大小） */
 .hotspot--shop {
   left: 40%;
   top: 34%;
   width: 19%;
 }
 
-/* 右下：任務欄 */
+/* 右下熱區：任務欄（位置／大小） */
 .hotspot--quests {
   left: 58%;
   top: 50%;
   width: 14%;
 }
 
-/* 最右下：背包 */
+/* 最右下熱區：背包（位置／大小） */
 .hotspot--backpack {
   left: 78%;
   top: 76.2%;
   width: 6%;
 }
 
-/* 設定 */
+/* 右下熱區：設定（位置／大小） */
 .hotspot--settings {
   left: 87.9%;
   top: 76.2%;

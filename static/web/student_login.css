@@ -1,7 +1,9 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
 * {
   box-sizing: border-box;
 }
 
+/* 頁面底色、字型、最小高度 */
 html,
 body {
   margin: 0;
@@ -10,6 +12,7 @@ body {
   font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
+/* 舞台置中（垂直＋水平） */
 body {
   display: flex;
   justify-content: center;
@@ -17,6 +20,7 @@ body {
   min-height: 100vh;
 }
 
+/* 僅給螢幕閱讀器的隱藏文字（視覺上看不見） */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -29,7 +33,7 @@ body {
   border: 0;
 }
 
-/* 以 1920x1080 比例呈現整張素材 */
+/* 主舞台：16:9（對齊 1920x1080 素材）、陰影外框 */
 .stage {
   position: relative;
   width: min(100vw, calc(100vh * 16 / 9));
@@ -38,6 +42,7 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* 背景圖 login.png：鋪滿舞台、不可點選 */
 .stage__bg {
   display: block;
   width: 100%;
@@ -47,13 +52,14 @@ body {
   pointer-events: none;
 }
 
+/* 登入表單容器：蓋住整個舞台，方便絕對定位欄位 */
 .login-form {
   position: absolute;
   inset: 0;
   margin: 0;
 }
 
-/* 透明輸入框：貼近左側圖示，對準米色格子內 */
+/* 透明輸入框共用：位置／寬高對準素材米色格子 */
 .field {
   position: absolute;
   left: 44.5%;
@@ -74,14 +80,17 @@ body {
   appearance: none;
 }
 
+/* 帳號欄：垂直位置 */
 .field--username {
   top: 44.0%;
 }
 
+/* 密碼欄：垂直位置 */
 .field--password {
   top: 54.0%;
 }
 
+/* 輸入框 hover／focus：保持透明、不要外框反白 */
 .field:hover,
 .field:focus,
 .field:focus-visible {
@@ -90,7 +99,7 @@ body {
   box-shadow: none;
 }
 
-/* 避免瀏覽器自動填入時出現黃底／反白感 */
+/* 瀏覽器自動填入時：去掉黃底，文字色維持深棕 */
 .field:-webkit-autofill,
 .field:-webkit-autofill:hover,
 .field:-webkit-autofill:focus {
@@ -99,7 +108,7 @@ body {
   box-shadow: 0 0 0 1000px transparent inset;
 }
 
-/* 透明熱區：對準底部豎琴圓鈕（無 hover 反白） */
+/* 登入鍵熱區：對準底部豎琴圓鈕（位置／大小） */
 .harp-btn {
   position: absolute;
   left: 45.2%;
@@ -117,6 +126,7 @@ body {
   appearance: none;
 }
 
+/* 豎琴鈕互動：不要 hover 反白或位移 */
 .harp-btn:hover,
 .harp-btn:focus,
 .harp-btn:focus-visible,
@@ -127,6 +137,7 @@ body {
   transform: none;
 }
 
+/* 底部登入訊息：位置、文字色、陰影 */
 .message {
   position: absolute;
   left: 50%;
@@ -142,10 +153,12 @@ body {
   pointer-events: none;
 }
 
+/* 錯誤訊息文字色 */
 .message.is-error {
   color: #ffd0d0;
 }
 
+/* 成功訊息文字色 */
 .message.is-ok {
   color: #e7ffe8;
 }

@@ -17,12 +17,16 @@
     - **音樂老師**：建立學生、建立與指派任務、查看學生練習紀錄、建立獎品商店。
     - **學生**：查看任務、上傳練習錄音、取得 XP 與金幣、查看寵物成長。
 - **技術堆疊**：
-    - **前端介面**：Streamlit
-        - 建立老師與學生登入頁面。
-        - 顯示任務、練習紀錄、XP、金幣、虛擬商店與寵物狀態。
-        - MVP 階段不追求複雜前端動畫，以流程完整與操作清楚為主。
+    - **前端介面（期中拆成兩套登入系統）**：
+        - **老師端：Streamlit**
+            - 老師登入與管理介面（學生、任務、上傳紀錄、商店／兌換）。
+            - 透過 HTTP 呼叫 Flask API，不直接操作資料庫。
+        - **學生端：HTML／CSS／JS（Flask 樣板與靜態檔）**
+            - 學生登入與素材地圖 UI（主頁、商店、任務欄、寵物等）。
+            - 由 Flask 提供頁面（`templates/`、`static/web/`），同樣呼叫 Flask API。
+        - MVP 階段以流程完整與操作清楚為主；學生端可使用美術素材對位。
     - **後端**：Python、Flask
-        - Flask 提供 RESTful API。
+        - Flask 提供 RESTful API，並同時提供學生 HTML 頁面。
         - 負責登入驗證、學生管理、任務指派、錄音資料處理與獎勵計算。
         - 現有 Console 與 Service 程式可作為後端邏輯基礎，再逐步轉為 Flask API。
     - **資料庫**：MySQL
@@ -142,53 +146,51 @@ completed = FALSE 且 expires_at <= NOW()
 
 ### 3. 系統架構與資料流（System Architecture）
 
-MVP 預計採用以下架構：
+MVP 預計採用以下架構（老師與學生前端分開，共用同一套 Flask API）：
 
 ```
-Streamlit
-→ Flask API
-→ Service
-→ PyMySQL
-→ MySQL
+老師：Streamlit → Flask API → Service → PyMySQL → MySQL
+學生：HTML/JS  → Flask API → Service → PyMySQL → MySQL
 ```
 
 ```mermaid
 sequenceDiagram
     participant Teacher as 老師
     participant Student as 學生
-    participant UI as Streamlit
+    participant TeacherUI as Streamlit老師端
+    participant StudentUI as 學生HTML前端
     participant API as Flask API
     participant Service as Python Service
     participant DB as MySQL
 
-    Teacher->>UI: 登入老師帳號
-    UI->>API: POST /api/teachers/login
+    Teacher->>TeacherUI: 登入老師帳號
+    TeacherUI->>API: POST /api/teachers/login
     API->>Service: login_teacher()
     Service->>DB: 查詢老師帳號
     DB-->>Service: 回傳老師資料
     Service-->>API: 登入結果
-    API-->>UI: 回傳 JSON
+    API-->>TeacherUI: 回傳 JSON
 
-    Teacher->>UI: 建立或選擇任務
-    UI->>API: POST /api/quests
+    Teacher->>TeacherUI: 建立或選擇任務
+    TeacherUI->>API: POST /api/quests
     API->>Service: create_quest()
     Service->>DB: INSERT quest_list
 
-    Teacher->>UI: 指派任務給學生
-    UI->>API: POST /api/quests/{quest_id}/assign
+    Teacher->>TeacherUI: 指派任務給學生
+    TeacherUI->>API: POST /api/quests/{quest_id}/assign
     API->>Service: assign_quest()
     Service->>DB: INSERT student_quest
 
-    Student->>UI: 登入並查看任務
-    UI->>API: GET /api/students/{student_id}/quests
+    Student->>StudentUI: 登入並查看任務
+    StudentUI->>API: GET /api/students/{student_id}/quests
     API->>Service: student_show_quest()
     Service->>DB: JOIN student_quest 與 quest_list
     DB-->>Service: 回傳任務資料
     Service-->>API: 回傳任務進度與期限
-    API-->>UI: 顯示任務資料
+    API-->>StudentUI: 顯示任務資料
 
-    Student->>UI: 上傳練習錄音
-    UI->>API: POST /api/students/{student_id}/practice-uploads
+    Student->>StudentUI: 上傳練習錄音
+    StudentUI->>API: POST /api/students/{student_id}/practice-uploads
     API->>Service: create_practice_upload()
     Service->>DB: INSERT practice_upload
 
@@ -199,27 +201,27 @@ sequenceDiagram
     Service->>DB: INSERT coin_transaction
     Service->>DB: 更新寵物階段
 
-    API-->>UI: 回傳上傳結果與獎勵
-    UI-->>Student: 顯示任務進度、XP、金幣與寵物
+    API-->>StudentUI: 回傳上傳結果與獎勵
+    StudentUI-->>Student: 顯示任務進度、XP、金幣與寵物
 
-    Teacher->>UI: 建立商店商品
-    UI->>API: POST /api/shop-items
+    Teacher->>TeacherUI: 建立商店商品
+    TeacherUI->>API: POST /api/shop-items
     API->>Service: create_shop_item()
     Service->>DB: INSERT shop_item
     DB-->>Service: 回傳商品建立結果
     Service-->>API: 回傳商品資料
-    API-->>UI: 顯示商品建立成功
+    API-->>TeacherUI: 顯示商品建立成功
 
-    Student->>UI: 查看商店商品
-    UI->>API: GET /api/students/{student_id}/shop-items
+    Student->>StudentUI: 查看商店商品
+    StudentUI->>API: GET /api/students/{student_id}/shop-items
     API->>Service: get_shop_items()
     Service->>DB: 查詢所屬老師的上架商品
     DB-->>Service: 回傳商品清單
     Service-->>API: 回傳商品資料
-    API-->>UI: 顯示商品與學生金幣
+    API-->>StudentUI: 顯示商品與學生金幣
 
-    Student->>UI: 購買或兌換商品
-    UI->>API: POST /api/shop-items/{item_id}/purchase
+    Student->>StudentUI: 購買或兌換商品
+    StudentUI->>API: POST /api/shop-items/{item_id}/purchase
     API->>Service: purchase_item()
     Service->>DB: 查詢商品、庫存與學生金幣
     Service->>DB: 扣除學生金幣
@@ -228,23 +230,23 @@ sequenceDiagram
     Service->>DB: 更新商品庫存
     DB-->>Service: 回傳購買結果
     Service-->>API: 回傳購買狀態
-    API-->>UI: 顯示購買成功或金幣不足
+    API-->>StudentUI: 顯示購買成功或金幣不足
 
-    Teacher->>UI: 查看待兌換實體商品
-    UI->>API: GET /api/purchases/pending
+    Teacher->>TeacherUI: 查看待兌換實體商品
+    TeacherUI->>API: GET /api/purchases/pending
     API->>Service: get_pending_purchases()
     Service->>DB: 查詢 PURCHASED 紀錄
     DB-->>Service: 回傳待兌換清單
     Service-->>API: 回傳購買紀錄
-    API-->>UI: 顯示待兌換商品
+    API-->>TeacherUI: 顯示待兌換商品
 
-    Teacher->>UI: 標記商品已兌換
-    UI->>API: PATCH /api/purchases/{purchase_id}/redeem
+    Teacher->>TeacherUI: 標記商品已兌換
+    TeacherUI->>API: PATCH /api/purchases/{purchase_id}/redeem
     API->>Service: redeem_purchase()
     Service->>DB: UPDATE purchase_record status = REDEEMED
     DB-->>Service: 回傳更新結果
     Service-->>API: 回傳兌換完成
-    API-->>UI: 顯示已兌換
+    API-->>TeacherUI: 顯示已兌換
 ```
 
 ---
@@ -480,14 +482,17 @@ MVP 完成時需符合：
 | 第三階段：Flask API | 已完成核心 API（登入、學生、任務建立／指派、練習上傳、商店、寵物、改密碼） |
 | 第四階段：練習錄音上傳 | 已完成（Console + Streamlit／API） |
 | 第五階段：任務進度與獎勵 | 已完成 |
-| 第六階段：Streamlit 整合 | 已完成核心頁面（透過 HTTP 串接 Flask，session cookie 維持登入） |
+| 第六階段：Streamlit 老師端整合 | 已完成核心頁面（透過 HTTP 串接 Flask，session cookie 維持登入） |
+| 第六點五階段：學生 HTML 前端 | 進行中（登入、主頁、商店、任務欄、寵物、琴房上傳已完成；背包／設定尚未） |
 | 第七階段：測試與展示準備 | 進行中 |
 
-商店與兌換原本未列入開發階段，目前已完成老師建立與查看商品、學生查看商店與購買、老師處理實體商品兌換（Console 與網頁皆可）。
+商店與兌換原本未列入開發階段，目前已完成老師建立與查看商品、學生查看商店與購買、老師處理實體商品兌換（Console、Streamlit 老師端與學生 HTML 商店頁皆可）。
 
 任務進度計算目前只支援 `PRACTICE_COUNT` 與 `DISTINCT_SONGS`，其餘條件類型尚未實作。
 
-網頁端尚未涵蓋：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架、學生購買紀錄、Dashboard。
+期中將老師與學生前端拆開：老師使用 Streamlit；學生使用 Flask 提供的 HTML／CSS／JS 素材介面。Streamlit 內既有學生頁可作備援，期中展示以學生 HTML 為主。
+
+網頁端尚未涵蓋：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架、學生 HTML 背包／設定改密碼、學生購買紀錄、Dashboard。
 
 #### 第一階段：完成既有帳號與任務功能
 
@@ -538,16 +543,24 @@ MVP 完成時需符合：
 - 防止重複發獎
 - 更新寵物階段
 
-#### 第六階段：Streamlit 整合
+#### 第六階段：Streamlit 老師端整合
 
 - 老師登入頁
-- 學生登入頁
 - 老師學生管理頁
 - 老師任務管理頁
-- 學生任務頁
-- 練習上傳頁
-- XP、金幣與寵物顯示
+- 老師查看上傳紀錄／商品／兌換
 - 串接 Flask API
+- （備援）Streamlit 學生頁仍保留，但期中展示改以學生 HTML 為主
+
+#### 第六點五階段：學生 HTML 前端
+
+- 學生登入頁（`/student/login`）
+- 主頁地圖熱區導覽（`/student/home`）
+- 商店頁（半透明列表、展開購買、MAP 回主頁）
+- 任務欄頁（任務列表、展開詳情、MAP 回主頁）
+- 寵物頁（依階段切換背景與立繪、MAP 回主頁）
+- 琴房上傳頁（錄音、試聽、曲名、上傳、MAP 回主頁）
+- 尚未完成：背包、設定改密碼、教室
 
 #### 第七階段：測試與展示準備
 
@@ -563,25 +576,27 @@ MVP 完成時需符合：
 
 ### 8. 期中展示流程
 
-期中展示固定使用以下流程：
+期中展示固定使用以下流程。  
+老師操作在 **Streamlit**；切換學生時改開 **學生 HTML 登入頁**（`http://127.0.0.1:5000/student/login`）。兩邊共用已啟動的 Flask API。
 
 ```
-老師登入
+老師登入（Streamlit）
 → 查看學生列表
 → 建立一位測試學生
 → 建立或選擇一項任務
 → 建立一向虛擬商品
 → 指派任務給學生
 → 顯示任務期限
-→ 切換至學生登入
-→ 查看任務進度
-→ 上傳練習音檔
+→ 切換至學生 HTML 登入（/student/login）
+→ 進入主頁地圖
+→ 查看任務欄進度
+→ 上傳練習音檔（琴房 `/student/practice`）
 → 系統更新任務進度
 → 任務完成
 → 顯示 XP 與金幣獎勵
-→ 顯示寵物階段
-→ 購買一項虛擬商品
-→ 老師查看學生上傳紀錄
+→ 查看寵物階段
+→ 於商店購買一項虛擬商品
+→ 老師於 Streamlit 查看學生上傳紀錄
 ```
 
 ---
@@ -598,7 +613,7 @@ NoteAdventure MVP 不以功能數量判斷，而以下列條件作為成功標�
 6. 寵物可以依照 XP 呈現正確成長階段。
 7. 虛擬商店能正常運作。
 8. 使用者能在短時間內理解「練習、任務、獎勵、寵物成長」之間的關係。
-9. 開發者能說明 Streamlit、Flask、Service、PyMySQL 與 MySQL 之間的資料流。
+9. 開發者能說明老師 Streamlit、學生 HTML、Flask API、Service、PyMySQL 與 MySQL 之間的資料流。
 10. 開發者能閱讀、測試並修改 AI Agent 產生的程式碼。
 11. 系統能完整展示以下核心閉環：
 

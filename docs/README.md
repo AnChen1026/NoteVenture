@@ -24,26 +24,38 @@ NoteAdventure 是一套提供一對一音樂老師使用的學生練習管理系
 ## 技術堆疊
 
 - Python 3.12
-- Flask
-- Streamlit
+- Flask（API + 學生 HTML 頁面）
+- Streamlit（老師端網頁）
+- HTML／CSS／JS（學生端素材 UI）
 - MySQL
 - PyMySQL
 - bcrypt
 - Git / GitHub
 - Python venv
 
+期中將**老師與學生拆成兩套登入介面**，共用同一套 Flask API：
+
+| 角色 | 介面 | 進入方式 |
+|---|---|---|
+| 老師 | Streamlit | `streamlit run streamlit_app.py` |
+| 學生 | Flask HTML／CSS／JS | `http://127.0.0.1:5000/student/login` |
+
 ## 專案結構
 
 ```text
 NoteAdventure/
-├── app.py                 # Flask Application Factory 入口
-├── streamlit_app.py       # Streamlit 網頁 UI（HTTP 呼叫 Flask）
+├── app.py                 # Flask Application Factory（API + 學生頁）
+├── streamlit_app.py       # 老師端 Streamlit UI（HTTP 呼叫 Flask）
 ├── main.py                # Console 程式入口
 ├── db.py
 ├── config.ini
 ├── requirements.txt
 ├── teacher_menu.py
 ├── student_menu.py
+│
+├── templates/             # 學生 HTML 頁面
+├── static/web/            # 學生前端 CSS／JS
+├── material/              # 學生端美術素材
 │
 ├── api/                   # Flask Blueprint（路由與 session）
 │   ├── auth.py
@@ -73,7 +85,7 @@ NoteAdventure/
     └── rules/
 ```
 
-網頁開發時需同時啟動 Flask（預設 `:5000`）與 Streamlit。
+網頁開發時：Flask 一定要啟動；老師另開 Streamlit；學生開瀏覽器進 `/student/login`。
 
 ## 安裝方式
 
@@ -135,17 +147,27 @@ Console：
 python main.py
 ```
 
-Flask API（先啟動，預設 port 5000）：
+### 1. Flask（後端，一定要先啟動）
 
 ```bash
 flask --app app run --port 5000
 ```
 
-Streamlit（另開一個終端機）：
+### 2. 老師端（Streamlit，另開終端機）
 
 ```bash
 streamlit run streamlit_app.py
 ```
+
+瀏覽器通常開啟 `http://localhost:8501`。
+
+### 3. 學生端（HTML，用瀏覽器開啟）
+
+```text
+http://127.0.0.1:5000/student/login
+```
+
+登入成功後進入主頁地圖（`/student/home`）。
 
 ## MVP 功能
 
@@ -192,15 +214,18 @@ streamlit run streamlit_app.py
 - Console：任務建立／查看／修改／刪除、啟用／停用、指派與期限
 - Console：練習上傳、老師查看上傳、進度（`PRACTICE_COUNT`／`DISTINCT_SONGS`）、獎勵、寵物、商店與兌換
 - Flask 核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
-- Streamlit 串接 Flask（老師：學生／任務建立與指派／上傳紀錄／商品／兌換；學生：任務／上傳／商店／寵物／強制改密碼）
+- **老師端 Streamlit**：學生／任務建立與指派／上傳紀錄／商品／兌換
+- **學生端 HTML**：登入、主頁地圖、商店、任務欄、寵物、琴房錄音上傳
 
 進行中：
 
 - 期中展示流程演練
+- 學生 HTML：背包、設定改密碼
 
 尚未完成：
 
-- 網頁端：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
+- 網頁端老師：註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
+- 學生 HTML：背包、設定改密碼、教室
 - 其他任務條件（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
 - 學生查看自己的購買紀錄
 - Dashboard
@@ -208,8 +233,9 @@ streamlit run streamlit_app.py
 
 下一步：
 
-- 期中 Demo 完整跑通
-- （可選）補齊網頁端任務／商品進階管理
+- 補齊學生 HTML 剩餘頁面
+- 期中 Demo 完整跑通（老師 Streamlit + 學生 HTML）
+- （可選）補齊老師端任務／商品進階管理
 - Dashboard
 
 ## 專題定位

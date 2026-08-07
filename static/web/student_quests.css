@@ -1,7 +1,9 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
 * {
   box-sizing: border-box;
 }
 
+/* 頁面底色、字型、最小高度 */
 html,
 body {
   margin: 0;
@@ -10,6 +12,7 @@ body {
   font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
+/* 舞台置中（垂直＋水平） */
 body {
   display: flex;
   justify-content: center;
@@ -17,6 +20,7 @@ body {
   min-height: 100vh;
 }
 
+/* 主舞台：16:9 比例、陰影外框 */
 .stage {
   position: relative;
   width: min(100vw, calc(100vh * 16 / 9));
@@ -25,6 +29,7 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* 背景圖 quest.png：鋪滿舞台、不可點選 */
 .stage__bg {
   display: block;
   width: 100%;
@@ -34,7 +39,7 @@ body {
   pointer-events: none;
 }
 
-/* 中間羊皮紙任務欄上的半透明懸浮區 */
+/* 中間任務懸浮面板：位置、大小、透明度 0.1 */
 .quest-panel {
   position: absolute;
   left: 50%;
@@ -54,6 +59,7 @@ body {
   overflow: hidden;
 }
 
+/* 「任務欄」標題文字 */
 .quest-panel__title {
   margin: 0;
   flex-shrink: 0;
@@ -63,6 +69,7 @@ body {
   letter-spacing: 0.12em;
 }
 
+/* 任務清單：可捲動區 */
 .quest-list {
   flex: 1 1 auto;
   min-height: 0;
@@ -75,20 +82,24 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* 捲軸寬度 */
 .quest-list::-webkit-scrollbar {
   width: 8px;
 }
 
+/* 捲軸拖曳條顏色 */
 .quest-list::-webkit-scrollbar-thumb {
   background: rgba(90, 60, 25, 0.45);
   border-radius: 999px;
 }
 
+/* 捲軸軌道底色 */
 .quest-list::-webkit-scrollbar-track {
   background: rgba(90, 60, 25, 0.12);
   border-radius: 999px;
 }
 
+/* 單一任務卡片外框 */
 .quest-card {
   flex-shrink: 0;
   border-radius: 10px;
@@ -97,11 +108,13 @@ body {
   overflow: hidden;
 }
 
+/* 任務展開時：略亮背景與陰影 */
 .quest-card.is-open {
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
+/* 任務摘要列：名稱／類型／進度／狀態四欄 */
 .quest-summary {
   width: 100%;
   display: grid;
@@ -117,10 +130,12 @@ body {
   font: inherit;
 }
 
+/* 摘要列滑過時的淺黃底 */
 .quest-summary:hover {
   background: rgba(255, 230, 180, 0.35);
 }
 
+/* 任務名稱：粗體、過長省略 */
 .quest-summary__name {
   font-weight: 700;
   font-size: clamp(12px, 1.25vw, 16px);
@@ -129,12 +144,14 @@ body {
   white-space: nowrap;
 }
 
+/* 類型／進度／狀態等次要文字 */
 .quest-summary__meta {
   font-size: clamp(11px, 1.1vw, 14px);
   color: #5a4330;
   text-align: center;
 }
 
+/* 任務詳情區：預設隱藏 */
 .quest-detail {
   display: none;
   padding: 0 0.85em 0.85em;
@@ -142,16 +159,19 @@ body {
   color: #3b2a1a;
 }
 
+/* 展開時顯示任務詳情 */
 .quest-card.is-open .quest-detail {
   display: block;
 }
 
+/* 詳情內段落文字 */
 .quest-detail p {
   margin: 0.55em 0;
   font-size: clamp(12px, 1.15vw, 15px);
   line-height: 1.5;
 }
 
+/* 進度條外框 */
 .progress {
   margin-top: 0.55em;
   height: 10px;
@@ -160,12 +180,14 @@ body {
   overflow: hidden;
 }
 
+/* 進度條實際填滿寬度（由 JS 設 width） */
 .progress__bar {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, #c9a227, #8b6914);
 }
 
+/* 空清單／狀態訊息文字 */
 .quest-empty,
 .quest-message {
   margin: 0;
@@ -174,7 +196,7 @@ body {
   text-align: center;
 }
 
-/* 右下角 MAP 回主頁 */
+/* 右下角 MAP 熱區：對準素材圖樣位置與大小 */
 .map-btn {
   position: absolute;
   left: 88.8%;
@@ -189,7 +211,7 @@ body {
   transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-/* .map-btn:hover, */
+/* MAP 鍵盤聚焦時的高亮框 */
 .map-btn:focus,
 .map-btn:focus-visible {
   background: rgba(255, 255, 255, 0.28);
@@ -198,6 +220,7 @@ body {
   outline: none;
 }
 
+/* MAP 按下時的短暫加深 */
 .map-btn:active {
   background: rgba(255, 255, 255, 0.4);
 }

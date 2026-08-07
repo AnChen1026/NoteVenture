@@ -1,7 +1,9 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
 * {
   box-sizing: border-box;
 }
 
+/* 頁面底色、字型、最小高度 */
 html,
 body {
   margin: 0;
@@ -10,6 +12,7 @@ body {
   font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
 }
 
+/* 舞台置中（垂直＋水平） */
 body {
   display: flex;
   justify-content: center;
@@ -17,6 +20,7 @@ body {
   min-height: 100vh;
 }
 
+/* 主舞台：16:9 比例、陰影外框 */
 .stage {
   position: relative;
   width: min(100vw, calc(100vh * 16 / 9));
@@ -25,6 +29,7 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
+/* 背景圖：鋪滿舞台、不可點選 */
 .stage__bg {
   display: block;
   width: 100%;
@@ -34,7 +39,7 @@ body {
   pointer-events: none;
 }
 
-/* 寵物立繪共用 */
+/* 寵物立繪共用：陰影、不可點選 */
 .pet-sprite {
   position: absolute;
   width: auto;
@@ -44,7 +49,7 @@ body {
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
 }
 
-/* 階段 1：對準紅色圓椅（可單獨調整） */
+/* 階段 1 立繪：位置／大小（對準紅色圓椅，可單獨調） */
 .pet-sprite--stage1 {
   left: 51.6%;
   top: 73%;
@@ -53,7 +58,7 @@ body {
   max-width: 30%;
 }
 
-/* 階段 2～4：另一組位置（可單獨調整） */
+/* 階段 2～4 立繪：另一組位置／大小（可單獨調） */
 .pet-sprite--stage2to4 {
   left: 50%;
   top: 70%;
@@ -62,7 +67,7 @@ body {
   max-width: 26%;
 }
 
-/* 右下角 MAP 回主頁 */
+/* 右下角 MAP 熱區：對準素材圖樣位置與大小 */
 .map-btn {
   position: absolute;
   left: 89%;
@@ -76,7 +81,7 @@ body {
   text-decoration: none;
 }
 
-/* .map-btn:hover, */
+/* MAP 鍵盤聚焦時的高亮框 */
 .map-btn:focus,
 .map-btn:focus-visible {
   background: rgba(255, 255, 255, 0.28);
@@ -85,6 +90,7 @@ body {
   outline: none;
 }
 
+/* MAP 按下時的短暫加深 */
 .map-btn:active {
   background: rgba(255, 255, 255, 0.4);
 }
