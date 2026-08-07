@@ -36,23 +36,44 @@ NoteAdventure 是一套提供一對一音樂老師使用的學生練習管理系
 
 ```text
 NoteAdventure/
-├── app.py
-├── main.py
+├── app.py                 # Flask Application Factory 入口
+├── streamlit_app.py       # Streamlit 網頁 UI（HTTP 呼叫 Flask）
+├── main.py                # Console 程式入口
 ├── db.py
 ├── config.ini
 ├── requirements.txt
+├── teacher_menu.py
+├── student_menu.py
+│
+├── api/                   # Flask Blueprint（路由與 session）
+│   ├── auth.py
+│   ├── students.py
+│   ├── quests.py
+│   ├── practice.py
+│   ├── shop.py
+│   ├── pet.py
+│   ├── health.py
+│   └── guards.py
+│
 ├── docs/
 │   ├── NoteAdventure_MVP.md
 │   ├── NoteAdventure_PROJECT_CONTEXT.md
 │   ├── DATABASE_SCHEMA.md
 │   └── README.md
+│
 ├── services/
 ├── utils/
 ├── sql/
 ├── uploads/
-├── teacher_menu.py
-└── student_menu.py
+│
+├── .streamlit/
+│   └── config.toml
+│
+└── .cursor/
+    └── rules/
 ```
+
+網頁開發時需同時啟動 Flask（預設 `:5000`）與 Streamlit。
 
 ## 安裝方式
 
@@ -128,6 +149,8 @@ streamlit run streamlit_app.py
 
 ## MVP 功能
 
+下列為 MVP 目標功能。實際完成範圍請見「目前進度」（Console 與網頁覆蓋範圍不完全相同）。
+
 - 老師註冊與登入
 - 建立與查看學生
 - 重設學生密碼
@@ -164,31 +187,29 @@ streamlit run streamlit_app.py
 
 已完成：
 
-- 老師註冊與登入
-- 建立與查看學生
-- 密碼重設與學生首次登入改密碼
-- 任務建立、查看、修改、刪除
-- 任務啟用／停用
-- 任務指派與任務期限
-- 學生查看任務與進度
-- 練習錄音上傳
-- 老師查看學生上傳紀錄
-- 任務進度計算與 XP／金幣發放
-- 寵物階段更新與顯示
-- 商品建立、學生購買與實體商品兌換
-- Flask 核心 API
-- Streamlit 串接 Flask（核心操作頁面）
-- MySQL Schema
-- Git 版本控制
+- MySQL Schema、Git 版本控制
+- Console：老師註冊／登入、學生建立與查看、密碼重設、首次登入改密碼
+- Console：任務建立／查看／修改／刪除、啟用／停用、指派與期限
+- Console：練習上傳、老師查看上傳、進度（`PRACTICE_COUNT`／`DISTINCT_SONGS`）、獎勵、寵物、商店與兌換
+- Flask 核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
+- Streamlit 串接 Flask（老師：學生／任務建立與指派／上傳紀錄／商品／兌換；學生：任務／上傳／商店／寵物／強制改密碼）
 
 進行中：
 
 - 期中展示流程演練
 
+尚未完成：
+
+- 網頁端：老師註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
+- 其他任務條件（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
+- 學生查看自己的購買紀錄
+- Dashboard
+- 自動化測試
+
 下一步：
 
 - 期中 Demo 完整跑通
-- 網頁端補齊任務／商品進階管理（可選）
+- （可選）補齊網頁端任務／商品進階管理
 - Dashboard
 
 ## 專題定位
