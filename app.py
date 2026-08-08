@@ -33,7 +33,7 @@ def create_app():
     # --------------------------------------------------
     # 學生 HTML 前端（v2，素材來自 material/）
     # --------------------------------------------------
-    @app.get('/student/login')
+    @app.get('/student/login')  # 函式的裝飾器（Decorator）
     def student_login_page():
         return render_template('student_login.html')
 
