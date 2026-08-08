@@ -23,12 +23,12 @@
   async function ensureStudent() {
     const response = await fetch('/api/me', { credentials: 'same-origin' });
     if (response.status === 401) {
-      window.location.href = '/student/login';
+      window.navigateWithTransition('/student/login');
       return null;
     }
     const data = await response.json();
     if (!data || data.role !== 'student' || !data.user) {
-      window.location.href = '/student/login';
+      window.navigateWithTransition('/student/login');
       return null;
     }
     return data.user;
@@ -57,7 +57,7 @@
       }
       await loadPet(user.student_id);
     } catch (error) {
-      window.location.href = '/student/login';
+      window.navigateWithTransition('/student/login');
     }
   }
 

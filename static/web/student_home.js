@@ -7,7 +7,7 @@
       });
 
       if (response.status === 401) {
-        window.location.href = '/student/login';
+        window.navigateWithTransition('/student/login');
         return;
       }
 
@@ -16,10 +16,10 @@
       });
 
       if (!data || data.role !== 'student' || !data.user) {
-        window.location.href = '/student/login';
+        window.navigateWithTransition('/student/login');
       }
     } catch (error) {
-      window.location.href = '/student/login';
+      window.navigateWithTransition('/student/login');
     }
   }
 
@@ -32,7 +32,7 @@
     } catch (error) {
       // 即使 API 失敗也導回登入頁
     }
-    window.location.href = '/student/login';
+    window.navigateWithTransition('/student/login');
   }
 
   const logoutBtn = document.getElementById('logout-btn');

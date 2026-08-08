@@ -19,7 +19,7 @@
       });
 
       if (response.status === 401) {
-        window.location.href = '/student/login';
+        window.navigateWithTransition('/student/login');
         return false;
       }
 
@@ -28,12 +28,12 @@
       });
 
       if (!data || data.role !== 'student' || !data.user) {
-        window.location.href = '/student/login';
+        window.navigateWithTransition('/student/login');
         return false;
       }
       return true;
     } catch (error) {
-      window.location.href = '/student/login';
+      window.navigateWithTransition('/student/login');
       return false;
     }
   }

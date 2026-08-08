@@ -46,7 +46,7 @@
 
       const name = (data.user && data.user.student_name) || username;
       showMessage('登入成功，' + name + ' 你好！正在進入主頁…', 'is-ok');
-      window.location.href = '/student/home';
+      window.navigateWithTransition('/student/home');
     } catch (error) {
       showMessage('無法連接伺服器，請確認 Flask 已啟動', 'is-error');
     } finally {

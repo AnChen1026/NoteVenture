@@ -1,0 +1,36 @@
+/* 學生頁共用：純淡入淡出（不位移，避免出現捲軸） */
+
+.page-transition {
+  will-change: opacity;
+}
+
+/* 進場前先隱藏，避免載入時閃一下 */
+.page-transition:not(.is-page-enter):not(.is-page-leave) {
+  opacity: 0;
+}
+
+.page-transition.is-page-enter {
+  animation: pageEnter 0.4s ease both;
+}
+
+.page-transition.is-page-leave {
+  animation: pageLeave 0.28s ease both;
+  pointer-events: none;
+}
+
+@keyframes pageLeave {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition.is-page-enter,
+  .page-transition.is-page-leave {
+    animation-duration: 0.15s;
+  }
+}
