@@ -67,11 +67,7 @@ def create_app():
 
     @app.get('/student/settings')
     def student_settings_page():
-        return render_template(
-            'student_placeholder.html',
-            title='設定｜修改密碼',
-            message='修改密碼頁面建置中。'
-        )
+        return render_template('student_settings.html')
 
     @app.get('/assets/material/<path:filename>')
     def material_asset(filename):

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定｜修改密碼｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/student_settings.css">
+</head>
+<body>
+  <main class="stage" aria-label="學生修改密碼">
+    <img
+      class="stage__bg"
+      src="/assets/material/settings.png"
+      alt="Melody Town 設定頁背景"
+      draggable="false"
+    >
+
+    <section class="settings-panel" aria-label="修改密碼">
+      <h1 class="settings-panel__title">修改密碼</h1>
+
+      <form id="password-form" class="password-form" autocomplete="off">
+        <label class="field-row">
+          <span class="field-row__label">目前密碼</span>
+          <input
+            id="old-password"
+            class="field-row__input"
+            name="old_password"
+            type="password"
+            maxlength="100"
+            required
+          >
+        </label>
+
+        <label class="field-row">
+          <span class="field-row__label">新密碼</span>
+          <input
+            id="new-password"
+            class="field-row__input"
+            name="new_password"
+            type="password"
+            maxlength="100"
+            required
+          >
+        </label>
+
+        <label class="field-row">
+          <span class="field-row__label">確認新密碼</span>
+          <input
+            id="confirm-password"
+            class="field-row__input"
+            name="confirm_password"
+            type="password"
+            maxlength="100"
+            required
+          >
+        </label>
+
+        <button id="submit-btn" class="submit-btn" type="submit">確認修改</button>
+      </form>
+
+      <p id="message" class="settings-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <a
+      class="map-btn"
+      href="/student/home"
+      title="返回主頁"
+      aria-label="MAP，返回主頁"
+    ></a>
+  </main>
+
+  <script src="/static/web/student_settings.js"></script>
+</body>
+</html>

@@ -238,7 +238,7 @@ def purchase_item(student, item_id):
 # ======================================================
 # 學生查看我的背包（購買／持有紀錄）
 # ======================================================
-def student_show_inventory(student):
+def student_show_backpack(student):
     sql = """
     SELECT
         p.purchase_id,

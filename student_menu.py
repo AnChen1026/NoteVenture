@@ -3,7 +3,7 @@ from utils.password_utils import check_password
 from services.student_service import change_student_password
 from services.quest_service import student_show_quest
 from services.practice_service import upload_practice
-from services.shop_service import student_shop_menu, student_show_inventory
+from services.shop_service import student_shop_menu, student_show_backpack
 from services.dashboard_service import show_student_dashboard
 # =========== 測試 ============
 db = SqlUtils()
@@ -99,7 +99,7 @@ def student_menu(student):
             print(result)
 
         elif choice == '5':
-            result = student_show_inventory(student)
+            result = student_show_backpack(student)
             if isinstance(result, str):
                 print(result)
             else:
@@ -107,10 +107,6 @@ def student_menu(student):
                 for item in result:
                     print()
                     print(f"{item['item_name']}")
-                    print(f"類型：{item_type_text.get(item['item_type'], item['item_type'])}")
-                    print(f"花費：{item['price']} 金幣")
-                    print(f"狀態：{purchase_status_text.get(item['status'], item['status'])}")
-                    print(f"購買時間：{item['created_at'].strftime('%Y-%m-%d %H:%M')}")
                     if item['description']:
                         print(f"說明：{item['description']}")
 

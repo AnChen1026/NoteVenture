@@ -5,7 +5,7 @@ from services.shop_service import (
     teacher_show_shop_item,
     student_show_shop_item,
     purchase_item,
-    student_show_inventory,
+    student_show_backpack,
     teacher_show_pending_purchase,
     redeem_purchase
 )
@@ -138,7 +138,7 @@ def api_student_inventory(student_id):
     if student['student_id'] != student_id:
         return jsonify({'message': '只能查看自己的背包'}), 403
 
-    result = student_show_inventory(student)
+    result = student_show_backpack(student)
     if isinstance(result, str):
         return jsonify({'message': result, 'data': []})
     return jsonify({'data': json_safe(result)})

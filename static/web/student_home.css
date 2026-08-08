@@ -107,3 +107,11 @@ body {
   top: 76.2%;
   width: 6%;
 }
+
+/* 左下熱區：指北針登出（位置／大小） */
+.hotspot--logout {
+  left: 8%;
+  top: 65%;
+  width: 12.5%;
+  padding: 0;
+}

@@ -23,5 +23,24 @@
     }
   }
 
+  async function logoutStudent() {
+    try {
+      await fetch('/api/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+    } catch (error) {
+      // 即使 API 失敗也導回登入頁
+    }
+    window.location.href = '/student/login';
+  }
+
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      logoutStudent();
+    });
+  }
+
   ensureStudentLogin();
 })();

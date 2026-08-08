@@ -1,0 +1,218 @@
+/* 全頁：盒模型改為含邊框計算，避免寬高溢出 */
+* {
+  box-sizing: border-box;
+}
+
+/* 頁面底色、字型、最小高度 */
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* 舞台置中（垂直＋水平） */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* 主舞台：16:9 比例、陰影外框 */
+.stage {
+  position: relative;
+  width: min(100vw, calc(100vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+/* 背景圖 settings.png：鋪滿舞台、不可點選 */
+.stage__bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 中間設定懸浮面板：位置、大小、透明度 0.1（對齊任務欄） */
+.settings-panel {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  top: 23%;
+  width: 52%;
+  height: 58%;
+  padding: 1.8% 2.4%;
+  border-radius: 12px;
+  background: rgba(255, 248, 235, 0.1);
+  border: 1px solid rgba(120, 80, 30, 0.28);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  gap: 2.2%;
+  overflow: hidden;
+}
+
+/* 「修改密碼」標題文字 */
+.settings-panel__title {
+  margin: 0;
+  flex-shrink: 0;
+  text-align: center;
+  color: #3b2a1a;
+  font-size: clamp(16px, 1.8vw, 24px);
+  letter-spacing: 0.12em;
+}
+
+/* 表單：欄位直向排列 */
+.password-form {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4%;
+  margin: 0;
+}
+
+/* 每一欄：牛皮紙質感；名稱左、輸入右；高度較窄 */
+.field-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.45em 0.8em;
+  min-height: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(120, 80, 30, 0.38);
+  background:
+    linear-gradient(180deg, rgba(250, 232, 198, 0.94), rgba(224, 190, 140, 0.9)),
+    repeating-linear-gradient(
+      -12deg,
+      rgba(120, 80, 30, 0.04),
+      rgba(120, 80, 30, 0.04) 2px,
+      transparent 2px,
+      transparent 6px
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 8px rgba(60, 35, 10, 0.12);
+  color: #3b2a1a;
+  cursor: text;
+}
+
+/* 欄位標題：固定寬度靠左 */
+.field-row__label {
+  flex: 0 0 6.5em;
+  font-size: clamp(12px, 1.15vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #5a4330;
+  white-space: nowrap;
+}
+
+/* 輸入框：名稱右側、透明底 */
+.field-row__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #3b2a1a;
+  caret-color: #3b2a1a;
+  font: inherit;
+  font-size: clamp(14px, 1.35vw, 18px);
+  font-weight: 600;
+  padding: 0.1em 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 輸入框聚焦：底線提示 */
+.field-row__input:focus {
+  border-bottom: 1px solid rgba(120, 80, 30, 0.45);
+}
+
+/* 確認修改按鈕：深褐牛皮紙風 */
+.submit-btn {
+  align-self: center;
+  margin-top: 0.4em;
+  min-width: 42%;
+  padding: 0.65em 1.2em;
+  border-radius: 999px;
+  border: 1px solid rgba(90, 60, 25, 0.45);
+  background: linear-gradient(180deg, #d8b57a, #b8894a);
+  color: #3b2a1a;
+  font: inherit;
+  font-size: clamp(13px, 1.25vw, 16px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(60, 35, 10, 0.18);
+}
+
+/* 按鈕滑過／按下 */
+.submit-btn:hover {
+  filter: brightness(1.05);
+}
+
+.submit-btn:active {
+  transform: translateY(1px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* 狀態訊息 */
+.settings-message {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: clamp(12px, 1.15vw, 15px);
+  color: #3b2a1a;
+  text-align: center;
+}
+
+.settings-message.is-error {
+  color: #8b2e1a;
+}
+
+.settings-message.is-ok {
+  color: #2f5d2a;
+}
+
+/* 右下角 MAP 熱區：對準素材圖樣位置與大小 */
+.map-btn {
+  position: absolute;
+  left: 88.8%;
+  top: 80%;
+  width: 7.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* MAP 鍵盤聚焦時的高亮框 */
+.map-btn:focus,
+.map-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 220, 120, 0.9);
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+  outline: none;
+}
+
+/* MAP 按下時的短暫加深 */
+.map-btn:active {
+  background: rgba(255, 255, 255, 0.4);
+}
