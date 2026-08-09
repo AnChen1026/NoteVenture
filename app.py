@@ -7,6 +7,7 @@ from api.practice import practice_bp
 from api.shop import shop_bp
 from api.pet import pet_bp
 from api.dashboard import dashboard_bp
+from api.class_board import class_bp
 
 
 # ======================================================
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(shop_bp)
     app.register_blueprint(pet_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(class_bp)
 
     # --------------------------------------------------
     # 學生 HTML 前端（v2，素材來自 material/）
