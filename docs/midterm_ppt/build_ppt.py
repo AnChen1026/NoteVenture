@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""產生 NoteAdventure 期中專題簡報（白／橘風格 + 實際前端截圖）。"""
+"""產生 NoteAdventure 期中簡報（含 Console／Streamlit／學生 UI 實際畫面）。"""
 from pathlib import Path
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.util import Inches, Pt, Emu
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent
 SHOT = ROOT / 'screenshots_crop'
@@ -14,7 +14,6 @@ if not SHOT.exists():
     SHOT = ROOT / 'screenshots'
 OUT = ROOT / 'NoteAdventure_Midterm_Report.pptx'
 
-# 與前端相同色票
 ORANGE = RGBColor(0xFF, 0x5A, 0x52)
 ORANGE_SOFT = RGBColor(0xFF, 0xF7, 0xF7)
 ORANGE_BORDER = RGBColor(0xFF, 0xD6, 0xD3)
@@ -22,11 +21,11 @@ WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 BG = RGBColor(0xF7, 0xF7, 0xF8)
 DARK = RGBColor(0x1F, 0x29, 0x37)
 GRAY = RGBColor(0x37, 0x41, 0x51)
-LIGHT_GRAY = RGBColor(0xD1, 0xD5, 0xDB)
 MUTED = RGBColor(0x6B, 0x72, 0x80)
 
 W = Inches(13.333)
 H = Inches(7.5)
+TOTAL = 16
 
 
 def set_run(run, size=18, bold=False, color=DARK, name='Microsoft JhengHei'):
@@ -44,39 +43,36 @@ def add_bg(slide):
 
 
 def add_pixel_bar(slide, top=0, height=Inches(0.28)):
-    # 頂部橘色像素條
     shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, top, W, height)
     shape.fill.solid()
     shape.fill.fore_color.rgb = ORANGE
     shape.line.fill.background()
-    # 右側小色塊營造像素感
     for i, color in enumerate([ORANGE, RGBColor(0xFF, 0x7A, 0x72), ORANGE_BORDER, WHITE]):
         block = slide.shapes.add_shape(
             MSO_SHAPE.RECTANGLE,
             W - Inches(0.35) * (i + 1),
             top,
             Inches(0.35),
-            height
+            height,
         )
         block.fill.solid()
         block.fill.fore_color.rgb = color
         block.line.fill.background()
 
 
-def add_footer(slide, page_no, total):
+def add_footer(slide, page_no):
     box = slide.shapes.add_textbox(Inches(0.5), H - Inches(0.45), Inches(10), Inches(0.3))
     tf = box.text_frame
     p = tf.paragraphs[0]
     run = p.add_run()
-    run.text = f'NoteAdventure ｜ 期中專題報告 ｜ {page_no}/{total}'
+    run.text = f'NoteAdventure ｜ 期中專題報告 ｜ {page_no}/{TOTAL}'
     set_run(run, 11, color=MUTED)
-    # 右下角橘點
     dot = slide.shapes.add_shape(
         MSO_SHAPE.RECTANGLE,
         W - Inches(0.55),
         H - Inches(0.45),
         Inches(0.22),
-        Inches(0.22)
+        Inches(0.22),
     )
     dot.fill.solid()
     dot.fill.fore_color.rgb = ORANGE
@@ -89,29 +85,28 @@ def add_title(slide, text, left=Inches(0.6), top=Inches(0.45), width=Inches(12))
     p = tf.paragraphs[0]
     run = p.add_run()
     run.text = text
-    set_run(run, 32, bold=True, color=DARK)
-    # 標題下橘線
+    set_run(run, 28, bold=True, color=DARK)
     line = slide.shapes.add_shape(
         MSO_SHAPE.RECTANGLE,
         left,
-        top + Inches(0.62),
+        top + Inches(0.58),
         Inches(1.2),
-        Inches(0.08)
+        Inches(0.08),
     )
     line.fill.solid()
     line.fill.fore_color.rgb = ORANGE
     line.line.fill.background()
 
 
-def add_body(slide, lines, left=Inches(0.6), top=Inches(1.4), width=Inches(12), size=18):
-    box = slide.shapes.add_textbox(left, top, width, Inches(5.2))
+def add_body(slide, lines, left=Inches(0.6), top=Inches(1.35), width=Inches(12), size=18):
+    box = slide.shapes.add_textbox(left, top, width, Inches(5.3))
     tf = box.text_frame
     tf.word_wrap = True
     first = True
     for line in lines:
         p = tf.paragraphs[0] if first else tf.add_paragraph()
         first = False
-        p.space_after = Pt(10)
+        p.space_after = Pt(8)
         run = p.add_run()
         run.text = line
         set_run(run, size, color=GRAY)
@@ -121,355 +116,382 @@ def add_card(slide, left, top, width, height):
     card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
     card.fill.solid()
     card.fill.fore_color.rgb = WHITE
-    card.line.color.rgb = LIGHT_GRAY
+    card.line.color.rgb = ORANGE_BORDER
     card.line.width = Pt(1.5)
     return card
 
 
-def add_image_fit(slide, path, left, top, width, height):
-    if not path.exists():
-        return None
-    return slide.shapes.add_picture(str(path), left, top, width=width, height=height)
+def add_card_title(slide, text, left, top, width):
+    box = slide.shapes.add_textbox(left, top, width, Inches(0.35))
+    p = box.text_frame.paragraphs[0]
+    run = p.add_run()
+    run.text = text
+    set_run(run, 15, bold=True, color=ORANGE)
 
 
-def screenshot_slide(prs, title, image_name, bullets, page_no, total):
+def add_card_body(slide, lines, left, top, width, height, size=15):
+    box = slide.shapes.add_textbox(left, top, width, height)
+    tf = box.text_frame
+    tf.word_wrap = True
+    first = True
+    for line in lines:
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False
+        p.space_after = Pt(5)
+        run = p.add_run()
+        run.text = line
+        set_run(run, size, color=GRAY)
+
+
+def add_caption(slide, text, left, top, width):
+    box = slide.shapes.add_textbox(left, top, width, Inches(0.28))
+    run = box.text_frame.paragraphs[0].add_run()
+    run.text = text
+    set_run(run, 12, bold=True, color=ORANGE)
+
+
+def try_picture(slide, name, left, top, width, height):
+    path = SHOT / name
+    if path.exists():
+        slide.shapes.add_picture(str(path), left, top, width=width, height=height)
+        return True
+    return False
+
+
+def new_slide(prs):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_bg(slide)
     add_pixel_bar(slide)
-    add_title(slide, title)
-    add_card(slide, Inches(0.5), Inches(1.35), Inches(8.2), Inches(5.4))
-    img = SHOT / image_name
-    if img.exists():
-        # 固定高度避免截圖撐破版面
-        slide.shapes.add_picture(
-            str(img),
-            Inches(0.65),
-            Inches(1.5),
-            width=Inches(7.9),
-            height=Inches(5.05)
-        )
-    add_card(slide, Inches(9.0), Inches(1.35), Inches(3.8), Inches(5.4))
-    box = slide.shapes.add_textbox(Inches(9.2), Inches(1.55), Inches(3.4), Inches(5.0))
-    tf = box.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    run = p.add_run()
-    run.text = '重點'
-    set_run(run, 18, bold=True, color=ORANGE)
-    for line in bullets:
-        p = tf.add_paragraph()
-        p.space_before = Pt(8)
-        run = p.add_run()
-        run.text = f'• {line}'
-        set_run(run, 14, color=GRAY)
-    add_footer(slide, page_no, total)
+    return slide
 
 
 def build():
     prs = Presentation()
     prs.slide_width = W
     prs.slide_height = H
-    total = 15
+    page = 0
 
     # 1 封面
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s, 0, Inches(0.55))
-    for i in range(8):
-        block = s.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE,
-            Inches(0.4) + Inches(0.35) * i,
-            Inches(0.55),
-            Inches(0.28),
-            Inches(0.28)
-        )
-        block.fill.solid()
-        block.fill.fore_color.rgb = ORANGE if i % 2 == 0 else ORANGE_BORDER
-        block.line.fill.background()
-    add_card(s, Inches(2.2), Inches(1.8), Inches(8.9), Inches(4.0))
-    box = s.shapes.add_textbox(Inches(2.5), Inches(2.2), Inches(8.3), Inches(3.2))
-    tf = box.text_frame
-    p = tf.paragraphs[0]
+    page += 1
+    s = new_slide(prs)
+    box = s.shapes.add_textbox(Inches(0.8), Inches(2.0), Inches(11.5), Inches(1.2))
+    p = box.text_frame.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     run = p.add_run()
     run.text = 'NoteAdventure'
     set_run(run, 48, bold=True, color=DARK)
-    p = tf.add_paragraph()
+
+    box2 = s.shapes.add_textbox(Inches(0.8), Inches(3.2), Inches(11.5), Inches(0.5))
+    p = box2.text_frame.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     run = p.add_run()
-    run.text = '音樂練習 RPG 管理系統'
-    set_run(run, 24, color=GRAY)
-    p = tf.add_paragraph()
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = '期中專題報告 ｜ 約 10–15 分鐘'
-    set_run(run, 16, color=ORANGE)
-    p = tf.add_paragraph()
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = 'Streamlit → Flask API → MySQL'
-    set_run(run, 14, color=MUTED)
-    add_footer(s, 1, total)
+    run.text = '音樂練習 RPG 系統 ｜ 期中專題報告'
+    set_run(run, 24, color=ORANGE)
+
+    box3 = s.shapes.add_textbox(Inches(0.8), Inches(4.1), Inches(11.5), Inches(1.4))
+    tf = box3.text_frame
+    tf.word_wrap = True
+    for i, line in enumerate([
+        '從老師難以追蹤練習出發',
+        '用遊戲化激勵上傳，並以實際畫面展示：Console → Streamlit → 學生 UI',
+    ]):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = line
+        set_run(run, 18, color=GRAY)
+    add_footer(s, page)
 
     # 2 大綱
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
+    page += 1
+    s = new_slide(prs)
     add_title(s, '報告大綱')
     add_body(s, [
-        '1. 為什麼做這個系統？',
-        '2. 專案目標與使用者',
-        '3. 技術架構（前端／API／資料庫）',
-        '4. 核心流程：任務 → 練習 → 獎勵 → 成長',
-        '5. 實際操作演示（老師端／學生端截圖）',
-        '6. 目前完成進度與下一步',
-        '7. 結語與 Q&A',
+        '1. 開發原點：想解決什麼問題？',
+        '2. 解方方向：遊戲化練習與上傳動機',
+        '3. 開發演進與實際操作畫面',
+        '　　• Console 一小段',
+        '　　• Streamlit 老師前端操作',
+        '　　• 學生 HTML UI 操作',
+        '4. 系統架構與重要功能邏輯',
+        '5. 目前成果與下一步',
     ], size=20)
-    add_footer(s, 2, total)
+    add_footer(s, page)
 
-    # 3 動機
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
-    add_title(s, '為什麼需要 NoteAdventure？')
-    cards = [
-        ('問題', '一對一音樂老師難掌握學生練習狀況，學生也容易中斷練習。'),
-        ('解法', '把練習變成可追蹤的任務，完成後給 XP、金幣與寵物成長。'),
-        ('價值', '老師管理更輕鬆；學生有明確目標與回饋，提升持續練習意願。'),
+    # 3 原點
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '開發原點：老師的痛點')
+    add_card(s, Inches(0.6), Inches(1.4), Inches(12.1), Inches(5.0))
+    add_body(s, [
+        '一對一音樂課裡，老師最常遇到的不是「不會教」，而是：',
+        '',
+        '• 課與課之間，難以掌握學生有沒有真的練琴',
+        '• 練習成果分散在訊息、檔案、口頭回報，難以追蹤',
+        '• 缺少可持續累積的練習紀錄與回饋迴路',
+        '',
+        '因此專案原點是：讓老師更容易掌握與追蹤學生練習狀況。',
+    ], left=Inches(0.95), top=Inches(1.7), width=Inches(11.3), size=20)
+    add_footer(s, page)
+
+    # 4 解方
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '解方方向：遊戲化練習')
+    add_card(s, Inches(0.55), Inches(1.4), Inches(3.9), Inches(4.7))
+    add_card_title(s, '學生端動機', Inches(0.8), Inches(1.65), Inches(3.4))
+    add_card_body(s, [
+        '• 上傳練習錄音',
+        '• 完成任務拿 XP／金幣',
+        '• 寵物成長與商店獎勵',
+        '',
+        '希望學生因為「想上傳」',
+        '而增加彈琴次數',
+    ], Inches(0.8), Inches(2.2), Inches(3.4), Inches(3.5), size=16)
+
+    add_card(s, Inches(4.7), Inches(1.4), Inches(3.9), Inches(4.7))
+    add_card_title(s, '老師端價值', Inches(4.95), Inches(1.65), Inches(3.4))
+    add_card_body(s, [
+        '• 建立學生與任務',
+        '• 指派任務並看進度',
+        '• 查看上傳紀錄',
+        '• 管理商店與兌換',
+        '',
+        '把零散練習變成',
+        '可追蹤的資料流',
+    ], Inches(4.95), Inches(2.2), Inches(3.4), Inches(3.5), size=16)
+
+    add_card(s, Inches(8.85), Inches(1.4), Inches(3.9), Inches(4.7))
+    add_card_title(s, '核心迴路', Inches(9.1), Inches(1.65), Inches(3.4))
+    add_card_body(s, [
+        '指派任務',
+        '→ 上傳練習',
+        '→ 更新進度',
+        '→ 發放獎勵',
+        '→ 寵物成長',
+        '',
+        '用獎勵把練習',
+        '變成可持續行為',
+    ], Inches(9.1), Inches(2.2), Inches(3.4), Inches(3.5), size=16)
+    add_footer(s, page)
+
+    # 5 三階段
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '開發演進：三個階段')
+    steps = [
+        ('① Console', '先把規則與流程寫清楚\n確認業務邏輯正確'),
+        ('② Streamlit', '用同一套邏輯接網頁\n讓老師能實際操作'),
+        ('③ 學生專用 UI', '補上溫度與沉浸感\n提高學生使用意願'),
     ]
-    for i, (t, body) in enumerate(cards):
-        left = Inches(0.6) + Inches(4.1) * i
-        add_card(s, left, Inches(1.5), Inches(3.8), Inches(4.5))
-        accent = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, Inches(1.5), Inches(3.8), Inches(0.18))
-        accent.fill.solid()
-        accent.fill.fore_color.rgb = ORANGE
-        accent.line.fill.background()
-        box = s.shapes.add_textbox(left + Inches(0.25), Inches(1.9), Inches(3.3), Inches(3.8))
-        tf = box.text_frame
-        tf.word_wrap = True
-        p = tf.paragraphs[0]
-        run = p.add_run()
-        run.text = t
-        set_run(run, 22, bold=True, color=ORANGE)
-        p = tf.add_paragraph()
-        p.space_before = Pt(12)
-        run = p.add_run()
-        run.text = body
-        set_run(run, 16, color=GRAY)
-    add_footer(s, 3, total)
-
-    # 4 目標
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
-    add_title(s, '專案目標與角色')
-    add_card(s, Inches(0.6), Inches(1.5), Inches(5.8), Inches(4.8))
-    add_card(s, Inches(6.8), Inches(1.5), Inches(5.8), Inches(4.8))
-    box = s.shapes.add_textbox(Inches(0.9), Inches(1.8), Inches(5.2), Inches(4.2))
-    tf = box.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    run = p.add_run()
-    run.text = '老師'
-    set_run(run, 24, bold=True, color=ORANGE)
-    for line in [
-        '註冊／登入',
-        '建立學生、重設密碼',
-        '建立與指派任務',
-        '查看上傳紀錄',
-        '管理商店與兌換',
-        '首頁儀表板總覽',
-    ]:
-        p = tf.add_paragraph()
-        run = p.add_run()
-        run.text = f'• {line}'
-        set_run(run, 16, color=GRAY)
-    box = s.shapes.add_textbox(Inches(7.1), Inches(1.8), Inches(5.2), Inches(4.2))
-    tf = box.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    run = p.add_run()
-    run.text = '學生'
-    set_run(run, 24, bold=True, color=ORANGE)
-    for line in [
-        '登入與首次強制改密碼',
-        '查看任務與進度',
-        '上傳練習錄音',
-        '獲得 XP／金幣',
-        '寵物成長',
-        '商店購買與我的背包',
-    ]:
-        p = tf.add_paragraph()
-        run = p.add_run()
-        run.text = f'• {line}'
-        set_run(run, 16, color=GRAY)
-    add_footer(s, 4, total)
-
-    # 5 架構
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
-    add_title(s, '技術架構')
-    layers = [
-        ('Streamlit 前端', '登入、操作介面\nHTTP + session cookie'),
-        ('Flask API', '驗證、參數檢查\n呼叫 services'),
-        ('Services + MySQL', '商業邏輯\nmusic_rpg_v2'),
-    ]
-    for i, (t, body) in enumerate(layers):
-        left = Inches(0.8) + Inches(4.0) * i
-        add_card(s, left, Inches(2.0), Inches(3.6), Inches(3.6))
-        topbar = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, Inches(2.0), Inches(3.6), Inches(0.7))
-        topbar.fill.solid()
-        topbar.fill.fore_color.rgb = ORANGE
-        topbar.line.fill.background()
-        box = s.shapes.add_textbox(left + Inches(0.2), Inches(2.15), Inches(3.2), Inches(0.5))
-        p = box.text_frame.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = t
-        set_run(run, 18, bold=True, color=WHITE)
-        box = s.shapes.add_textbox(left + Inches(0.3), Inches(3.0), Inches(3.0), Inches(2.2))
-        tf = box.text_frame
-        tf.word_wrap = True
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = body
-        set_run(run, 16, color=GRAY)
-        if i < 2:
-            arrow = s.shapes.add_shape(
-                MSO_SHAPE.RIGHT_ARROW,
-                left + Inches(3.65),
-                Inches(3.5),
-                Inches(0.35),
-                Inches(0.35)
-            )
-            arrow.fill.solid()
-            arrow.fill.fore_color.rgb = ORANGE
-            arrow.line.fill.background()
-    add_footer(s, 5, total)
-
-    # 6 流程
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
-    add_title(s, '核心資料流程')
-    steps = ['建立學生', '建立／指派任務', '上傳練習', '更新進度', '發放獎勵', '寵物成長']
-    for i, step in enumerate(steps):
-        left = Inches(0.5) + Inches(2.1) * i
-        add_card(s, left, Inches(2.5), Inches(1.95), Inches(2.2))
-        num = s.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE,
-            left + Inches(0.7),
-            Inches(2.75),
-            Inches(0.55),
-            Inches(0.55)
+    for i, (title, body) in enumerate(steps):
+        left = Inches(0.6 + i * 4.2)
+        add_card(s, left, Inches(1.6), Inches(3.9), Inches(4.4))
+        add_card_title(s, title, left + Inches(0.25), Inches(1.9), Inches(3.4))
+        add_card_body(
+            s,
+            body.split('\n'),
+            left + Inches(0.25),
+            Inches(2.6),
+            Inches(3.4),
+            Inches(3.0),
+            size=18,
         )
-        num.fill.solid()
-        num.fill.fore_color.rgb = ORANGE
-        num.line.fill.background()
-        box = s.shapes.add_textbox(left + Inches(0.7), Inches(2.82), Inches(0.55), Inches(0.45))
-        p = box.text_frame.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = str(i + 1)
-        set_run(run, 18, bold=True, color=WHITE)
-        box = s.shapes.add_textbox(left + Inches(0.1), Inches(3.5), Inches(1.75), Inches(1.0))
-        tf = box.text_frame
-        tf.word_wrap = True
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = step
-        set_run(run, 14, bold=True, color=DARK)
-    add_body(s, [
-        '技術重點：獎勵發放使用 transaction，避免重複發獎；購買扣款與庫存同步處理。'
-    ], top=Inches(5.2), size=16)
-    add_footer(s, 6, total)
+    add_footer(s, page)
 
-    # 7-13 截圖頁
-    demos = [
-        ('登入與老師註冊', '01_login.png', [
-            '老師／學生分頁登入',
-            '支援老師註冊',
-            '前端透過 Flask API 驗證',
-        ]),
-        ('老師首頁儀表板', '02_teacher_home.png', [
-            '學生數、任務、上傳統計',
-            '進行中任務一覽',
-            '登入後預設進入首頁',
-        ]),
-        ('學生管理', '03_teacher_students.png', [
-            '查看學生 XP／金幣',
-            '可建立學生與重設密碼',
-            '帳號由系統自動產生',
-        ]),
-        ('任務清單與指派', '04_teacher_quests.png', [
-            '建立每日／每週／隱藏任務',
-            '指派後有期限與進度',
-            '完成後自動發獎',
-        ]),
-        ('練習上傳與商品', '05_teacher_uploads.png', [
-            '老師查看學生上傳',
-            '商店建立／待兌換',
-            '售完自動下架',
-        ]),
-        ('學生首頁與寵物', '09_student_home.png', [
-            'XP／金幣／任務摘要',
-            '寵物階段與進度',
-            '最近上傳與購買',
-        ]),
-        ('商店與我的背包', '13_student_backpack.png', [
-            '商店購買虛擬／實體商品',
-            '背包顯示名稱與說明',
-            '5×6 方格背包介面',
-        ]),
+    # 6 Console 操作畫面（一小段）
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '階段一：Console 操作畫面（一小段）')
+    add_body(s, [
+        '先用文字選單把流程跑通，不急著做漂亮畫面。',
+        '重點：驗證登入、任務、上傳、獎勵等規則。',
+    ], top=Inches(1.15), width=Inches(12), size=16)
+    pics = [
+        ('c01_console_main.png', '主選單'),
+        ('c02_console_teacher.png', '老師選單'),
+        ('c03_console_student.png', '學生選單'),
     ]
-    page = 7
-    for title, img, bullets in demos:
-        screenshot_slide(prs, title, img, bullets, page, total)
-        page += 1
+    for i, (name, label) in enumerate(pics):
+        left = Inches(0.4 + i * 4.3)
+        add_card(s, left, Inches(2.15), Inches(4.1), Inches(4.4))
+        add_caption(s, label, left + Inches(0.15), Inches(2.25), Inches(3.8))
+        try_picture(s, name, left + Inches(0.15), Inches(2.55), Inches(3.8), Inches(3.8))
+    add_footer(s, page)
 
-    # 14 進度
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s)
-    add_title(s, '目前完成進度')
+    # 7 Streamlit 老師操作 1
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '階段二：Streamlit 老師前端操作')
     add_body(s, [
-        '已完成：帳號、任務、上傳、進度獎勵、寵物、商店／兌換、Dashboard、我的背包、老師註冊',
-        '架構：Console + Flask API + Streamlit 三層可共用 services',
-        '進行中：期中展示流程完整演練',
-        '可選下一步：任務／商品進階管理、更多任務條件、自動化測試',
-    ], size=18)
-    add_footer(s, 14, total)
+        '同一套 Flask API，老師用 Streamlit 做管理：',
+        '首頁掌握全班狀態，左側可切換學生、任務、上傳、商店。',
+    ], top=Inches(1.15), width=Inches(12), size=16)
+    add_card(s, Inches(0.45), Inches(2.1), Inches(6.1), Inches(4.5))
+    add_caption(s, '老師首頁 Dashboard', Inches(0.6), Inches(2.2), Inches(5.8))
+    try_picture(s, '02_teacher_home.png', Inches(0.6), Inches(2.5), Inches(5.8), Inches(3.9))
 
-    # 15 結語
-    s = prs.slides.add_slide(prs.slide_layouts[6])
-    add_bg(s)
-    add_pixel_bar(s, 0, Inches(0.55))
-    add_card(s, Inches(2.0), Inches(1.8), Inches(9.3), Inches(3.8))
-    box = s.shapes.add_textbox(Inches(2.4), Inches(2.2), Inches(8.5), Inches(3.0))
-    tf = box.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = '謝謝聆聽'
-    set_run(run, 40, bold=True, color=DARK)
-    p = tf.add_paragraph()
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = 'NoteAdventure ｜ 把練習變成冒險'
-    set_run(run, 20, color=ORANGE)
-    p = tf.add_paragraph()
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = 'Q & A'
-    set_run(run, 24, bold=True, color=GRAY)
-    add_footer(s, 15, total)
+    add_card(s, Inches(6.8), Inches(2.1), Inches(6.1), Inches(4.5))
+    add_caption(s, '學生列表', Inches(6.95), Inches(2.2), Inches(5.8))
+    try_picture(s, '03_teacher_students.png', Inches(6.95), Inches(2.5), Inches(5.8), Inches(3.9))
+    add_footer(s, page)
+
+    # 8 Streamlit 老師操作 2
+    page += 1
+    s = new_slide(prs)
+    add_title(s, 'Streamlit：任務／上傳／商店')
+    tiles = [
+        ('04_teacher_quests.png', '任務清單'),
+        ('05_teacher_uploads.png', '上傳紀錄'),
+        ('06_teacher_shop.png', '商品清單'),
+        ('07_teacher_redeem.png', '待兌換商品'),
+    ]
+    for i, (name, label) in enumerate(tiles):
+        left = Inches(0.4 + (i % 2) * 6.45)
+        top = Inches(1.25 + (i // 2) * 2.9)
+        add_card(s, left, top, Inches(6.2), Inches(2.7))
+        add_caption(s, label, left + Inches(0.15), top + Inches(0.08), Inches(5.9))
+        try_picture(s, name, left + Inches(0.15), top + Inches(0.38), Inches(5.9), Inches(2.15))
+    add_footer(s, page)
+
+    # 9 轉折
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '關鍵轉折：操作頁面溫度不足')
+    add_card(s, Inches(0.55), Inches(1.4), Inches(5.9), Inches(5.0))
+    try_picture(s, '09_student_home.png', Inches(0.75), Inches(1.65), Inches(5.5), Inches(4.5))
+    add_body(s, [
+        '左圖是早期 Streamlit 學生頁：',
+        '功能齊全，但偏工具感。',
+        '',
+        '若學生不想開，上傳就變少；',
+        '上傳變少，老師又追不到練習。',
+        '',
+        '下一步：做學生專用溫暖 UI，',
+        '讓遊戲化真的被使用。',
+    ], left=Inches(6.8), top=Inches(1.7), width=Inches(5.8), size=18)
+    add_footer(s, page)
+
+    # 10 學生 UI 主頁
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '階段三：學生專用 UI（主頁地圖）')
+    add_body(s, [
+        'Flask 提供 HTML／CSS／JS：點選琴房、任務、商店、寵物、教室。',
+    ], top=Inches(1.15), width=Inches(12), size=16)
+    add_card(s, Inches(1.2), Inches(1.7), Inches(10.9), Inches(5.1))
+    try_picture(s, 'html_02_home.png', Inches(1.4), Inches(1.9), Inches(10.5), Inches(4.7))
+    add_footer(s, page)
+
+    # 11 學生 UI 操作畫面
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '學生 UI 實際操作畫面')
+    tiles = [
+        ('html_03_practice.png', '琴房｜上傳練習'),
+        ('html_04_quests.png', '任務欄'),
+        ('html_05_pet.png', '寵物'),
+        ('html_06_shop.png', '商店'),
+    ]
+    for i, (name, label) in enumerate(tiles):
+        left = Inches(0.4 + (i % 2) * 6.45)
+        top = Inches(1.25 + (i // 2) * 2.9)
+        add_card(s, left, top, Inches(6.2), Inches(2.7))
+        add_caption(s, label, left + Inches(0.15), top + Inches(0.08), Inches(5.9))
+        try_picture(s, name, left + Inches(0.15), top + Inches(0.38), Inches(5.9), Inches(2.15))
+    add_footer(s, page)
+
+    # 12 教室看板
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '學生 UI：教室看板（兩廳院節目）')
+    add_body(s, [
+        '教室頁串接兩廳院近一個月音樂節目，海報＋資訊自動輪播。',
+    ], top=Inches(1.15), width=Inches(12), size=16)
+    add_card(s, Inches(1.2), Inches(1.7), Inches(10.9), Inches(5.1))
+    try_picture(s, 'html_07_class.png', Inches(1.4), Inches(1.9), Inches(10.5), Inches(4.7))
+    add_footer(s, page)
+
+    # 13 架構
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '目前架構：一套邏輯，兩套介面')
+    add_body(s, [
+        '學生 HTML／JS  ──┐',
+        '                  ├──→  Flask API  ──→  MySQL',
+        '老師 Streamlit ──┘         │',
+        '                            └── services（業務邏輯）',
+        '',
+        '• Console 時期長出的服務層，成為 API 的基礎',
+        '• 老師端偏管理效率；學生端偏使用溫度',
+        '• 兩邊共用登入、任務、上傳、獎勵等規則',
+    ], size=20)
+    add_footer(s, page)
+
+    # 14 核心邏輯
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '重要功能邏輯（精簡）')
+    add_card(s, Inches(0.5), Inches(1.35), Inches(6.0), Inches(5.1))
+    add_card_title(s, '練習上傳 → 任務進度', Inches(0.75), Inches(1.55), Inches(5.5))
+    add_card_body(s, [
+        '1. 學生上傳練習錄音',
+        '2. 寫入 practice_upload',
+        '3. 依任務條件更新 student_quest',
+        '4. 達標後完成任務',
+        '5. 發 XP／金幣（避免重複發獎）',
+        '6. 依累積 XP 更新寵物階段',
+    ], Inches(0.75), Inches(2.15), Inches(5.5), Inches(3.9), size=16)
+
+    add_card(s, Inches(6.8), Inches(1.35), Inches(5.9), Inches(5.1))
+    add_card_title(s, '其他關鍵能力', Inches(7.05), Inches(1.55), Inches(5.4))
+    add_card_body(s, [
+        '• 老師建立／指派任務',
+        '• 商店購買與兌換',
+        '• Dashboard 掌握整體狀態',
+        '• 教室看板：兩廳院音樂節目',
+        '',
+        '原則：先保證規則正確，',
+        '再用介面提高使用率。',
+    ], Inches(7.05), Inches(2.15), Inches(5.4), Inches(3.9), size=16)
+    add_footer(s, page)
+
+    # 15 進度
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '目前進度')
+    add_body(s, [
+        '已完成：',
+        '• Console 核心流程與資料庫規則',
+        '• Flask API（登入、任務、上傳、商店、寵物、Dashboard、教室看板）',
+        '• Streamlit 老師端操作介面',
+        '• 學生 HTML UI（主頁、琴房、任務、商店、寵物、設定、教室）',
+        '',
+        '持續優化：',
+        '• 背包完整頁、更多任務條件、使用體驗細節',
+    ], size=18)
+    add_footer(s, page)
+
+    # 16 結語
+    page += 1
+    s = new_slide(prs)
+    add_title(s, '結語')
+    add_body(s, [
+        'NoteAdventure 不是先做畫面，而是：',
+        '',
+        '痛點 → 遊戲化解方 → 邏輯驗證（Console）',
+        '→ 管理介面（Streamlit）→ 學生溫度 UI',
+        '',
+        '希望最後同時做到：',
+        '老師追得到練習，學生也願意持續上傳練琴。',
+        '',
+        '謝謝聆聽，歡迎提問。',
+    ], size=20)
+    add_footer(s, page)
 
     prs.save(OUT)
-    print('saved', OUT)
+    print(f'已輸出：{OUT}')
+    print(f'截圖來源：{SHOT}')
 
 
 if __name__ == '__main__':
