@@ -1,7 +1,12 @@
 (function () {
-  // 直向時顯示「請橫放」遮罩（各學生頁共用，自動插入）
+  var isEmbed = window.self !== window.top;
+  if (isEmbed) {
+    document.documentElement.classList.add('is-spa-embed');
+  }
+
+  // 直向時顯示「請橫放」遮罩（殼層負責；iframe 內不重複）
   function ensureRotateGate() {
-    if (document.getElementById('rotate-gate')) {
+    if (isEmbed || document.getElementById('rotate-gate')) {
       return;
     }
     var gate = document.createElement('div');
@@ -19,14 +24,13 @@
 
   ensureRotateGate();
 
-  // 鎖住外層頁面捲動（內層 .item-list / .quest-list 仍可滾）
+  // 鎖住外層頁面捲動（內層清單仍可滾）
   function lockPageScroll(event) {
     var target = event.target;
     if (!target || !target.closest) {
       event.preventDefault();
       return;
     }
-    // 橫放提示層本身不擋
     if (target.closest('.rotate-gate')) {
       return;
     }
@@ -41,7 +45,11 @@
 
   document.addEventListener('touchmove', lockPageScroll, { passive: false });
 
-  // 雙擊舞台嘗試全螢幕（iOS Safari 常不支援，失敗就略過）
+  // 全螢幕由殼層處理；iframe 內不重複綁
+  if (isEmbed) {
+    return;
+  }
+
   var lastTap = 0;
   var stage = document.querySelector('.stage');
   if (!stage) {

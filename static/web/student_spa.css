@@ -1,0 +1,68 @@
+/* 一頁版實驗殼：外層固定，內層 iframe 載入現有學生頁 */
+
+.spa-body {
+  margin: 0;
+  background: #1a1410;
+}
+
+.spa-shell.stage {
+  position: relative;
+  isolation: isolate;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: #1a1410;
+}
+
+.spa-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #1a1410;
+}
+
+/* BGM 鈕在殼層最上面 */
+.spa-shell .bgm-toggle {
+  z-index: 30;
+}
+
+.spa-badge {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  z-index: 10000;
+  margin: 0;
+  padding: 0.35em 0.7em;
+  border-radius: 999px;
+  background: rgba(40, 28, 16, 0.75);
+  color: #fff3dd;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+/* iframe 內頁：拿掉外層陰影，避免雙重框 */
+html.is-spa-embed body {
+  background: transparent;
+}
+
+html.is-spa-embed .stage {
+  box-shadow: none;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+/* iframe 內不顯示第二顆 BGM 鈕 */
+html.is-spa-embed .bgm-toggle {
+  display: none !important;
+}

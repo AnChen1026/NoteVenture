@@ -1,11 +1,39 @@
 (function () {
   var STORAGE_KEY = 'na_bgm_enabled';
+  var isEmbed = window.self !== window.top;
+
+  // iframe 內頁：不播自己的 BGM，改通知外層殼
+  if (isEmbed) {
+    document.documentElement.classList.add('is-spa-embed');
+
+    function postToParent(type) {
+      try {
+        window.parent.postMessage({ type: type }, window.location.origin);
+      } catch (error) {
+        // ignore
+      }
+    }
+
+    window.NoteAdventureBgm = {
+      pause: function () { postToParent('na-bgm-pause'); },
+      resume: function () { postToParent('na-bgm-resume'); },
+      tryPlay: function () { postToParent('na-bgm-tryplay'); },
+      isEnabled: function () { return true; }
+    };
+
+    // 使用者點內頁時，請外層嘗試開始播（解鎖 autoplay）
+    document.addEventListener('pointerdown', function () {
+      postToParent('na-bgm-tryplay');
+    }, { passive: true });
+
+    return;
+  }
+
   var audio = document.createElement('audio');
   audio.src = '/assets/material/bgm/bgm.mp3';
   audio.loop = true;
   audio.preload = 'auto';
   audio.volume = 0.32;
-  // 提高自動播放成功率（仍可能被行動瀏覽器擋下）
   audio.muted = false;
   audio.setAttribute('playsinline', '');
   audio.setAttribute('webkit-playsinline', '');
@@ -15,7 +43,6 @@
 
   function isEnabled() {
     var saved = sessionStorage.getItem(STORAGE_KEY);
-    // 預設開啟；只有使用者明確關掉才是 '0'
     if (saved === null) {
       return true;
     }
@@ -98,7 +125,6 @@
 
   ensureUi();
 
-  // 一進頁就嘗試播放（桌機有時成功；手機多半仍需一次點擊）
   if (isEnabled()) {
     tryPlay();
     audio.addEventListener('canplay', function onReady() {
@@ -107,7 +133,6 @@
     });
   }
 
-  // 被擋時：使用者第一次點畫面任意處就開始播（登入、地圖熱區都算）
   document.addEventListener('pointerdown', function () {
     if (isEnabled() && audio.paused && !pausedByApp) {
       tryPlay();
@@ -117,6 +142,7 @@
   window.NoteAdventureBgm = {
     pause: pauseBgm,
     resume: resumeBgm,
+    tryPlay: tryPlay,
     isEnabled: isEnabled
   };
 })();

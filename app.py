@@ -48,6 +48,11 @@ def create_app():
     # --------------------------------------------------
     # 學生 HTML 前端（v2，素材來自 material/）
     # --------------------------------------------------
+    # 實驗：一頁版殼（BGM／全螢幕外層固定；內層 iframe 載入現有頁）
+    @app.get('/student/app')
+    def student_spa_page():
+        return render_template('student_spa.html')
+
     @app.get('/student/login')  # 函式的裝飾器（Decorator）
     def student_login_page():
         return render_template('student_login.html')
