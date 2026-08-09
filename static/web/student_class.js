@@ -140,7 +140,29 @@
     }
   }
 
+  function renderMessage(title, detail) {
+    programs = [];
+    stopAuto();
+    if (!trackEl || !dotsEl) {
+      return;
+    }
+    trackEl.innerHTML = '';
+    dotsEl.innerHTML = '';
+    const empty = document.createElement('div');
+    empty.className = 'board-card';
+    empty.innerHTML =
+      '<div class="board-card__poster board-card__poster--empty">看板</div>' +
+      '<div class="board-card__body">' +
+      '<h2 class="board-card__title">' + escapeHtml(title) + '</h2>' +
+      (detail
+        ? '<p class="board-card__brief">' + escapeHtml(detail) + '</p>'
+        : '') +
+      '</div>';
+    trackEl.appendChild(empty);
+  }
+
   async function loadPrograms() {
+    renderMessage('節目載入中…', '正在向兩廳院取得近一個月音樂節目');
     try {
       const response = await fetch('/api/class/ntch-programs', {
         credentials: 'same-origin'
@@ -149,12 +171,20 @@
         return {};
       });
       if (!response.ok) {
-        renderPrograms([]);
+        renderMessage(
+          '目前無法取得節目',
+          data.message || '請稍後再重新整理頁面'
+        );
         return;
       }
-      renderPrograms(data.data || []);
+      const items = data.data || [];
+      if (!items.length) {
+        renderMessage('近一個月暫無音樂相關節目', '');
+        return;
+      }
+      renderPrograms(items);
     } catch (error) {
-      renderPrograms([]);
+      renderMessage('節目載入失敗', '請確認網路後重新整理');
     }
   }
 
