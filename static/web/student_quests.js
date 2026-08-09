@@ -2,6 +2,38 @@
   const listEl = document.getElementById('quest-list');
   const emptyEl = document.getElementById('quest-empty');
   const messageEl = document.getElementById('quest-message');
+  const bgVideo = document.getElementById('quest-bg-video');
+
+  // 背景影片每次進頁播放；結束後停在最後一幀（面板一進頁就顯示，不延遲）
+  function setupBgVideo() {
+    if (!bgVideo) {
+      return;
+    }
+
+    function freezeLastFrame() {
+      bgVideo.pause();
+      if (bgVideo.duration && Number.isFinite(bgVideo.duration)) {
+        try {
+          bgVideo.currentTime = Math.max(0, bgVideo.duration - 0.05);
+        } catch (error) {
+          // 忽略尚未就緒時的 currentTime 錯誤
+        }
+      }
+    }
+
+    bgVideo.loop = false;
+    bgVideo.muted = true;
+    bgVideo.addEventListener('ended', freezeLastFrame);
+
+    const playPromise = bgVideo.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function () {
+        // 自動播放失敗時至少停在 poster
+      });
+    }
+  }
+
+  setupBgVideo();
 
   const QUEST_TYPE_TEXT = {
     DAILY: '每日任務',

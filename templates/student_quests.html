@@ -9,14 +9,19 @@
 </head>
 <body>
   <main class="stage page-transition" aria-label="學生任務欄">
-    <img
+    <video
+      id="quest-bg-video"
       class="stage__bg"
-      src="/assets/material/quest.png"
-      alt="Melody Town 任務欄"
-      draggable="false"
-    >
+      src="/assets/material/quest.mp4"
+      poster="/assets/material/quest.png"
+      muted
+      playsinline
+      autoplay
+      preload="auto"
+      aria-label="Melody Town 任務欄開場動畫"
+    ></video>
 
-    <section class="quest-panel" aria-label="任務清單">
+    <section id="quest-panel" class="quest-panel" aria-label="任務清單">
       <h1 class="quest-panel__title">任務欄</h1>
       <div id="quest-list" class="quest-list" role="list"></div>
       <p id="quest-empty" class="quest-empty" hidden>目前沒有任務</p>
