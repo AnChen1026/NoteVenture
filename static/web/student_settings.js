@@ -21,16 +21,34 @@
       }
     }
 
+    function tryPlay() {
+      bgVideo.muted = true;
+      bgVideo.setAttribute('playsinline', '');
+      bgVideo.setAttribute('webkit-playsinline', '');
+      const playPromise = bgVideo.play();
+      if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(function () {
+          // 自動播放被擋：等使用者第一次點擊再播
+        });
+      }
+    }
+
     bgVideo.loop = false;
+    bgVideo.controls = false;
     bgVideo.muted = true;
     bgVideo.addEventListener('ended', freezeLastFrame);
+    bgVideo.addEventListener('loadeddata', tryPlay);
 
-    const playPromise = bgVideo.play();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(function () {
-        // 自動播放失敗時至少停在 poster
-      });
+    // 行動裝置／瀏覽器擋 autoplay 時，第一次點畫面再播
+    function playOnFirstGesture() {
+      tryPlay();
+      document.removeEventListener('pointerdown', playOnFirstGesture);
+      document.removeEventListener('touchstart', playOnFirstGesture);
     }
+    document.addEventListener('pointerdown', playOnFirstGesture, { passive: true });
+    document.addEventListener('touchstart', playOnFirstGesture, { passive: true });
+
+    tryPlay();
   }
 
   setupBgVideo();
