@@ -94,6 +94,13 @@ body {
   width: 14%;
 }
 
+/* 右上熱區：教室（位置／大小，可依素材微調） */
+.hotspot--class {
+  left: 67%;
+  top: 27%;
+  width: 14%;
+}
+
 /* 最右下熱區：背包（位置／大小） */
 .hotspot--backpack {
   left: 78%;

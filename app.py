@@ -59,6 +59,10 @@ def create_app():
     def student_quests_page():
         return render_template('student_quests.html')
 
+    @app.get('/student/class')
+    def student_class_page():
+        return render_template('student_class.html')
+
     @app.get('/student/backpack')
     def student_backpack_page():
         return render_template(
