@@ -7,6 +7,7 @@
 - `screenshots/`、`screenshots_crop/`：操作截圖
 - `build_ppt.py`：重新產生簡報
 - `make_console_shots.py`：產生 Console 選單畫面
+- `crop_focus.py`：裁切重點區域（避免簡報塞滿無關空白）
 - `capture_screens.py`：擷取 Streamlit 畫面
 - `capture_student_html.py`：擷取學生 HTML UI（需 Flask 已啟動）
 
@@ -37,6 +38,7 @@
 ```bash
 # 在專案根目錄
 .\.venv\Scripts\python.exe docs/midterm_ppt/make_console_shots.py
+.\.venv\Scripts\python.exe docs/midterm_ppt/crop_focus.py
 .\.venv\Scripts\python.exe docs/midterm_ppt/build_ppt.py
 ```
 

@@ -150,12 +150,27 @@ def add_caption(slide, text, left, top, width):
     set_run(run, 12, bold=True, color=ORANGE)
 
 
-def try_picture(slide, name, left, top, width, height):
+def try_picture(slide, name, left, top, max_width, max_height):
+    """等比縮放置入框內（不強制拉伸），置中對齊。"""
     path = SHOT / name
-    if path.exists():
-        slide.shapes.add_picture(str(path), left, top, width=width, height=height)
-        return True
-    return False
+    if not path.exists():
+        return False
+    from PIL import Image
+
+    with Image.open(path) as im:
+        iw, ih = im.size
+    if iw <= 0 or ih <= 0:
+        return False
+
+    max_w = int(max_width)
+    max_h = int(max_height)
+    scale = min(max_w / iw, max_h / ih)
+    pic_w = max(1, int(iw * scale))
+    pic_h = max(1, int(ih * scale))
+    x = int(left) + (max_w - pic_w) // 2
+    y = int(top) + (max_h - pic_h) // 2
+    slide.shapes.add_picture(str(path), x, y, width=pic_w, height=pic_h)
+    return True
 
 
 def new_slide(prs):
@@ -304,8 +319,7 @@ def build():
     s = new_slide(prs)
     add_title(s, '階段一：Console 操作畫面（一小段）')
     add_body(s, [
-        '先用文字選單把流程跑通，不急著做漂亮畫面。',
-        '重點：驗證登入、任務、上傳、獎勵等規則。',
+        '先用文字選單把流程跑通；以下只裁選單重點，方便看清楚。',
     ], top=Inches(1.15), width=Inches(12), size=16)
     pics = [
         ('c01_console_main.png', '主選單'),
@@ -313,10 +327,10 @@ def build():
         ('c03_console_student.png', '學生選單'),
     ]
     for i, (name, label) in enumerate(pics):
-        left = Inches(0.4 + i * 4.3)
-        add_card(s, left, Inches(2.15), Inches(4.1), Inches(4.4))
-        add_caption(s, label, left + Inches(0.15), Inches(2.25), Inches(3.8))
-        try_picture(s, name, left + Inches(0.15), Inches(2.55), Inches(3.8), Inches(3.8))
+        left = Inches(0.35 + i * 4.35)
+        add_card(s, left, Inches(1.75), Inches(4.15), Inches(5.0))
+        add_caption(s, label, left + Inches(0.15), Inches(1.85), Inches(3.85))
+        try_picture(s, name, left + Inches(0.15), Inches(2.2), Inches(3.85), Inches(4.35))
     add_footer(s, page)
 
     # 7 Streamlit 老師操作 1
@@ -324,16 +338,15 @@ def build():
     s = new_slide(prs)
     add_title(s, '階段二：Streamlit 老師前端操作')
     add_body(s, [
-        '同一套 Flask API，老師用 Streamlit 做管理：',
-        '首頁掌握全班狀態，左側可切換學生、任務、上傳、商店。',
+        '同一套 Flask API；畫面已裁掉側欄，放大首頁統計與學生列表。',
     ], top=Inches(1.15), width=Inches(12), size=16)
-    add_card(s, Inches(0.45), Inches(2.1), Inches(6.1), Inches(4.5))
-    add_caption(s, '老師首頁 Dashboard', Inches(0.6), Inches(2.2), Inches(5.8))
-    try_picture(s, '02_teacher_home.png', Inches(0.6), Inches(2.5), Inches(5.8), Inches(3.9))
+    add_card(s, Inches(0.4), Inches(1.7), Inches(6.2), Inches(5.1))
+    add_caption(s, '老師首頁 Dashboard', Inches(0.55), Inches(1.8), Inches(5.9))
+    try_picture(s, '02_teacher_home.png', Inches(0.55), Inches(2.15), Inches(5.9), Inches(4.45))
 
-    add_card(s, Inches(6.8), Inches(2.1), Inches(6.1), Inches(4.5))
-    add_caption(s, '學生列表', Inches(6.95), Inches(2.2), Inches(5.8))
-    try_picture(s, '03_teacher_students.png', Inches(6.95), Inches(2.5), Inches(5.8), Inches(3.9))
+    add_card(s, Inches(6.75), Inches(1.7), Inches(6.2), Inches(5.1))
+    add_caption(s, '學生列表', Inches(6.9), Inches(1.8), Inches(5.9))
+    try_picture(s, '03_teacher_students.png', Inches(6.9), Inches(2.15), Inches(5.9), Inches(4.45))
     add_footer(s, page)
 
     # 8 Streamlit 老師操作 2
@@ -347,19 +360,19 @@ def build():
         ('07_teacher_redeem.png', '待兌換商品'),
     ]
     for i, (name, label) in enumerate(tiles):
-        left = Inches(0.4 + (i % 2) * 6.45)
-        top = Inches(1.25 + (i // 2) * 2.9)
-        add_card(s, left, top, Inches(6.2), Inches(2.7))
-        add_caption(s, label, left + Inches(0.15), top + Inches(0.08), Inches(5.9))
-        try_picture(s, name, left + Inches(0.15), top + Inches(0.38), Inches(5.9), Inches(2.15))
+        left = Inches(0.35 + (i % 2) * 6.5)
+        top = Inches(1.2 + (i // 2) * 2.95)
+        add_card(s, left, top, Inches(6.3), Inches(2.8))
+        add_caption(s, label, left + Inches(0.12), top + Inches(0.06), Inches(6.0))
+        try_picture(s, name, left + Inches(0.12), top + Inches(0.35), Inches(6.05), Inches(2.3))
     add_footer(s, page)
 
     # 9 轉折
     page += 1
     s = new_slide(prs)
     add_title(s, '關鍵轉折：操作頁面溫度不足')
-    add_card(s, Inches(0.55), Inches(1.4), Inches(5.9), Inches(5.0))
-    try_picture(s, '09_student_home.png', Inches(0.75), Inches(1.65), Inches(5.5), Inches(4.5))
+    add_card(s, Inches(0.5), Inches(1.35), Inches(6.2), Inches(5.2))
+    try_picture(s, '09_student_home.png', Inches(0.65), Inches(1.5), Inches(5.9), Inches(4.9))
     add_body(s, [
         '左圖是早期 Streamlit 學生頁：',
         '功能齊全，但偏工具感。',
@@ -369,7 +382,7 @@ def build():
         '',
         '下一步：做學生專用溫暖 UI，',
         '讓遊戲化真的被使用。',
-    ], left=Inches(6.8), top=Inches(1.7), width=Inches(5.8), size=18)
+    ], left=Inches(7.0), top=Inches(1.7), width=Inches(5.6), size=18)
     add_footer(s, page)
 
     # 10 學生 UI 主頁
@@ -377,28 +390,27 @@ def build():
     s = new_slide(prs)
     add_title(s, '階段三：學生專用 UI（主頁地圖）')
     add_body(s, [
-        'Flask 提供 HTML／CSS／JS：點選琴房、任務、商店、寵物、教室。',
+        '地圖式主頁：琴房、任務、商店、寵物、教室（裁切外框雜訊，放大地圖本體）。',
     ], top=Inches(1.15), width=Inches(12), size=16)
-    add_card(s, Inches(1.2), Inches(1.7), Inches(10.9), Inches(5.1))
-    try_picture(s, 'html_02_home.png', Inches(1.4), Inches(1.9), Inches(10.5), Inches(4.7))
+    add_card(s, Inches(0.9), Inches(1.65), Inches(11.5), Inches(5.2))
+    try_picture(s, 'html_02_home.png', Inches(1.05), Inches(1.8), Inches(11.2), Inches(4.9))
     add_footer(s, page)
 
-    # 11 學生 UI 操作畫面
+    # 11 學生 UI 操作畫面（直向四欄，避免扁壓變形）
     page += 1
     s = new_slide(prs)
     add_title(s, '學生 UI 實際操作畫面')
     tiles = [
-        ('html_03_practice.png', '琴房｜上傳練習'),
+        ('html_03_practice.png', '琴房｜上傳'),
         ('html_04_quests.png', '任務欄'),
         ('html_05_pet.png', '寵物'),
         ('html_06_shop.png', '商店'),
     ]
     for i, (name, label) in enumerate(tiles):
-        left = Inches(0.4 + (i % 2) * 6.45)
-        top = Inches(1.25 + (i // 2) * 2.9)
-        add_card(s, left, top, Inches(6.2), Inches(2.7))
-        add_caption(s, label, left + Inches(0.15), top + Inches(0.08), Inches(5.9))
-        try_picture(s, name, left + Inches(0.15), top + Inches(0.38), Inches(5.9), Inches(2.15))
+        left = Inches(0.28 + i * 3.28)
+        add_card(s, left, Inches(1.25), Inches(3.15), Inches(5.5))
+        add_caption(s, label, left + Inches(0.1), Inches(1.35), Inches(2.95))
+        try_picture(s, name, left + Inches(0.1), Inches(1.7), Inches(2.95), Inches(4.85))
     add_footer(s, page)
 
     # 12 教室看板
@@ -406,10 +418,10 @@ def build():
     s = new_slide(prs)
     add_title(s, '學生 UI：教室看板（兩廳院節目）')
     add_body(s, [
-        '教室頁串接兩廳院近一個月音樂節目，海報＋資訊自動輪播。',
+        '重點裁切看板區：近一個月音樂節目海報＋資訊自動輪播。',
     ], top=Inches(1.15), width=Inches(12), size=16)
-    add_card(s, Inches(1.2), Inches(1.7), Inches(10.9), Inches(5.1))
-    try_picture(s, 'html_07_class.png', Inches(1.4), Inches(1.9), Inches(10.5), Inches(4.7))
+    add_card(s, Inches(0.9), Inches(1.65), Inches(11.5), Inches(5.2))
+    try_picture(s, 'html_07_class.png', Inches(1.05), Inches(1.8), Inches(11.2), Inches(4.9))
     add_footer(s, page)
 
     # 13 架構
