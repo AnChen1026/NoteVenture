@@ -1,30 +1,37 @@
 (function () {
   var STORAGE_KEY = 'na_bgm_enabled';
+  var TIME_KEY = 'na_bgm_time';
   var isEmbed = window.self !== window.top;
 
-  // iframe 內頁：不播自己的 BGM，改通知外層殼
+  // iframe 內頁：不建立 audio，只通知外層殼
   if (isEmbed) {
     document.documentElement.classList.add('is-spa-embed');
 
-    function postToParent(type) {
+    function postToParent(type, extra) {
+      var payload = { type: type };
+      if (extra) {
+        Object.keys(extra).forEach(function (k) {
+          payload[k] = extra[k];
+        });
+      }
       try {
-        window.parent.postMessage({ type: type }, window.location.origin);
+        window.parent.postMessage(payload, window.location.origin);
       } catch (error) {
         // ignore
       }
     }
 
     window.NoteAdventureBgm = {
-      pause: function () { postToParent('na-bgm-pause'); },
+      pause: function () { postToParent('na-bgm-pause', { reason: 'practice' }); },
       resume: function () { postToParent('na-bgm-resume'); },
-      tryPlay: function () { postToParent('na-bgm-tryplay'); },
+      tryPlay: function () { postToParent('na-bgm-ensure'); },
       isEnabled: function () { return true; }
     };
 
-    // 使用者點內頁時，請外層嘗試開始播（解鎖 autoplay）
+    // 只在「外層可能被擋自動播放」時請求續播，不要每次點擊狂送
     document.addEventListener('pointerdown', function () {
-      postToParent('na-bgm-tryplay');
-    }, { passive: true });
+      postToParent('na-bgm-ensure');
+    }, { passive: true, once: true });
 
     return;
   }
@@ -39,6 +46,7 @@
   audio.setAttribute('webkit-playsinline', '');
 
   var pausedByApp = false;
+  var spaLock = false; // 換場期間禁止誤暫停
   var btn = null;
 
   function isEnabled() {
@@ -53,6 +61,28 @@
     sessionStorage.setItem(STORAGE_KEY, on ? '1' : '0');
   }
 
+  function saveTime() {
+    try {
+      if (audio.currentTime && isFinite(audio.currentTime)) {
+        sessionStorage.setItem(TIME_KEY, String(audio.currentTime));
+      }
+    } catch (error) {
+      // ignore
+    }
+  }
+
+  function restoreTime() {
+    var raw = sessionStorage.getItem(TIME_KEY);
+    var t = raw ? parseFloat(raw) : 0;
+    if (t > 0 && isFinite(t)) {
+      try {
+        audio.currentTime = t;
+      } catch (error) {
+        // ignore
+      }
+    }
+  }
+
   function updateButton() {
     if (!btn) {
       return;
@@ -65,8 +95,13 @@
     btn.textContent = on ? '♪' : '🔇';
   }
 
-  function tryPlay() {
+  // 若已在播就不動 currentTime，避免換頁聽起來像「斷掉重來」
+  function ensurePlaying() {
     if (!isEnabled() || pausedByApp) {
+      updateButton();
+      return Promise.resolve();
+    }
+    if (!audio.paused) {
       updateButton();
       return Promise.resolve();
     }
@@ -78,8 +113,13 @@
     });
   }
 
-  function pauseBgm() {
+  function pauseBgm(reason) {
+    // 換場期間忽略暫停；只允許琴房錄音等明確原因
+    if (spaLock && reason !== 'practice') {
+      return;
+    }
     pausedByApp = true;
+    saveTime();
     audio.pause();
     updateButton();
   }
@@ -89,19 +129,27 @@
       return;
     }
     pausedByApp = false;
-    tryPlay();
+    ensurePlaying();
+  }
+
+  function setSpaLock(locked) {
+    spaLock = !!locked;
+    if (!spaLock) {
+      ensurePlaying();
+    }
   }
 
   function toggleBgm() {
     if (isEnabled() && !audio.paused) {
       setEnabled(false);
+      saveTime();
       audio.pause();
       updateButton();
       return;
     }
     setEnabled(true);
     pausedByApp = false;
-    tryPlay();
+    ensurePlaying();
   }
 
   function ensureUi() {
@@ -124,25 +172,37 @@
   }
 
   ensureUi();
+  restoreTime();
+
+  audio.addEventListener('timeupdate', function () {
+    // 節流：約每 2 秒記一次進度
+    if (!audio._lastSave || Date.now() - audio._lastSave > 2000) {
+      audio._lastSave = Date.now();
+      saveTime();
+    }
+  });
 
   if (isEnabled()) {
-    tryPlay();
+    ensurePlaying();
     audio.addEventListener('canplay', function onReady() {
-      tryPlay();
+      restoreTime();
+      ensurePlaying();
       audio.removeEventListener('canplay', onReady);
     });
   }
 
   document.addEventListener('pointerdown', function () {
     if (isEnabled() && audio.paused && !pausedByApp) {
-      tryPlay();
+      ensurePlaying();
     }
   }, { passive: true });
 
   window.NoteAdventureBgm = {
     pause: pauseBgm,
     resume: resumeBgm,
-    tryPlay: tryPlay,
+    tryPlay: ensurePlaying,
+    ensure: ensurePlaying,
+    setSpaLock: setSpaLock,
     isEnabled: isEnabled
   };
 })();

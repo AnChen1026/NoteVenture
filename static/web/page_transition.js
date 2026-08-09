@@ -35,6 +35,7 @@
     stage.classList.add('is-page-leave');
 
     window.setTimeout(function () {
+      // 在一頁版 iframe 內會只換內層；外殼 BGM 可持續
       window.location.href = url;
     }, LEAVE_MS);
   }

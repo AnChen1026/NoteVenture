@@ -5,7 +5,9 @@
 - **雲端**：MySQL + Flask（學生 UI／API）
 - **本機**：Streamlit 老師端，連到雲端 Flask
 
-學生開啟：`https://你的網域/student/login`
+學生開啟：`https://你的網域/student/app`（或 `/student`）
+
+> 舊連結 `/student/login` 會自動導向一頁版。
 
 ---
 

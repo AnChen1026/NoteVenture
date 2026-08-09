@@ -4,6 +4,27 @@
     document.documentElement.classList.add('is-spa-embed');
   }
 
+  // 正式入口改為一頁版：頂層直接開舊路徑時，導到 /student/app
+  // iframe 內不導，避免殼層載入 /student/login 時形成迴圈
+  if (!isEmbed) {
+    var path = window.location.pathname;
+    var pathToHash = {
+      '/student/login': 'login',
+      '/student/home': 'home',
+      '/student/practice': 'practice',
+      '/student/shop': 'shop',
+      '/student/quests': 'quests',
+      '/student/pet': 'pet',
+      '/student/class': 'class',
+      '/student/settings': 'settings',
+      '/student/backpack': 'backpack'
+    };
+    if (pathToHash[path]) {
+      window.location.replace('/student/app#' + pathToHash[path]);
+      return;
+    }
+  }
+
   // 直向時顯示「請橫放」遮罩（殼層負責；iframe 內不重複）
   function ensureRotateGate() {
     if (isEmbed || document.getElementById('rotate-gate')) {

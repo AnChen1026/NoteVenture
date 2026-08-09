@@ -48,6 +48,14 @@
     }
   }
 
+  function ensureBgm() {
+    if (window.NoteAdventureBgm && typeof window.NoteAdventureBgm.ensure === 'function') {
+      window.NoteAdventureBgm.ensure();
+    } else if (window.NoteAdventureBgm && typeof window.NoteAdventureBgm.tryPlay === 'function') {
+      window.NoteAdventureBgm.tryPlay();
+    }
+  }
+
   // 初次：依網址 hash 開對應頁
   frame.src = pathFromHash();
 
@@ -58,8 +66,10 @@
     } catch (error) {
       // ignore
     }
+    ensureBgm();
   });
 
+  // 手動改 hash 時，載入對應頁（內頁一般連點會自己在 iframe 內跳轉）
   window.addEventListener('hashchange', function () {
     var path = pathFromHash();
     try {
@@ -71,7 +81,7 @@
     }
   });
 
-  // 內頁通知：BGM 暫停／恢復／嘗試播放
+  // 內頁通知：BGM 暫停／恢復／續播
   window.addEventListener('message', function (event) {
     if (event.origin !== window.location.origin) {
       return;
@@ -81,12 +91,11 @@
       return;
     }
     if (data.type === 'na-bgm-pause') {
-      window.NoteAdventureBgm.pause();
+      window.NoteAdventureBgm.pause(data.reason || 'practice');
     } else if (data.type === 'na-bgm-resume') {
       window.NoteAdventureBgm.resume();
-    } else if (data.type === 'na-bgm-tryplay' && typeof window.NoteAdventureBgm.tryPlay === 'function') {
-      window.NoteAdventureBgm.tryPlay();
+    } else if (data.type === 'na-bgm-ensure' || data.type === 'na-bgm-tryplay') {
+      ensureBgm();
     }
   });
 })();
-
