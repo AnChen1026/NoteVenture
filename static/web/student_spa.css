@@ -31,21 +31,6 @@
   z-index: 30;
 }
 
-.spa-badge {
-  position: fixed;
-  left: 10px;
-  bottom: 10px;
-  z-index: 10000;
-  margin: 0;
-  padding: 0.35em 0.7em;
-  border-radius: 999px;
-  background: rgba(40, 28, 16, 0.75);
-  color: #fff3dd;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  pointer-events: none;
-}
-
 html.is-spa-embed body {
   background: transparent;
 }
