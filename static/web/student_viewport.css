@@ -14,12 +14,16 @@ body {
 body {
   position: fixed;
   inset: 0;
+  /* 確保舞台置中（各頁也有 flex，這裡補強） */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* 舞台內清單仍可各自捲動（商店／任務等） */
+/* 舞台只加觸控行為；寬高比例交給各頁 CSS
+   注意：不要單獨設 max-height，會把 16:9 壓扁造成破圖 */
 .stage {
-  max-width: 100vw;
-  max-height: 100dvh;
+  flex-shrink: 1;
   touch-action: manipulation;
 }
 

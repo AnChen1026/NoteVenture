@@ -17,14 +17,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
-/* 主舞台：16:9 比例、陰影外框 */
+/* 主舞台：同時用寬與高限制，維持 16:9，避免手機被壓扁拉伸 */
 .stage {
   position: relative;
   isolation: isolate;
-  width: min(100vw, calc(100vh * 16 / 9));
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
   aspect-ratio: 16 / 9;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -39,7 +40,7 @@ body {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   background: #1a1410;
   user-select: none;
   /* 允許點一下觸發播放（行動裝置常擋 autoplay） */
