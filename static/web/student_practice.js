@@ -198,6 +198,9 @@
       recordBtn.disabled = false;
       recordTimer.classList.remove('is-recording');
       showMessage('請試聽確認，沒問題再按「確認上傳」', 'is-ok');
+      if (window.NoteAdventureBgm && typeof window.NoteAdventureBgm.resume === 'function') {
+        window.NoteAdventureBgm.resume();
+      }
     });
 
     mediaRecorder.start();
@@ -211,6 +214,10 @@
     uploadBtn.hidden = true;
     uploadBtn.disabled = true;
     showMessage('錄音中…', '');
+    // 錄音時暫停 BGM，避免錄進背景音樂
+    if (window.NoteAdventureBgm && typeof window.NoteAdventureBgm.pause === 'function') {
+      window.NoteAdventureBgm.pause();
+    }
   }
 
   function stopStream() {

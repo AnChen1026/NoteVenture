@@ -1,0 +1,36 @@
+/* 學生頁共用：BGM 開關（右上角小鈕） */
+
+.bgm-toggle {
+  position: absolute;
+  right: 2.2%;
+  top: 2.5%;
+  z-index: 20;
+  width: clamp(36px, 4.5vw, 48px);
+  height: clamp(36px, 4.5vw, 48px);
+  border: 1px solid rgba(120, 80, 30, 0.45);
+  border-radius: 50%;
+  background: rgba(40, 28, 16, 0.72);
+  color: #fff3dd;
+  font-size: clamp(16px, 1.8vw, 22px);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.bgm-toggle:hover {
+  filter: brightness(1.08);
+}
+
+.bgm-toggle:focus,
+.bgm-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+}
+
+.bgm-toggle.is-off {
+  opacity: 0.72;
+}
