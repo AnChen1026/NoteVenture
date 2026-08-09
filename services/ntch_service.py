@@ -1,19 +1,11 @@
-"""
-兩廳院（NPAC-NTCH）近一個月音樂節目資料。
-
-說明：
-- 官網節目頁為前端 SPA，實際資料來自官方 GraphQL：https://npac-ntch.org/tms/graphql
-- 本服務以 requests 呼叫該 API，再篩選「音樂相關」節目，並做檔案快取避免頻繁請求。
-"""
-
-from __future__ import annotations
-
 import json
 import os
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 import requests
+
+# ========= 兩廳院 API 與快取設定 ===========
 
 GRAPHQL_URL = "https://npac-ntch.org/tms/graphql"
 COVER_BASE_URL = "https://vfms.npac-ntch.org/vfms-files/"
@@ -24,6 +16,7 @@ CACHE_TTL_SECONDS = 6 * 60 * 60
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cache")
 CACHE_PATH = os.path.join(CACHE_DIR, "ntch_music_programs.json")
 
+# 標題／簡介／分類含這些關鍵字，視為音樂相關節目
 MUSIC_KEYWORDS = (
     "音樂",
     "爵士",
@@ -51,6 +44,7 @@ MUSIC_KEYWORDS = (
     "choir",
 )
 
+# 官網節目列表 GraphQL 查詢
 PROGRAMS_QUERY = """
 query Programs($startFrom: DateOnly, $endOn: DateOnly, $limit: Int, $offset: Int) {
   programs(startFrom: $startFrom, endOn: $endOn, limit: $limit, offset: $offset) {
@@ -67,14 +61,23 @@ query Programs($startFrom: DateOnly, $endOn: DateOnly, $limit: Int, $offset: Int
 """
 
 
+# ======================================================
+# 取得台灣時間的今天日期
+# ======================================================
 def _taiwan_today() -> date:
     return datetime.now(timezone(timedelta(hours=8))).date()
 
 
+# ======================================================
+# 確保快取資料夾存在
+# ======================================================
 def _ensure_cache_dir() -> None:
     os.makedirs(CACHE_DIR, exist_ok=True)
 
 
+# ======================================================
+# 讀取尚未過期的快取；沒有或過期就回 None
+# ======================================================
 def _read_cache() -> dict[str, Any] | None:
     if not os.path.isfile(CACHE_PATH):
         return None
@@ -92,6 +95,7 @@ def _read_cache() -> dict[str, Any] | None:
     except ValueError:
         return None
 
+    # 舊快取可能沒有時區，當成 UTC
     if fetched_dt.tzinfo is None:
         fetched_dt = fetched_dt.replace(tzinfo=timezone.utc)
 
@@ -101,6 +105,9 @@ def _read_cache() -> dict[str, Any] | None:
     return payload
 
 
+# ======================================================
+# 寫入節目快取並回傳完整結果
+# ======================================================
 def _write_cache(items: list[dict[str, Any]], source: str) -> dict[str, Any]:
     _ensure_cache_dir()
     payload = {
@@ -114,6 +121,9 @@ def _write_cache(items: list[dict[str, Any]], source: str) -> dict[str, Any]:
     return payload
 
 
+# ======================================================
+# 判斷節目是否為音樂相關
+# ======================================================
 def _is_music_related(program: dict[str, Any]) -> bool:
     parts = [str(program.get("title") or ""), str(program.get("brief") or "")]
     for category in program.get("categories") or []:
@@ -122,6 +132,9 @@ def _is_music_related(program: dict[str, Any]) -> bool:
     return any(keyword.lower() in text for keyword in MUSIC_KEYWORDS)
 
 
+# ======================================================
+# 把 API 日期轉成台灣本地 YYYY-MM-DD
+# ======================================================
 def _format_date(value: str | None) -> str:
     if not value:
         return ""
@@ -133,6 +146,9 @@ def _format_date(value: str | None) -> str:
         return value[:10]
 
 
+# ======================================================
+# 組成海報完整網址
+# ======================================================
 def _cover_url(cover: str | None) -> str | None:
     if not cover:
         return None
@@ -141,8 +157,12 @@ def _cover_url(cover: str | None) -> str | None:
     return COVER_BASE_URL + cover.lstrip("/")
 
 
+# ======================================================
+# 把 API 單筆節目轉成前端需要的欄位
+# ======================================================
 def _normalize_program(program: dict[str, Any]) -> dict[str, Any]:
     categories = program.get("categories") or []
+    # 優先用主分類
     main_category = next((c for c in categories if c.get("isMain")), None)
     if main_category is None and categories:
         main_category = categories[0]
@@ -161,6 +181,9 @@ def _normalize_program(program: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+# ======================================================
+# 向兩廳院 GraphQL 抓取指定日期區間的節目
+# ======================================================
 def _fetch_programs_from_api(start_day: date, end_day: date) -> list[dict[str, Any]]:
     headers = {
         "User-Agent": (
@@ -178,6 +201,7 @@ def _fetch_programs_from_api(start_day: date, end_day: date) -> list[dict[str, A
     offset = 0
     limit = 40
 
+    # 分頁抓取，最多約 120 筆避免過度請求
     while offset < 120:
         payload = {
             "operationName": "Programs",
@@ -206,11 +230,11 @@ def _fetch_programs_from_api(start_day: date, end_day: date) -> list[dict[str, A
     return collected
 
 
+# ======================================================
+# 取得近一個月音樂相關節目（有快取；失敗時可回退舊快取）
+# ======================================================
 def get_upcoming_music_programs(force_refresh: bool = False) -> dict[str, Any]:
-    """
-    取得近一個月音樂相關節目。
-    回傳：{ fetched_at, source, count, data: [...] }
-    """
+    # 未要求強制刷新時，先用有效快取
     if not force_refresh:
         cached = _read_cache()
         if cached is not None:
@@ -230,7 +254,7 @@ def get_upcoming_music_programs(force_refresh: bool = False) -> dict[str, Any]:
         music_programs.sort(key=lambda item: item.get("start_date") or "")
         return _write_cache(music_programs, source="npac-ntch.org/tms/graphql")
     except Exception as error:
-        # 若即時抓取失敗，盡量回退舊快取
+        # 即時抓取失敗時，盡量回傳舊快取
         if os.path.isfile(CACHE_PATH):
             try:
                 with open(CACHE_PATH, "r", encoding="utf-8") as f:
