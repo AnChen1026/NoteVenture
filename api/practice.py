@@ -2,12 +2,14 @@ import os
 import tempfile
 import wave
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from api.guards import get_login_teacher, get_login_student, json_safe
 from services.practice_service import (
     save_audio_file,
     create_practice_upload,
-    teacher_show_practice_upload
+    teacher_show_practice_upload,
+    get_teacher_practice_upload,
+    resolve_audio_path,
 )
 from services.quest_service import update_quest_progress
 from services.reward_service import give_quest_rewards
@@ -112,3 +114,33 @@ def api_list_practice_uploads():
     if isinstance(result, str):
         return jsonify({'message': result, 'data': []})
     return jsonify({'data': json_safe(result)})
+
+
+# ======================================================
+# 老師試聽單筆練習錄音
+# ======================================================
+@practice_bp.get('/api/practice-uploads/<int:upload_id>/audio')
+def api_get_practice_upload_audio(upload_id):
+    teacher, error = get_login_teacher()
+    if error:
+        return error
+
+    upload = get_teacher_practice_upload(teacher, upload_id)
+    if not upload:
+        return jsonify({'message': '找不到上傳紀錄或無權限'}), 404
+
+    audio_path = resolve_audio_path(upload['audio_url'])
+    if audio_path is None:
+        return jsonify({'message': '音檔不存在或路徑無效'}), 404
+
+    # 依副檔名給瀏覽器／Streamlit 正確的 MIME
+    ext = os.path.splitext(audio_path)[1].lower()
+    mime_map = {
+        '.wav': 'audio/wav',
+        '.webm': 'audio/webm',
+        '.mp3': 'audio/mpeg',
+        '.ogg': 'audio/ogg',
+        '.m4a': 'audio/mp4',
+    }
+    mimetype = mime_map.get(ext, 'application/octet-stream')
+    return send_file(audio_path, mimetype=mimetype, conditional=True)

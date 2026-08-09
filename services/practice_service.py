@@ -47,7 +47,13 @@ def create_practice_upload(student, audio_url, song_name, audio_duration):
 # ======================================================
 def teacher_show_practice_upload(teacher, student_id=None):
     sql = """
-    SELECT s.student_name, p.song_name, p.audio_duration, p.audio_url, p.created_at
+    SELECT
+        p.upload_id,
+        s.student_name,
+        p.song_name,
+        p.audio_duration,
+        p.audio_url,
+        p.created_at
     FROM practice_upload p
     JOIN student s ON s.student_id = p.student_id
     WHERE s.teacher_id = %s
@@ -62,6 +68,46 @@ def teacher_show_practice_upload(teacher, student_id=None):
     if result:
         return result
     return '無上傳紀錄'
+
+
+# ======================================================
+# 老師取得單筆上傳（確認是自己學生的）
+# ======================================================
+def get_teacher_practice_upload(teacher, upload_id):
+    sql = """
+    SELECT
+        p.upload_id,
+        p.student_id,
+        p.song_name,
+        p.audio_duration,
+        p.audio_url,
+        p.created_at,
+        s.student_name
+    FROM practice_upload p
+    JOIN student s ON s.student_id = p.student_id
+    WHERE p.upload_id = %s
+      AND s.teacher_id = %s;
+    """
+    return db.query_one(sql, (upload_id, teacher['teacher_id']))
+
+
+# ======================================================
+# 解析安全的本機音檔路徑（避免路徑穿越）
+# ======================================================
+def resolve_audio_path(audio_url):
+    if not audio_url:
+        return None
+    abs_folder = os.path.abspath(AUDIO_FOLDER)
+    abs_path = os.path.abspath(audio_url)
+    try:
+        common = os.path.commonpath([abs_folder, abs_path])
+    except ValueError:
+        return None
+    if common != abs_folder:
+        return None
+    if not os.path.isfile(abs_path):
+        return None
+    return abs_path
 
 
 # ======================================================

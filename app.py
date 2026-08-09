@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, send_from_directory
 from api.health import health_bp
 from api.auth import auth_bp
@@ -16,8 +18,17 @@ from api.class_board import class_bp
 def create_app():
     app = Flask(__name__)
 
-    # session 需要密鑰，用來簽名 cookie；開發用預設值，正式環境請改掉
-    app.secret_key = 'noteadventure-dev-secret'
+    # session 需要密鑰；正式環境請設 NOTEADVENTURE_SECRET_KEY
+    app.secret_key = os.environ.get(
+        'NOTEADVENTURE_SECRET_KEY',
+        'noteadventure-dev-secret',
+    )
+    # HTTPS 上線時設 NOTEADVENTURE_COOKIE_SECURE=1，避免登入 cookie 被降級
+    cookie_secure = os.environ.get('NOTEADVENTURE_COOKIE_SECURE', '').lower() in (
+        '1', 'true', 'yes',
+    )
+    app.config['SESSION_COOKIE_SECURE'] = cookie_secure
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
     # JSON_AS_ASCII=False：回傳中文時不要轉成 \uXXXX
     app.config['JSON_AS_ASCII'] = False
     # 開發時改 templates/ 後自動重載，避免還看到舊 HTML

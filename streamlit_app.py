@@ -1,3 +1,4 @@
+import os
 import wave
 from html import escape
 
@@ -6,7 +7,8 @@ import streamlit as st
 
 st.set_page_config(page_title='NoteAdventure', page_icon=':material/music_note:', layout='wide')
 
-API_BASE_URL = 'http://127.0.0.1:5000'
+# 本機開發預設連 5000；學生端上雲後可設 NOTEADVENTURE_API_BASE_URL 指向雲端 Flask
+API_BASE_URL = os.environ.get('NOTEADVENTURE_API_BASE_URL', 'http://127.0.0.1:5000').rstrip('/')
 
 # ========= 顯示用中文對照 ===========
 
@@ -95,6 +97,29 @@ def call_api(method, path, **kwargs):
     if response.ok:
         return True, data, response.status_code
     return False, data.get('message', '請求失敗'), response.status_code
+
+
+# ======================================================
+# 呼叫回傳二進位（例如音檔）的 API
+# ======================================================
+def call_api_binary(method, path, **kwargs):
+    url = API_BASE_URL + path
+    try:
+        response = get_api_session().request(method, url, timeout=60, **kwargs)
+    except requests.exceptions.ConnectionError:
+        return False, '無法連接 Flask API，請先啟動：flask --app app run --port 5000', None
+    except requests.exceptions.RequestException as error:
+        return False, f'API 連線失敗：{error}', None
+
+    if response.ok:
+        content_type = response.headers.get('Content-Type', 'application/octet-stream')
+        return True, response.content, content_type
+
+    try:
+        message = response.json().get('message', '請求失敗')
+    except ValueError:
+        message = response.text[:200] or '請求失敗'
+    return False, message, None
 
 
 # ======================================================
@@ -227,13 +252,35 @@ def format_upload_rows(upload_rows):
     rows = []
     for upload in upload_rows:
         rows.append({
+            '編號': upload.get('upload_id'),
             '學生': upload['student_name'],
             '曲目': upload['song_name'],
             '秒數': upload['audio_duration'],
-            '檔案路徑': upload['audio_url'],
             '上傳時間': format_datetime_text(upload['created_at'])
         })
     return rows
+
+
+def audio_format_from_content_type(content_type, audio_url=''):
+    text = (content_type or '').lower()
+    if 'wav' in text:
+        return 'audio/wav'
+    if 'webm' in text:
+        return 'audio/webm'
+    if 'mpeg' in text or 'mp3' in text:
+        return 'audio/mp3'
+    if 'ogg' in text:
+        return 'audio/ogg'
+    if 'mp4' in text or 'm4a' in text:
+        return 'audio/mp4'
+    ext = str(audio_url).lower().rsplit('.', 1)[-1] if audio_url else ''
+    return {
+        'wav': 'audio/wav',
+        'webm': 'audio/webm',
+        'mp3': 'audio/mp3',
+        'ogg': 'audio/ogg',
+        'm4a': 'audio/mp4',
+    }.get(ext, 'audio/wav')
 
 
 def format_shop_rows(item_rows):
@@ -675,7 +722,7 @@ elif page == '指派任務':
 
 
 # ======================================================
-# 老師：上傳紀錄
+# 老師：上傳紀錄（含試聽）
 # ======================================================
 elif page == '上傳紀錄':
     ok, student_data, _ = call_api('GET', '/api/students')
@@ -694,7 +741,37 @@ elif page == '上傳紀錄':
     elif not data.get('data'):
         st.info(data.get('message', '無上傳紀錄'))
     else:
-        st.dataframe(format_upload_rows(data['data']), width='stretch')
+        uploads = data['data']
+        st.dataframe(format_upload_rows(uploads), width='stretch')
+        st.subheader('試聽錄音')
+        st.caption('點播放即可聽學生上傳的練習音檔（最多顯示最近 20 筆）。')
+        for upload in uploads[:20]:
+            upload_id = upload.get('upload_id')
+            title = (
+                f"{upload.get('student_name', '')}｜"
+                f"{upload.get('song_name', '')}｜"
+                f"{upload.get('audio_duration', 0)} 秒｜"
+                f"{format_datetime_text(upload.get('created_at'))}"
+            )
+            st.markdown(f'**{title}**')
+            if not upload_id:
+                st.warning('此筆缺少 upload_id，請重啟 Flask 後再重整。')
+                continue
+            ok_audio, audio_payload, content_type = call_api_binary(
+                'GET',
+                f'/api/practice-uploads/{upload_id}/audio',
+            )
+            if not ok_audio:
+                st.error(f'無法播放：{audio_payload}')
+                continue
+            st.audio(
+                audio_payload,
+                format=audio_format_from_content_type(
+                    content_type,
+                    upload.get('audio_url', ''),
+                ),
+            )
+            st.divider()
 
 
 # ======================================================
