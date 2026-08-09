@@ -19,6 +19,8 @@ def create_app():
     app.secret_key = 'noteadventure-dev-secret'
     # JSON_AS_ASCII=False：回傳中文時不要轉成 \uXXXX
     app.config['JSON_AS_ASCII'] = False
+    # 開發時改 templates/ 後自動重載，避免還看到舊 HTML
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     # 註冊 API 藍圖（Blueprint）
     app.register_blueprint(health_bp)

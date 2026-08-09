@@ -2,6 +2,38 @@
   const form = document.getElementById('password-form');
   const messageEl = document.getElementById('message');
   const submitBtn = document.getElementById('submit-btn');
+  const bgVideo = document.getElementById('settings-bg-video');
+
+  // 背景影片每次進頁播放；結束後停在最後一幀
+  function setupBgVideo() {
+    if (!bgVideo) {
+      return;
+    }
+
+    function freezeLastFrame() {
+      bgVideo.pause();
+      if (bgVideo.duration && Number.isFinite(bgVideo.duration)) {
+        try {
+          bgVideo.currentTime = Math.max(0, bgVideo.duration - 0.05);
+        } catch (error) {
+          // 忽略尚未就緒時的 currentTime 錯誤
+        }
+      }
+    }
+
+    bgVideo.loop = false;
+    bgVideo.muted = true;
+    bgVideo.addEventListener('ended', freezeLastFrame);
+
+    const playPromise = bgVideo.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(function () {
+        // 自動播放失敗時至少停在 poster
+      });
+    }
+  }
+
+  setupBgVideo();
 
   function showMessage(text, type) {
     messageEl.textContent = text || '';
