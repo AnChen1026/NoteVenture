@@ -25,7 +25,7 @@
     }
   }
 
-  // ---------- 手機鍵盤：避免畫面被往上壓縮後不歸位 ----------
+  // ---------- 手機鍵盤：只在收起後重置捲動，不要鎖死像素高度 ----------
   function isTypingField(el) {
     if (!el || !el.tagName) {
       return false;
@@ -39,69 +39,29 @@
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
-      if (window.visualViewport) {
-        // iOS 鍵盤常留下 visualViewport offset
-        window.scrollTo(0, 0);
-      }
     } catch (error) {
       // ignore
     }
   }
 
-  function refreshLayoutSize(force) {
-    // 打字中（鍵盤多半開著）不要用縮小後的高度重算舞台，否則會「壓扁」
-    if (!force && isTypingField(document.activeElement)) {
-      resetScroll();
+  function recoverAfterKeyboard() {
+    resetScroll();
+    // 少數瀏覽器會留下 visualViewport 偏移，再補一次
+    window.setTimeout(resetScroll, 50);
+    window.setTimeout(resetScroll, 300);
+  }
+
+  document.addEventListener('focusout', function (event) {
+    if (!isTypingField(event.target)) {
       return;
     }
-    var h = window.innerHeight;
-    var w = window.innerWidth;
-    if (h > 0) {
-      document.documentElement.style.setProperty('--layout-h', h + 'px');
-    }
-    if (w > 0) {
-      document.documentElement.style.setProperty('--layout-w', w + 'px');
-    }
-    resetScroll();
-  }
-
-  // 先寫入一版穩定高度
-  refreshLayoutSize(true);
-
-  window.addEventListener('orientationchange', function () {
+    // 若焦點立刻移到另一個輸入框，不要重置
     window.setTimeout(function () {
-      refreshLayoutSize(true);
-    }, 250);
-  });
-
-  window.addEventListener('resize', function () {
-    refreshLayoutSize(false);
-  });
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', function () {
-      refreshLayoutSize(false);
-    });
-    window.visualViewport.addEventListener('scroll', function () {
-      // 鍵盤把 visual viewport 推走時，立刻拉回
-      resetScroll();
-    });
-  }
-
-  document.addEventListener('focusin', function (event) {
-    if (isTypingField(event.target)) {
-      resetScroll();
-    }
-  });
-
-  document.addEventListener('focusout', function () {
-    // 鍵盤收起後稍等再重算，讓 innerHeight 恢復
-    window.setTimeout(function () {
-      refreshLayoutSize(true);
-    }, 80);
-    window.setTimeout(function () {
-      refreshLayoutSize(true);
-    }, 320);
+      if (isTypingField(document.activeElement)) {
+        return;
+      }
+      recoverAfterKeyboard();
+    }, 0);
   });
 
   // 直向時顯示「請橫放」遮罩（殼層負責；iframe 內不重複）
@@ -124,6 +84,7 @@
 
   ensureRotateGate();
 
+  // 鎖住外層頁面捲動（內層清單仍可滾）
   function lockPageScroll(event) {
     var target = event.target;
     if (!target || !target.closest) {
@@ -148,6 +109,7 @@
 
   document.addEventListener('touchmove', lockPageScroll, { passive: false });
 
+  // 全螢幕由殼層處理；iframe 內不重複綁
   if (isEmbed) {
     return;
   }
@@ -188,7 +150,7 @@
         document.webkitExitFullscreen();
       }
     } catch (error) {
-      // ignore
+      // 行動瀏覽器不支援時略過
     }
   }
 })();
