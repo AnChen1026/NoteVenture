@@ -3,14 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>Melody Town｜學生一頁版</title>
+  <title>NoteAdventure | 音符冒險</title>
   <link rel="stylesheet" href="/static/web/student_viewport.css">
   <link rel="stylesheet" href="/static/web/student_bgm.css">
   <link rel="stylesheet" href="/static/web/student_spa.css">
 </head>
 <body class="spa-body">
   <!-- 外層殼：BGM／橫放／全螢幕留在這裡；功能頁在 iframe 內切換 -->
-  <main id="spa-shell" class="stage spa-shell" aria-label="學生一頁版">
+  <main id="spa-shell" class="stage spa-shell" aria-label="學生網頁">
+    <!-- id讓Js可以找到並連接iframe -->
+    <!-- class讓css可以找到並設定 -->
+    <!-- allow表示開啟麥克風、自動播放、全螢幕功能 -->
     <iframe
       id="spa-frame"
       class="spa-frame"
