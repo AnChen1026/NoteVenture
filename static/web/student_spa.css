@@ -8,8 +8,8 @@
 .spa-shell.stage {
   position: relative;
   isolation: isolate;
-  width: min(100vw, calc(100svh * 16 / 9));
-  height: min(100svh, calc(100vw * 9 / 16));
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
   aspect-ratio: 16 / 9;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -37,9 +37,8 @@ html.is-spa-embed body {
 
 html.is-spa-embed .stage {
   box-shadow: none;
-  width: 100vw !important;
-  height: 100vh !important;
-  height: 100svh !important;
+  width: 100% !important;
+  height: 100% !important;
   max-width: none;
   max-height: none;
   aspect-ratio: auto;

@@ -64,6 +64,13 @@
     }, 0);
   });
 
+  // 若仍被瀏覽器拖走，立刻拉回（不鎖死版面高度）
+  window.addEventListener('scroll', function () {
+    if (window.scrollX || window.scrollY) {
+      resetScroll();
+    }
+  }, { passive: true });
+
   // 直向時顯示「請橫放」遮罩（殼層負責；iframe 內不重複）
   function ensureRotateGate() {
     if (isEmbed || document.getElementById('rotate-gate')) {
@@ -84,7 +91,7 @@
 
   ensureRotateGate();
 
-  // 鎖住外層頁面捲動（內層清單仍可滾）
+  // 鎖住外層頁面捲動（內層清單仍可滾；不要整塊表單放行，否則登入頁會整頁滑）
   function lockPageScroll(event) {
     var target = event.target;
     if (!target || !target.closest) {
@@ -94,14 +101,13 @@
     if (target.closest('.rotate-gate')) {
       return;
     }
-    // 輸入框區域允許瀏覽器處理（鍵盤相關）
-    if (isTypingField(target) || target.closest('input, textarea, select, label, .password-form, .login-form')) {
+    if (isTypingField(target) || target.closest('label')) {
       return;
     }
     var scrollable = target.closest(
       '.item-list, .quest-list, .practice-panel, .settings-panel, .shop-panel, .quest-panel, .class-board'
     );
-    if (scrollable) {
+    if (scrollable && scrollable.scrollHeight > scrollable.clientHeight + 1) {
       return;
     }
     event.preventDefault();

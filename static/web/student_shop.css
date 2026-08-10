@@ -17,14 +17,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100svh;
+  min-height: 100dvh;
 }
 
 /* 主舞台：依 shop.png 比例，同時限制寬高避免拉伸 */
 .stage {
   position: relative;
-  width: min(100vw, calc(100svh * 1264 / 841));
-  height: min(100svh, calc(100vw * 841 / 1264));
+  width: min(100vw, calc(100dvh * 1264 / 841));
+  height: min(100dvh, calc(100vw * 841 / 1264));
   aspect-ratio: 1264 / 841;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
