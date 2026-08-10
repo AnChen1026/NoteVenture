@@ -17,15 +17,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100dvh;
+  min-height: var(--layout-h, 100svh);
 }
 
 /* 主舞台：同時用寬與高限制，維持 16:9，避免手機被壓扁拉伸 */
 .stage {
   position: relative;
   isolation: isolate;
-  width: min(100vw, calc(100dvh * 16 / 9));
-  height: min(100dvh, calc(100vw * 9 / 16));
+  width: min(100vw, calc(var(--layout-h, 100svh) * 16 / 9));
+  height: min(var(--layout-h, 100svh), calc(100vw * 9 / 16));
   aspect-ratio: 16 / 9;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);

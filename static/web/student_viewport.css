@@ -1,10 +1,9 @@
-/* 學生頁共用：鎖住外層捲動，避免手機整頁上下滑 */
+/* 學生頁共用：鎖住外層捲動；高度用 --layout-h（JS 設定）避免鍵盤把畫面壓扁後不歸位 */
 
 html,
 body {
-  width: 100%;
-  height: 100%;
-  height: 100dvh;
+  width: var(--layout-w, 100vw);
+  height: var(--layout-h, 100svh);
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -13,15 +12,17 @@ body {
 
 body {
   position: fixed;
-  inset: 0;
-  /* 確保舞台置中（各頁也有 flex，這裡補強） */
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* 舞台只加觸控行為；寬高比例交給各頁 CSS
-   注意：不要單獨設 max-height，會把 16:9 壓扁造成破圖 */
+/* 舞台只加觸控行為；寬高比例交給各頁 CSS */
 .stage {
   flex-shrink: 1;
   touch-action: manipulation;
@@ -80,7 +81,6 @@ body {
   max-width: 16em;
 }
 
-/* 僅在「窄螢幕直向」時顯示（桌機寬螢幕直向通常不擋） */
 @media (orientation: portrait) and (max-width: 900px) {
   .rotate-gate {
     display: flex;
