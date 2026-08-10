@@ -33,59 +33,32 @@ NoteAdventure 是一套提供一對一音樂老師使用的學生練習管理系
 - Git / GitHub
 - Python venv
 
-期中將**老師與學生拆成兩套登入介面**，共用同一套 Flask API：
+正式網頁**只有兩條線**，共用同一套 Flask API（詳見 `WEB_STRUCTURE.md`、`MIDTERM_CODE_MAP.md`）：
 
 | 角色 | 介面 | 進入方式 |
 |---|---|---|
-| 老師 | Streamlit | `streamlit run streamlit_app.py` |
-| 學生 | Flask HTML／CSS／JS | `http://127.0.0.1:5000/student/login` |
+| 老師 | Streamlit（僅老師） | `streamlit run streamlit_app.py` |
+| 學生 | Flask HTML 一頁版 | `http://127.0.0.1:5000/student/app` |
 
 ## 專案結構
 
 ```text
 NoteAdventure/
-├── app.py                 # Flask Application Factory（API + 學生頁）
-├── streamlit_app.py       # 老師端 Streamlit UI（HTTP 呼叫 Flask）
-├── main.py                # Console 程式入口
-├── db.py
-├── config.ini
-├── requirements.txt
-├── teacher_menu.py
-├── student_menu.py
-│
-├── templates/             # 學生 HTML 頁面
-├── static/web/            # 學生前端 CSS／JS
-├── material/              # 學生端美術素材
-│
-├── api/                   # Flask Blueprint（路由與 session）
-│   ├── auth.py
-│   ├── students.py
-│   ├── quests.py
-│   ├── practice.py
-│   ├── shop.py
-│   ├── pet.py
-│   ├── health.py
-│   └── guards.py
-│
+├── app.py                 # Flask（API + 學生一頁版）
+├── streamlit_app.py       # 老師管理後台（僅老師）
+├── templates/             # 學生 HTML（SPA 殼 + 內頁）
+├── static/web/            # 學生 CSS／JS
+├── material/              # 學生正式素材
+├── api/
+├── services/              # 商業邏輯（整理網頁時不要改）
+├── archive/               # 舊版／備援（見 archive/README.md）
 ├── docs/
-│   ├── NoteAdventure_MVP.md
-│   ├── NoteAdventure_PROJECT_CONTEXT.md
-│   ├── DATABASE_SCHEMA.md
-│   └── README.md
-│
-├── services/
-├── utils/
-├── sql/
-├── uploads/
-│
-├── .streamlit/
-│   └── config.toml
-│
-└── .cursor/
-    └── rules/
+│   └── WEB_STRUCTURE.md   # 網頁結構說明
+└── ...
 ```
 
-網頁開發時：Flask 一定要啟動；老師另開 Streamlit；學生開瀏覽器進 `/student/login`。
+網頁開發時：Flask 一定要啟動；老師另開 Streamlit；學生開瀏覽器進 `/student/app`。
+詳見 `docs/WEB_STRUCTURE.md`。
 
 ## 安裝方式
 
@@ -141,12 +114,6 @@ database=music_rpg_v2
 
 ## 執行方式
 
-Console：
-
-```bash
-python main.py
-```
-
 ### 1. Flask（後端，一定要先啟動）
 
 ```bash
@@ -161,13 +128,13 @@ streamlit run streamlit_app.py
 
 瀏覽器通常開啟 `http://localhost:8501`。
 
-### 3. 學生端（HTML，用瀏覽器開啟）
+### 3. 學生端（一頁版，用瀏覽器開啟）
 
 ```text
-http://127.0.0.1:5000/student/login
+http://127.0.0.1:5000/student/app
 ```
 
-登入成功後進入主頁地圖（`/student/home`）。
+舊版文字選單已移至 `archive/console/`（非正式入口）。
 
 ## MVP 功能
 
@@ -192,9 +159,13 @@ http://127.0.0.1:5000/student/login
 
 ## 文件
 
+- [網頁結構](./WEB_STRUCTURE.md)
+- [期中串接地圖](./MIDTERM_CODE_MAP.md)
 - [MVP](./NoteAdventure_MVP.md)
 - [Project Context](./NoteAdventure_PROJECT_CONTEXT.md)
 - [Database Schema](./DATABASE_SCHEMA.md)
+- [學生一頁版](./STUDENT_SPA.md)
+- [學生端部署](./DEPLOY_STUDENT.md)
 
 ## 開發原則
 
@@ -209,34 +180,27 @@ http://127.0.0.1:5000/student/login
 
 已完成：
 
-- MySQL Schema、Git 版本控制
-- Console：老師註冊／登入、學生建立與查看、密碼重設、首次登入改密碼
-- Console：任務建立／查看／修改／刪除、啟用／停用、指派與期限
-- Console：練習上傳、老師查看上傳、進度（`PRACTICE_COUNT`／`DISTINCT_SONGS`）、獎勵、寵物、商店與兌換
-- Flask 核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
-- **老師端 Streamlit**：學生／任務建立與指派／上傳紀錄／商品／兌換
-- **學生端 HTML**：登入、主頁地圖、商店、任務欄、寵物、琴房錄音上傳
+- MySQL Schema、Git 版本控制、Flask 核心 API、`services/` 商業邏輯
+- **老師端 Streamlit**（僅老師）：註冊／登入、學生、任務建立與指派、上傳聆聽、商品、兌換
+- **學生端一頁版** `/student/app`：登入、主頁、商店、任務、寵物、琴房、教室、設定
+- 舊版 Console／Streamlit 學生備援已整理至 `archive/`
 
 進行中：
 
 - 期中展示流程演練
-- 學生 HTML：背包、設定改密碼
+- 學生 HTML：背包頁實作
 
 尚未完成：
 
-- 網頁端老師：註冊、任務修改／刪除／啟停、商品修改／刪除／上下架
-- 學生 HTML：背包、設定改密碼、教室
+- 網頁端老師：任務修改／刪除／啟停、商品修改／刪除／上下架
+- 學生 HTML：背包
 - 其他任務條件（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
-- 學生查看自己的購買紀錄
-- Dashboard
 - 自動化測試
 
 下一步：
 
-- 補齊學生 HTML 剩餘頁面
-- 期中 Demo 完整跑通（老師 Streamlit + 學生 HTML）
-- （可選）補齊老師端任務／商品進階管理
-- Dashboard
+- 期中 Demo 完整跑通（老師 Streamlit + 學生 `/student/app`）
+- （可選）背包頁、老師端進階管理
 
 ## 專題定位
 

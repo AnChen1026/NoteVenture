@@ -1,6 +1,11 @@
+"""
+api/health.py｜健康檢查
+
+部署後開 /api/health，確認 Flask 有起來（不碰資料庫也可先測）。
+"""
+
 from flask import Blueprint, jsonify
 
-# health_bp：健康檢查專用藍圖
 health_bp = Blueprint('health', __name__)
 
 

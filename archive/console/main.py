@@ -1,3 +1,12 @@
+import sys
+from pathlib import Path
+
+# 讓「從專案根目錄執行」時仍找得到 services／同資料夾選單
+_ROOT = Path(__file__).resolve().parents[2]
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_ROOT))
+sys.path.insert(0, str(_HERE))
+
 from services.teacher_service import create_teacher, login_teacher
 from services.student_service import login_student, change_student_password
 from teacher_menu import teacher_menu

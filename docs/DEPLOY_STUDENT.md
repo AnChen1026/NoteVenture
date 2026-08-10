@@ -59,7 +59,7 @@ gunicorn -w 2 -b 0.0.0.0:5000 "app:create_app()"
 ### 部署後自測
 
 1. 開 `https://你的網域/api/health`（若有 health API）看是否正常  
-2. 開 `https://你的網域/student/login`  
+2. 開 `https://你的網域/student/app`  
 3. 用手機測琴房錄音（HTTPS 才比較穩）
 
 ---

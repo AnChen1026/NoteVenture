@@ -1,3 +1,11 @@
+"""
+api/quests.py｜任務模板與指派
+
+- 老師 Streamlit：列表／建立／指派 → quest_service
+- 學生 HTML：查看自己的指派 → student_show_quest
+建立／指派時部分 SQL 寫在本檔（與 Console 時期流程對齊）；查詢多走 service。
+"""
+
 from datetime import datetime, timedelta
 
 from flask import Blueprint, request, jsonify

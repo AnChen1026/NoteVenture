@@ -1,5 +1,4 @@
 import os
-import wave
 from html import escape
 
 import requests
@@ -56,7 +55,7 @@ item_type_options = {'虛擬商品': 'VIRTUAL', '實體商品': 'PHYSICAL'}
 
 FORM_PAGES = {
     '建立學生', '重設學生密碼', '新增任務', '指派任務',
-    '新增商品', '上傳練習', '修改密碼'
+    '新增商品', '修改密碼'
 }
 
 st.session_state.setdefault('user', None)
@@ -184,37 +183,6 @@ def apply_custom_style():
             background: #fff7f7; border: 1px solid #ffd6d3; border-left: 4px solid #ff5a52;
             border-radius: 12px; padding: 0.85rem 1rem; color: #374151; margin: 0.7rem 0; font-weight: 500;
         }
-        .backpack-card {
-            aspect-ratio: 1 / 1;
-            border: 1px solid #d1d5db;
-            border-radius: 14px;
-            background: #ffffff;
-            padding: 0.7rem;
-            margin-bottom: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            overflow: hidden;
-            box-sizing: border-box;
-        }
-        .backpack-card.empty {
-            background: #f3f4f6;
-            border-style: dashed;
-        }
-        .backpack-name {
-            color: #1f2937;
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 0.35rem;
-            word-break: break-word;
-        }
-        .backpack-desc {
-            color: #6b7280;
-            font-size: 0.8rem;
-            word-break: break-word;
-        }
         </style>
         """,
         unsafe_allow_html=True
@@ -298,29 +266,18 @@ def format_shop_rows(item_rows):
     return rows
 
 
-def get_audio_duration(audio_file):
-    audio_file.seek(0)
-    with wave.open(audio_file, 'rb') as wav_file:
-        duration = int(wav_file.getnframes() / wav_file.getframerate())
-    audio_file.seek(0)
-    return duration
-
-
-def render_change_password_form(is_teacher, force=False):
+def render_change_password_form():
     with centered_card():
-        st.subheader('修改密碼' if not force else '首次登入請先修改密碼')
-        if force:
-            st.caption('使用臨時密碼登入後，必須先設定自己的密碼才能使用其他功能。')
+        st.subheader('修改密碼')
         with st.form('change_password_form'):
             old_password = st.text_input('目前密碼', type='password')
             new_password = st.text_input('新密碼', type='password')
             confirm_password = st.text_input('確認新密碼', type='password')
             submitted = st.form_submit_button('確認修改')
         if submitted:
-            path = '/api/teachers/change-password' if is_teacher else '/api/students/change-password'
             ok, data, _ = call_api(
                 'POST',
-                path,
+                '/api/teachers/change-password',
                 json={
                     'old_password': old_password,
                     'new_password': new_password,
@@ -330,8 +287,6 @@ def render_change_password_form(is_teacher, force=False):
             if ok:
                 show_notice(data.get('message', '密碼修改成功'))
                 refresh_login_user()
-                if force:
-                    st.rerun()
             else:
                 st.error(data)
 
@@ -347,9 +302,10 @@ if st.session_state.user is None:
         st.markdown('<div class="login-brand">', unsafe_allow_html=True)
         st.title('NoteAdventure')
         st.markdown('</div>', unsafe_allow_html=True)
-        st.caption('音樂練習 RPG 管理系統（Streamlit → Flask API）')
+        st.caption('老師管理後台（Streamlit → Flask API）')
+        st.info('學生請使用一頁版網頁：Flask 的 /student/app（本機或雲端網址）。')
 
-        teacher_tab, register_tab, student_tab = st.tabs(['老師登入', '老師註冊', '學生登入'])
+        teacher_tab, register_tab = st.tabs(['老師登入', '老師註冊'])
 
         with teacher_tab:
             with st.form('teacher_login'):
@@ -400,72 +356,41 @@ if st.session_state.user is None:
                         show_notice(data.get('message', '老師帳號建立成功'))
                     else:
                         st.error(data)
-
-        with student_tab:
-            with st.form('student_login'):
-                username = st.text_input('學生帳號')
-                student_password = st.text_input('密碼', type='password')
-                student_login = st.form_submit_button('登入')
-            if student_login:
-                ok, data, _ = call_api(
-                    'POST', '/api/students/login',
-                    json={'username': username, 'password': student_password}
-                )
-                if ok:
-                    st.session_state.user = data['user']
-                    st.session_state.role = data['role']
-                    st.rerun()
-                else:
-                    st.error(data)
     st.stop()
 
 
 user = st.session_state.user
 role = st.session_state.role
 
-
-# ======================================================
-# 學生首次登入：強制改密碼
-# ======================================================
-if role == 'student' and not user.get('password_changed', True):
-    with st.sidebar:
-        st.subheader(f"{user['student_name']} 同學")
-        st.caption('請先修改密碼')
-        if st.button('登出'):
-            call_api('POST', '/api/logout')
-            st.session_state.user = None
-            st.session_state.role = None
-            st.session_state.api_session = None
-            st.rerun()
-    render_change_password_form(is_teacher=False, force=True)
+# 學生改走 HTML 一頁版；若舊 session 仍是學生，請改去學生網頁
+if role != 'teacher':
+    st.warning('此後台僅供老師使用。學生請開啟 /student/app。')
+    if st.button('清除登入狀態'):
+        call_api('POST', '/api/logout')
+        st.session_state.user = None
+        st.session_state.role = None
+        st.session_state.api_session = None
+        st.rerun()
     st.stop()
 
 
 # ======================================================
-# 側邊選單
+# 側邊選單（老師）
 # ======================================================
 with st.sidebar:
-    if role == 'teacher':
-        st.subheader(f"{user['teacher_name']} 老師")
-        page = st.radio(
-            '功能',
-            [
-                '首頁',
-                '學生列表', '建立學生', '重設學生密碼',
-                '任務清單', '新增任務', '指派任務',
-                '上傳紀錄',
-                '商品清單', '新增商品', '待兌換商品',
-                '修改密碼'
-            ],
-            label_visibility='collapsed'
-        )
-    else:
-        st.subheader(f"{user['student_name']} 同學")
-        page = st.radio(
-            '功能',
-            ['首頁', '我的寵物', '我的任務', '上傳練習', '商店', '我的背包', '修改密碼'],
-            label_visibility='collapsed'
-        )
+    st.subheader(f"{user['teacher_name']} 老師")
+    page = st.radio(
+        '功能',
+        [
+            '首頁',
+            '學生列表', '建立學生', '重設學生密碼',
+            '任務清單', '新增任務', '指派任務',
+            '上傳紀錄',
+            '商品清單', '新增商品', '待兌換商品',
+            '修改密碼'
+        ],
+        label_visibility='collapsed'
+    )
 
     st.divider()
     if st.button('登出'):
@@ -854,290 +779,8 @@ elif page == '待兌換商品':
 
 
 # ======================================================
-# 老師／學生：修改密碼
+# 老師：修改密碼
 # ======================================================
 elif page == '修改密碼':
-    render_change_password_form(is_teacher=(role == 'teacher'))
+    render_change_password_form()
 
-
-# ======================================================
-# 學生：首頁 Dashboard
-# ======================================================
-elif role == 'student' and page == '首頁':
-    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/dashboard")
-    if not ok:
-        st.error(data)
-    else:
-        dashboard = data.get('data') or {}
-        summary = dashboard.get('summary') or {}
-        pet = dashboard.get('pet')
-
-        # 首頁數字以資料庫為準，同步到 session
-        if 'total_xp' in summary:
-            user['total_xp'] = summary['total_xp']
-        if 'total_coin' in summary:
-            user['total_coin'] = summary['total_coin']
-
-        c1, c2, c3 = st.columns(3)
-        c1.metric('經驗值', summary.get('total_xp', 0))
-        c2.metric('金幣', summary.get('total_coin', 0))
-        c3.metric('進行中任務', summary.get('active_assignment_count', 0))
-
-        c4, c5, c6 = st.columns(3)
-        c4.metric('已過期任務', summary.get('expired_assignment_count', 0))
-        c5.metric('近 7 天上傳', summary.get('upload_count_7d', 0))
-        c6.metric('待領取實體商品', summary.get('pending_purchase_count', 0))
-
-        st.subheader('我的寵物')
-        if not pet:
-            st.info('無寵物資料')
-        else:
-            pet_column, next_column = st.columns(2)
-            pet_column.metric('寵物階段', pet.get('stage_name', '-'))
-            if pet.get('next_stage_name') is None:
-                next_column.metric('下一階段', '已達最終階段')
-                st.progress(1.0, text=f"累積經驗 {pet.get('total_xp', 0)}｜已達最終階段")
-            else:
-                next_column.metric('下一階段', pet.get('next_stage_name'))
-                next_threshold = pet['total_xp'] + pet['xp_to_next']
-                progress_ratio = pet['total_xp'] / next_threshold if next_threshold else 1.0
-                st.progress(
-                    min(progress_ratio, 1.0),
-                    text=(
-                        f"累積經驗 {pet['total_xp']} / {next_threshold}"
-                        f"｜距離{pet['next_stage_name']}還需 {pet['xp_to_next']}"
-                    )
-                )
-
-        st.subheader('進行中任務（最近 5 筆）')
-        assignments = (dashboard.get('active_assignments') or [])[:5]
-        if assignments:
-            rows = []
-            for item in assignments:
-                rows.append({
-                    '任務': item.get('任務'),
-                    '類型': quest_type_text.get(item.get('任務類型'), item.get('任務類型')),
-                    '進度': f"{item.get('目前進度', 0)} / {item.get('目標', 0)}",
-                    '截止時間': format_datetime_text(item.get('截止時間'))
-                })
-            st.dataframe(rows, width='stretch')
-        else:
-            st.info('目前沒有進行中的任務')
-
-        st.subheader('最近上傳（最近 5 筆）')
-        uploads = (dashboard.get('recent_uploads') or [])[:5]
-        if uploads:
-            rows = []
-            for item in uploads:
-                rows.append({
-                    '曲目': item.get('曲目'),
-                    '秒數': item.get('秒數'),
-                    '上傳時間': format_datetime_text(item.get('上傳時間'))
-                })
-            st.dataframe(rows, width='stretch')
-        else:
-            st.info('尚無上傳紀錄')
-
-        st.subheader('最近購買（最近 5 筆）')
-        purchases = (dashboard.get('recent_purchases') or [])[:5]
-        if purchases:
-            purchase_status_text = {
-                'OWNED': '已擁有',
-                'PURCHASED': '待兌換',
-                'REDEEMED': '已兌換'
-            }
-            rows = []
-            for item in purchases:
-                rows.append({
-                    '商品': item.get('商品'),
-                    '價格': item.get('價格'),
-                    '狀態': purchase_status_text.get(item.get('狀態'), item.get('狀態')),
-                    '購買時間': format_datetime_text(item.get('購買時間'))
-                })
-            st.dataframe(rows, width='stretch')
-        else:
-            st.info('尚無購買紀錄')
-
-
-# ======================================================
-# 學生：我的寵物
-# ======================================================
-elif page == '我的寵物':
-    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/pet")
-    if not ok:
-        st.error(data)
-    else:
-        result = data['data']
-        pet_column, coin_column = st.columns(2)
-        pet_column.metric('寵物階段', result['stage_name'])
-        coin_column.metric('目前金幣', user['total_coin'])
-
-        st.subheader('經驗值進度')
-        if result['next_stage_name'] is None:
-            st.progress(1.0, text=f"累積經驗 {result['total_xp']}｜已達最終階段")
-        else:
-            next_threshold = result['total_xp'] + result['xp_to_next']
-            progress_ratio = result['total_xp'] / next_threshold if next_threshold else 1.0
-            st.progress(
-                min(progress_ratio, 1.0),
-                text=(
-                    f"累積經驗 {result['total_xp']} / {next_threshold}"
-                    f"｜距離{result['next_stage_name']}還需 {result['xp_to_next']}"
-                )
-            )
-
-
-# ======================================================
-# 學生：我的任務
-# ======================================================
-elif page == '我的任務':
-    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/quests")
-    if not ok:
-        st.error(data)
-    elif not data.get('data'):
-        st.info(data.get('message', '無任務資料'))
-    else:
-        for quest in data['data']:
-            with st.container(border=True):
-                st.markdown(
-                    f"**{quest['quest_name']}**　"
-                    f"{quest_type_text[quest['quest_type']]}　"
-                    f"{quest_status_text[quest['quest_status']]}"
-                )
-                st.caption(
-                    f"條件：{condition_type_text[quest['condition_type']]} {quest['condition_value']}　"
-                    f"獎勵：經驗 {quest['reward_xp']} / 金幣 {quest['reward_coin']}"
-                )
-                progress = quest['progress_value'] / quest['condition_value']
-                st.progress(
-                    min(progress, 1.0),
-                    text=f"{quest['progress_value']} / {quest['condition_value']}"
-                )
-                st.caption(f"到期時間：{format_datetime_text(quest['expires_at'])}")
-
-
-# ======================================================
-# 學生：上傳練習
-# ======================================================
-elif page == '上傳練習':
-    with centered_card():
-        st.subheader('上傳練習')
-        st.caption('請輸入曲目名稱並錄音，錄完後可先試聽，確認無誤再上傳。')
-        song_name = st.text_input('曲目名稱')
-        audio_file = st.audio_input('練習錄音')
-
-        if audio_file is None:
-            st.info('請先完成錄音')
-        else:
-            audio_duration = get_audio_duration(audio_file)
-            st.write(f'錄音長度：{audio_duration} 秒')
-            st.audio(audio_file)
-            st.caption('請先試聽確認，再按下「確認上傳」。')
-            if st.button('確認上傳'):
-                if song_name == '':
-                    st.warning('曲目名稱不可空白')
-                elif audio_duration <= 0:
-                    st.warning('錄音時間太短，請重新錄製')
-                else:
-                    audio_file.seek(0)
-                    ok, data, _ = call_api(
-                        'POST',
-                        f"/api/students/{user['student_id']}/practice-uploads",
-                        data={'song_name': song_name},
-                        files={'audio': ('practice.wav', audio_file.getvalue(), 'audio/wav')}
-                    )
-                    if ok:
-                        show_notice(data.get('message', '練習上傳成功'))
-                        for quest in data.get('progress', []):
-                            st.write(
-                                f"{quest['quest_name']}："
-                                f"{quest['progress_value']} / {quest['condition_value']}"
-                            )
-                        for reward in data.get('rewards', []):
-                            show_notice(
-                                f"任務完成 {reward['quest_name']}，"
-                                f"獲得 {reward['reward_xp']} 經驗值、"
-                                f"{reward['reward_coin']} 金幣"
-                            )
-                        refresh_login_user()
-                    else:
-                        st.error(data)
-
-
-# ======================================================
-# 學生：商店
-# ======================================================
-elif page == '商店':
-    st.metric('目前金幣', user['total_coin'])
-    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/shop-items")
-    if not ok:
-        st.error(data)
-    elif not data.get('data'):
-        st.info(data.get('message', '目前沒有可購買的商品'))
-    else:
-        for item in data['data']:
-            stock_text = '不限量' if item['stock'] is None else f"{item['stock']} 件"
-            with st.container(border=True):
-                st.markdown(f"**{item['item_name']}**")
-                st.caption(
-                    f"{item_type_text[item['item_type']]}　"
-                    f"{item['price']} 金幣　庫存：{stock_text}"
-                )
-                if item['description']:
-                    st.caption(item['description'])
-                if st.button('購買', key=f"buy_{item['item_id']}"):
-                    buy_ok, buy_data, _ = call_api(
-                        'POST', f"/api/shop-items/{item['item_id']}/purchase"
-                    )
-                    if buy_ok:
-                        # message 在庫存歸零時會附帶「商品已自動下架」說明
-                        st.session_state.flash = buy_data.get('message', '購買成功')
-                        refresh_login_user()
-                    else:
-                        st.session_state.flash = buy_data
-                    st.rerun()
-
-
-# ======================================================
-# 學生：我的背包
-# ======================================================
-elif page == '我的背包':
-    ok, data, _ = call_api('GET', f"/api/students/{user['student_id']}/purchases")
-    if not ok:
-        st.error(data)
-    elif not data.get('data'):
-        st.info(data.get('message', '背包是空的'))
-    else:
-        # 5 欄 × 6 列正方形格子；超過 30 件只顯示最近 30 件
-        backpack_cols = 5
-        backpack_rows = 6
-        slot_count = backpack_cols * backpack_rows
-        items = list(data['data'][:slot_count])
-        while len(items) < slot_count:
-            items.append(None)
-
-        for row_index in range(backpack_rows):
-            columns = st.columns(backpack_cols)
-            for col_index in range(backpack_cols):
-                item = items[row_index * backpack_cols + col_index]
-                with columns[col_index]:
-                    if item is None:
-                        st.markdown(
-                            '<div class="backpack-card empty"></div>',
-                            unsafe_allow_html=True
-                        )
-                    else:
-                        name = escape(str(item.get('item_name') or ''))
-                        description = escape(str(item.get('description') or '').strip())
-                        desc_html = (
-                            f'<div class="backpack-desc">{description}</div>'
-                            if description
-                            else ''
-                        )
-                        st.markdown(
-                            f'<div class="backpack-card">'
-                            f'<div class="backpack-name">{name}</div>'
-                            f'{desc_html}'
-                            f'</div>',
-                            unsafe_allow_html=True
-                        )

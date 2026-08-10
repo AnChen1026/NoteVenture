@@ -1,3 +1,16 @@
+"""
+api/auth.py｜登入／登出／改密碼／老師註冊
+
+誰會打這些 API：
+- 老師：streamlit_app.py（requests）
+- 學生：static/web/student_login.js、student_settings.js（fetch）
+
+登入成功後會寫入 Flask session（role + id），之後其他 API 用 guards 檢查。
+商業邏輯多半轉呼叫：
+- services.teacher_service（老師登入／註冊）
+- services.student_service（學生登入）
+"""
+
 from flask import Blueprint, request, jsonify, session
 from db import SqlUtils
 from utils.password_utils import hash_password, check_password

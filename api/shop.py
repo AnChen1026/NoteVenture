@@ -1,3 +1,11 @@
+"""
+api/shop.py｜商店、購買、背包、實體兌換
+
+老師 Streamlit：商品 CRUD 檢視、待兌換、標記兌換
+學生 HTML：看商品、購買（student_shop.js）
+→ 多半呼叫 services.shop_service
+"""
+
 from flask import Blueprint, request, jsonify
 from db import SqlUtils
 from api.guards import get_login_teacher, get_login_student, json_safe

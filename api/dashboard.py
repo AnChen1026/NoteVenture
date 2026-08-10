@@ -1,3 +1,10 @@
+"""
+api/dashboard.py｜首頁摘要數字
+
+- 老師 Streamlit「首頁」→ GET /api/dashboard → get_teacher_dashboard
+- 學生端若需要摘要 → GET /api/students/<id>/dashboard → get_student_dashboard
+"""
+
 from flask import Blueprint, jsonify
 from api.guards import get_login_teacher, get_login_student, json_safe
 from services.dashboard_service import get_teacher_dashboard, get_student_dashboard

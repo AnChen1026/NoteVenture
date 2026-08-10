@@ -1,3 +1,12 @@
+"""
+api/students.py｜老師管理學生帳號
+
+主要給 streamlit_app.py 使用：
+- GET  /api/students              → student_service.show_student
+- POST /api/students              → create_student（回傳帳號＋臨時密碼）
+- POST /api/students/reset-password → reset_student_password
+"""
+
 from flask import Blueprint, request, jsonify
 from api.guards import get_login_teacher, json_safe
 from services.student_service import show_student, create_student, reset_student_password

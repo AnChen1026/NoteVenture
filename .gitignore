@@ -18,3 +18,6 @@ uploads/
 
 # 外部資料快取（兩廳院節目等）
 cache/
+
+# 本機暫存（Notion 同步用）
+.tmp_notion/

@@ -1,3 +1,10 @@
+"""
+api/class_board.py｜學生「教室」看板（兩廳院近期音樂節目）
+
+學生 HTML（student_class.js）→ GET /api/class/ntch-programs
+→ services.ntch_service（對外抓資料／快取，不是核心 RPG 資料表）
+"""
+
 from flask import Blueprint, jsonify, request
 from services.ntch_service import get_upcoming_music_programs
 

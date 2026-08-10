@@ -1,3 +1,19 @@
+"""
+api/practice.py｜練習錄音上傳與老師聆聽
+
+這是 MVP 最核心的「練習 → 任務進度 → 獎勵」串接點。
+
+學生 HTML（student_practice.js）
+  POST /api/students/<id>/practice-uploads
+    → 存音檔（practice_service）
+    → 更新任務進度（quest_service.update_quest_progress）
+    → 完成則發獎（reward_service.give_quest_rewards）
+
+老師 Streamlit「上傳紀錄」
+  GET /api/practice-uploads
+  GET /api/practice-uploads/<id>/audio  （聽音檔）
+"""
+
 import os
 import tempfile
 import wave
@@ -85,6 +101,9 @@ def api_create_practice_upload(student_id):
     if result != '練習上傳成功':
         return jsonify({'message': result}), 500
 
+    # ----- 上傳成功後的「遊戲化」串接（報告可講這三步）-----
+    # 1) 依練習紀錄重算進行中任務進度
+    # 2) 已達標者發 XP／金幣（並寫異動表、更新寵物階段等，細節在 services）
     progress_list = update_quest_progress(student)
     reward_list = give_quest_rewards(progress_list)
     refreshed = get_student(student_id)
