@@ -104,12 +104,7 @@ def create_app():
 
     @app.get('/student/backpack')
     def student_backpack_page():
-        """背包尚未做完：先回傳 placeholder 樣板。"""
-        return render_template(
-            'student_placeholder.html',
-            title='背包',
-            message='背包頁面建置中，之後會顯示已購買／持有的物品。'
-        )
+        return render_template('student_backpack.html')
 
     @app.get('/student/settings')
     def student_settings_page():

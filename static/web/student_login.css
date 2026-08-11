@@ -43,7 +43,7 @@ body {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 }
 
-/* 背景圖 login.png：鋪滿舞台、不可點選 */
+/* 背景圖 login.JPG：鋪滿舞台、不可點選 */
 .stage__bg {
   display: block;
   width: 100%;
@@ -63,7 +63,7 @@ body {
 /* 透明輸入框共用：位置／寬高對準素材米色格子 */
 .field {
   position: absolute;
-  left: 44.5%;
+  left: 45%;
   width: 14.0%;
   height: 4.6%;
   border: none;
@@ -88,7 +88,7 @@ body {
 
 /* 密碼欄：垂直位置 */
 .field--password {
-  top: 54.0%;
+  top: 54.5%;
 }
 
 /* 輸入框 hover／focus：保持透明、不要外框反白 */
@@ -112,7 +112,7 @@ body {
 /* 登入鍵熱區：對準底部豎琴圓鈕（位置／大小） */
 .harp-btn {
   position: absolute;
-  left: 45.2%;
+  left: 46.5%;
   top: 65.3%;
   width: 9.6%;
   aspect-ratio: 1;

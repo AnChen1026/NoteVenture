@@ -42,7 +42,8 @@ html.is-spa-embed body {
 .settings-panel,
 .shop-panel,
 .quest-panel,
-.class-board {
+.class-board,
+.backpack-grid {
   touch-action: pan-y;
 }
 

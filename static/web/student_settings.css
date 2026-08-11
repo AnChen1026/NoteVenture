@@ -32,7 +32,7 @@ body {
   background: #1a1410;
 }
 
-/* 背景影片：鋪滿舞台底層（勿用 z-index:-1，會被 .stage 底色蓋住） */
+/* 背景圖 settings.JPG：鋪滿舞台底層（勿用 z-index:-1，會被 .stage 底色蓋住） */
 .stage__bg {
   position: absolute;
   inset: 0;
@@ -43,18 +43,7 @@ body {
   object-fit: fill;
   background: #1a1410;
   user-select: none;
-  /* 允許點一下觸發播放（行動裝置常擋 autoplay） */
-  pointer-events: auto;
-}
-
-/* 隱藏部分瀏覽器在 autoplay 失敗時畫出的巨大播放鈕外觀干擾（仍可靠 JS 播放） */
-.stage__bg::-webkit-media-controls {
-  display: none !important;
-}
-
-.stage__bg::-webkit-media-controls-start-playback-button {
-  display: none !important;
-  -webkit-appearance: none;
+  pointer-events: none;
 }
 
 /* 中間設定懸浮面板：位置、大小、透明度 0.1（對齊任務欄） */
@@ -62,16 +51,16 @@ body {
   position: absolute;
   left: 50%;
   transform: translate(-50%);
-  top: 23%;
+  top: 30%;
   z-index: 2;
   width: 38%;
   height: 50%;
   padding: 1.8% 2.4%;
   border-radius: 12px;
-  background: rgba(255, 248, 235, 0.1);
-  border: 1px solid rgba(120, 80, 30, 0.28);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(2px);
+  background: transparent;
+  /* border: 1px solid rgba(120, 80, 30, 0.28); */
+  /* box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22); */
+  backdrop-filter: none;
   display: flex;
   flex-direction: column;
   gap: 2.2%;

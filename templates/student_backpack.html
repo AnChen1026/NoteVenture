@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>背包｜Melody Town</title>
+  <link rel="stylesheet" href="/static/web/page_transition.css">
+  <link rel="stylesheet" href="/static/web/student_viewport.css">
+  <link rel="stylesheet" href="/static/web/student_bgm.css">
+  <link rel="stylesheet" href="/static/web/student_backpack.css">
+</head>
+<body>
+  <main class="stage page-transition" aria-label="學生背包">
+    <img
+      class="stage__bg"
+      src="/assets/material/backpack.JPG"
+      alt="Melody Town 背包背景"
+      draggable="false"
+    >
+
+    <section
+      id="backpack-grid"
+      class="backpack-grid"
+      aria-label="持有的虛擬商品"
+    ></section>
+
+    <p id="backpack-message" class="backpack-message" role="status" aria-live="polite"></p>
+
+    <a
+      class="map-btn"
+      href="/student/home"
+      title="返回主頁"
+      aria-label="MAP，返回主頁"
+    >
+      <img
+        class="map-btn__img"
+        src="/assets/material/map_btn.png"
+        alt=""
+        draggable="false"
+      >
+    </a>
+  </main>
+
+  <script src="/static/web/page_transition.js"></script>
+  <script src="/static/web/student_viewport.js"></script>
+  <script src="/static/web/student_bgm.js"></script>
+  <script src="/static/web/student_backpack.js"></script>
+</body>
+</html>

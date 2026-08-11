@@ -2,56 +2,6 @@
   const form = document.getElementById('password-form');
   const messageEl = document.getElementById('message');
   const submitBtn = document.getElementById('submit-btn');
-  const bgVideo = document.getElementById('settings-bg-video');
-
-  // 背景影片每次進頁播放；結束後停在最後一幀
-  function setupBgVideo() {
-    if (!bgVideo) {
-      return;
-    }
-
-    function freezeLastFrame() {
-      bgVideo.pause();
-      if (bgVideo.duration && Number.isFinite(bgVideo.duration)) {
-        try {
-          bgVideo.currentTime = Math.max(0, bgVideo.duration - 0.05);
-        } catch (error) {
-          // 忽略尚未就緒時的 currentTime 錯誤
-        }
-      }
-    }
-
-    function tryPlay() {
-      bgVideo.muted = true;
-      bgVideo.setAttribute('playsinline', '');
-      bgVideo.setAttribute('webkit-playsinline', '');
-      const playPromise = bgVideo.play();
-      if (playPromise && typeof playPromise.catch === 'function') {
-        playPromise.catch(function () {
-          // 自動播放被擋：等使用者第一次點擊再播
-        });
-      }
-    }
-
-    bgVideo.loop = false;
-    bgVideo.controls = false;
-    bgVideo.muted = true;
-    bgVideo.addEventListener('ended', freezeLastFrame);
-    bgVideo.addEventListener('loadeddata', tryPlay);
-
-    // 行動裝置／瀏覽器擋 autoplay 時，第一次點畫面再播
-    function playOnFirstGesture() {
-      tryPlay();
-      document.removeEventListener('pointerdown', playOnFirstGesture);
-      document.removeEventListener('touchstart', playOnFirstGesture);
-    }
-    document.addEventListener('pointerdown', playOnFirstGesture, { passive: true });
-    document.addEventListener('touchstart', playOnFirstGesture, { passive: true });
-
-    tryPlay();
-  }
-
-  setupBgVideo();
 
   function showMessage(text, type) {
     messageEl.textContent = text || '';
