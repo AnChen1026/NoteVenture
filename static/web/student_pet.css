@@ -80,18 +80,19 @@ body {
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* MAP 鍵盤聚焦時的高亮框 */
-.map-btn:focus,
+/* .map-btn:focus,
 .map-btn:focus-visible {
   background: rgba(255, 255, 255, 0.28);
   border-color: rgba(255, 220, 120, 0.9);
   box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
   outline: none;
-}
+} */
 
 /* MAP 按下時的短暫加深 */
-.map-btn:active {
+/* .map-btn:active {
   background: rgba(255, 255, 255, 0.4);
-}
+} */

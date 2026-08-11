@@ -302,8 +302,7 @@ if st.session_state.user is None:
         st.markdown('<div class="login-brand">', unsafe_allow_html=True)
         st.title('NoteAdventure')
         st.markdown('</div>', unsafe_allow_html=True)
-        st.caption('老師管理後台（Streamlit → Flask API）')
-        st.info('學生請使用一頁版網頁：Flask 的 /student/app（本機或雲端網址）。')
+        st.caption('老師管理後台')
 
         teacher_tab, register_tab = st.tabs(['老師登入', '老師註冊'])
 
