@@ -24,7 +24,7 @@
         - **學生端：HTML／CSS／JS 一頁版**（正式入口 `/student/app`）
             - SPA 殼（BGM／橫放／全螢幕）+ iframe 載入功能內頁（登入、主頁、琴房、商店、任務、寵物、教室、設定）。
             - 由 Flask 提供 `templates/`、`static/web/`，以 `fetch` 呼叫同一套 Flask API。
-        - 舊 Console／Streamlit 學生備援已移至 `archive/`（非正式入口）。詳見 `docs/WEB_STRUCTURE.md`、`docs/MIDTERM_CODE_MAP.md`。
+        - 舊 Console／Streamlit 學生備援已移至 `archive/`（非正式入口）。開啟方式見 `docs/啟動說明.md`。
     - **後端**：Python、Flask
         - Flask 提供 RESTful API，並同時提供學生 HTML 頁面。
         - 負責登入驗證、學生管理、任務指派、錄音資料處理與獎勵計算。
@@ -490,7 +490,7 @@ MVP 完成時需符合：
 
 任務進度計算目前只支援 `PRACTICE_COUNT` 與 `DISTINCT_SONGS`，其餘條件類型尚未實作。
 
-正式前端：老師 Streamlit；學生一頁版 `/student/app`。串接說明見 `docs/MIDTERM_CODE_MAP.md`。
+正式前端：老師 Streamlit；學生一頁版 `/student/app`。開啟與部署見 `docs/啟動說明.md`。
 
 網頁端尚未涵蓋：老師任務修改／刪除／啟停、商品修改／刪除／上下架、學生 HTML 背包實作、自動化測試。
 

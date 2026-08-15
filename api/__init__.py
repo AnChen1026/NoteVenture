@@ -9,4 +9,5 @@
 #       → services/某檔案（商業邏輯、SQL）
 #         → 回傳 JSON
 #
-# 串接總表：docs/MIDTERM_CODE_MAP.md
+# 串接與開啟：docs/啟動說明.md 、 docs/README.md
+# 舊版「誰連誰」筆記：archive/docs/MIDTERM_CODE_MAP.md

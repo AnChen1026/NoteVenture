@@ -64,7 +64,7 @@ def create_app():
 
     # ---------- 學生「網頁」路由（回傳 HTML，不是 JSON）----------
     # 正式入口只有一頁版殼；其餘路徑是殼裡 iframe 載入的功能內頁。
-    # 詳細圖解：docs/WEB_STRUCTURE.md 、 docs/MIDTERM_CODE_MAP.md
+    # 詳細開啟方式：docs/啟動說明.md ；舊版結構筆記：archive/docs/
 
     @app.get('/student')
     @app.get('/student/')

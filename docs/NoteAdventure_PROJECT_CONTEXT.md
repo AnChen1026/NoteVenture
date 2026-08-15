@@ -3,7 +3,7 @@
 > 本文件提供 Cursor Agent 與其他 AI 工具專案上下文。開發前必須先閱讀本文件。
 > 
 
-期中口試／自己複習「誰連誰」請另讀：`docs/MIDTERM_CODE_MAP.md`、`docs/WEB_STRUCTURE.md`。
+開啟方式請見：`docs/啟動說明.md`。舊版結構／期中串接筆記在 `archive/docs/`。
 
 ## 1. 專案目的
 
@@ -56,14 +56,11 @@ NoteAdventure/
 │
 ├── archive/               # 舊版 Console／Streamlit 學生備援／期中簡報等
 ├── docs/
-│   ├── WEB_STRUCTURE.md       # 網頁入口結構
-│   ├── MIDTERM_CODE_MAP.md    # 期中：誰連誰（口試用地圖）
-│   ├── STUDENT_SPA.md
-│   ├── DEPLOY_STUDENT.md
+│   ├── README.md                          # 總覽與文件索引
+│   ├── 啟動說明.md                        # 本機／雲端開啟
 │   ├── NoteAdventure_MVP.md
 │   ├── NoteAdventure_PROJECT_CONTEXT.md
-│   ├── DATABASE_SCHEMA.md
-│   └── README.md
+│   └── DATABASE_SCHEMA.md
 │
 ├── .streamlit/
 │   └── config.toml
@@ -77,7 +74,7 @@ NoteAdventure/
 - `app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供學生一頁版頁面路由。
 - `api/`：Flask 路由層；負責 HTTP、session、參數驗證，並呼叫 `services/`。
 - `streamlit_app.py`：**老師端** Streamlit 管理後台；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
-- `templates/` + `static/web/`：**學生端**一頁版（SPA 殼 + iframe 內頁）；以 `fetch` 呼叫 Flask API。詳見 `docs/WEB_STRUCTURE.md`。
+- `templates/` + `static/web/`：**學生端**一頁版（SPA 殼 + iframe 內頁）；以 `fetch` 呼叫 Flask API。開啟方式見 `docs/啟動說明.md`。
 - `material/`：學生端正式美術素材。
 - `archive/`：舊版 Console、Streamlit 學生備援、期中簡報、未用素材（非正式入口）。
 - `services/`：負責商業邏輯與資料庫操作。

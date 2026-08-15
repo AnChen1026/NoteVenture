@@ -11,4 +11,4 @@
 
 各頁一組：`student_login`、`student_home`、`student_practice`、`student_shop`、`student_quests`、`student_pet`、`student_class`、`student_settings`
 
-詳見 `docs/WEB_STRUCTURE.md`。
+詳見 `docs/啟動說明.md`、`docs/README.md`。
